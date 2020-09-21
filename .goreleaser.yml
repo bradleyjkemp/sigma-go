@@ -1,0 +1,28 @@
+builds:
+  - id: sigmac
+    binary: sigmac
+    main: ./sigmac
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+
+brews:
+  -
+    github:
+      owner: bradleyjkemp
+      name: homebrew-formulae
+    homepage: "https://github.com/bradleyjkemp/sigma-go"
+    description: "A Go implementation and parser of Sigma rules."
+
+archives:
+  - replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+    format: zip
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
