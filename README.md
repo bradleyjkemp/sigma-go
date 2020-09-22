@@ -1,4 +1,4 @@
-# sigma-go ![Build Status](https://github.com/bradleyjkemp/sigma-go/.github/workflows/go.yml/badge.svg) [![GitHub release](https://img.shields.io/github/release/bradleyjkemp/sigma-go.svg)](https://github.com/bradleyjkemp/sigma-go/releases/latest)
+# sigma-go ![Build Status](https://github.com/bradleyjkemp/sigma-go/workflows/Go/badge.svg) [![GitHub release](https://img.shields.io/github/release/bradleyjkemp/sigma-go.svg)](https://github.com/bradleyjkemp/sigma-go/releases/latest)
 <img src=".github/mascot.png" alt="Mascot" width="150" align="right">
 
 A Go implementation and parser of [Sigma rules](https://github.com/Neo23x0/sigma). Useful for building your own detection pipelines.
