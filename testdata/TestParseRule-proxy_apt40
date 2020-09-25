@@ -35,7 +35,7 @@
         Search: (sigma.SearchIdentifier) {
           Name: (string) (len=9) "selection"
         },
-        Aggregation: (*sigma.Aggregation)(<nil>)
+        Aggregation: (sigma.AggregationExpr) <nil>
       }
     },
     Timeframe: (time.Duration) 0s

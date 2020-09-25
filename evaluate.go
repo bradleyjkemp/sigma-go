@@ -11,18 +11,14 @@ import (
 
 type RuleEvaluator struct {
 	Rule
-	count         func(ctx context.Context, key AggregationKey, timeframe time.Duration) int
-	countDistinct func(ctx context.Context, key AggregationKey, eventValue interface{}, timeframe time.Duration) int
-	min           func(ctx context.Context, key AggregationKey, eventValue int, timeframe time.Duration) int
-	max           func(ctx context.Context, key AggregationKey, eventValue int, timeframe time.Duration) int
-	avg           func(ctx context.Context, key AggregationKey, eventValue int, timeframe time.Duration) int
-	sum           func(ctx context.Context, key AggregationKey, eventValue int, timeframe time.Duration) int
-	// TODO: support the "near" aggregation function
+	count func(ctx context.Context, key AggregationKey) int
+	// TODO: support the other aggregation functions
 }
 
 type AggregationKey struct {
 	RuleID      string
 	EventValues map[string]interface{}
+	Timeframe   time.Duration
 }
 
 func (a AggregationKey) String() string {
@@ -30,6 +26,7 @@ func (a AggregationKey) String() string {
 	out, err := json.Marshal(map[string]interface{}{
 		"rule_id":      a.RuleID,
 		"event_values": a.EventValues,
+		"time":         time.Now().Truncate(a.Timeframe),
 	})
 	if err != nil {
 		panic(err)
@@ -47,7 +44,7 @@ func Evaluator(rule Rule, options ...EvaluatorOption) *RuleEvaluator {
 	return e
 }
 
-func CountFunction(count func(ctx context.Context, key AggregationKey, timeframe time.Duration) int) func(evaluator *RuleEvaluator) {
+func CountFunction(count func(ctx context.Context, key AggregationKey) int) func(evaluator *RuleEvaluator) {
 	return func(e *RuleEvaluator) {
 		e.count = count
 	}
@@ -70,7 +67,7 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interfac
 
 		// Search expression matched but still need to see if the aggregation returns true
 		case searchMatches && condition.Aggregation != nil:
-			aggregationMatches := rule.evaluateAggregationExpression(ctx, condition, event)
+			aggregationMatches := rule.evaluateAggregationExpression(ctx, condition.Aggregation, event)
 			if aggregationMatches {
 				ruleMatches = true
 			}
@@ -179,21 +176,50 @@ var modifiers = map[string]valueModifier{
 	},
 }
 
-func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, condition Condition, event map[string]interface{}) bool {
-	aggregation := condition.Aggregation
-	var aggregationValue int
-	switch aggregation.Function {
+func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, aggregation AggregationExpr, event map[string]interface{}) bool {
+	switch agg := aggregation.(type) {
+	case Near:
+		panic("near isn't supported yet")
+
+	case Comparison:
+		aggregationValue := rule.evaluateAggregationFunc(ctx, agg.Func, event)
+
+		switch agg.Op {
+		case Equal:
+			return aggregationValue == agg.Threshold
+		case NotEqual:
+			return aggregationValue != agg.Threshold
+		case LessThan:
+			return aggregationValue < agg.Threshold
+		case LessThanEqual:
+			return aggregationValue <= agg.Threshold
+		case GreaterThan:
+			return aggregationValue > agg.Threshold
+		case GreaterThanEqual:
+			return aggregationValue >= agg.Threshold
+		default:
+			panic(fmt.Sprintf("unsupported comparison operation %v", agg.Op))
+		}
+
+	default:
+		panic("unknown aggregation expression")
+	}
+}
+
+func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, aggregation AggregationFunc, event map[string]interface{}) int {
+	switch agg := aggregation.(type) {
 	case Count:
-		if aggregation.Field == "" {
+		if agg.Field == "" {
 			// This is a simple count number of events
-			aggregationValue = rule.count(ctx, AggregationKey{
+			return rule.count(ctx, AggregationKey{
 				RuleID: rule.ID,
 				// TODO: this is broken if a rule has multiple conditions. There needs to include a "condition ID" in this key.
 				EventValues: map[string]interface{}{
 					// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-					aggregation.GroupedBy: event[aggregation.GroupedBy],
+					agg.GroupedBy: event[agg.GroupedBy],
 				},
-			}, rule.Detection.Timeframe)
+				Timeframe: rule.Detection.Timeframe,
+			})
 		} else {
 			// This is a more complex, count distinct values for a field
 			// TODO: implement this
@@ -202,22 +228,5 @@ func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, con
 
 	default:
 		panic("unsupported aggregation function")
-	}
-
-	switch aggregation.Comparison {
-	case Equal:
-		return aggregationValue == aggregation.Value
-	case NotEqual:
-		return aggregationValue != aggregation.Value
-	case LessThan:
-		return aggregationValue < aggregation.Value
-	case LessThanEqual:
-		return aggregationValue <= aggregation.Value
-	case GreaterThan:
-		return aggregationValue > aggregation.Value
-	case GreaterThanEqual:
-		return aggregationValue >= aggregation.Value
-	default:
-		panic(fmt.Sprintf("unsupported comparison operation %v", aggregation.Comparison))
 	}
 }

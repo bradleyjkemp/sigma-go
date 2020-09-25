@@ -8,15 +8,11 @@ import (
 
 type Condition struct {
 	Search      SearchExpr
-	Aggregation *Aggregation
+	Aggregation AggregationExpr
 }
 
 type SearchExpr interface {
 	searchExpr()
-}
-
-type BoolExpr interface {
-	boolExpr()
 }
 
 type And struct {
@@ -41,8 +37,6 @@ type OneOfIdentifier struct {
 	Ident SearchIdentifier
 }
 
-func (OneOfIdentifier) boolExpr() {}
-
 func (OneOfIdentifier) searchExpr() {}
 
 type AllOfIdentifier struct {
@@ -51,15 +45,11 @@ type AllOfIdentifier struct {
 
 func (AllOfIdentifier) searchExpr() {}
 
-func (AllOfIdentifier) boolExpr() {}
-
 type AllOfPattern struct {
 	Pattern SearchIdenfifierPattern
 }
 
 func (AllOfPattern) searchExpr() {}
-
-func (AllOfPattern) boolExpr() {}
 
 type OneOfPattern struct {
 	Pattern SearchIdenfifierPattern
@@ -67,19 +57,13 @@ type OneOfPattern struct {
 
 func (OneOfPattern) searchExpr() {}
 
-func (OneOfPattern) boolExpr() {}
-
 type OneOfThem struct{}
 
 func (OneOfThem) searchExpr() {}
 
-func (OneOfThem) boolExpr() {}
-
 type AllOfThem struct{}
 
 func (AllOfThem) searchExpr() {}
-
-func (AllOfThem) boolExpr() {}
 
 type SearchIdentifier struct {
 	Name string
@@ -87,13 +71,21 @@ type SearchIdentifier struct {
 
 func (SearchIdentifier) searchExpr() {}
 
-func (SearchIdentifier) boolExpr() {}
-
 type SearchIdenfifierPattern struct {
 	Pattern string
 }
 
 func (SearchIdenfifierPattern) searchExpr() {}
+
+type AggregationExpr interface {
+	aggregationExpr()
+}
+
+type Near struct {
+	Condition SearchExpr
+}
+
+func (Near) aggregationExpr() {}
 
 type ComparisonOp string
 
@@ -106,23 +98,52 @@ var (
 	GreaterThanEqual ComparisonOp = ">="
 )
 
-type AggregationFunction string
-
-var (
-	Count AggregationFunction = "count"
-	Min   AggregationFunction = "min"
-	Max   AggregationFunction = "max"
-	Avg   AggregationFunction = "avg"
-	Sum   AggregationFunction = "sum"
-)
-
-type Aggregation struct {
-	Function   AggregationFunction
-	Field      string
-	GroupedBy  string
-	Comparison ComparisonOp
-	Value      int
+type Comparison struct {
+	Func      AggregationFunc
+	Op        ComparisonOp
+	Threshold int
 }
+
+func (Comparison) aggregationExpr() {}
+
+type AggregationFunc interface {
+	aggregationFunc()
+}
+
+type Count struct {
+	Field     string
+	GroupedBy string
+}
+
+func (Count) aggregationFunc() {}
+
+type Min struct {
+	Field     string
+	GroupedBy string
+}
+
+func (Min) aggregationFunc() {}
+
+type Max struct {
+	Field     string
+	GroupedBy string
+}
+
+func (Max) aggregationFunc() {}
+
+type Average struct {
+	Field     string
+	GroupedBy string
+}
+
+func (Average) aggregationFunc() {}
+
+type Sum struct {
+	Field     string
+	GroupedBy string
+}
+
+func (Sum) aggregationFunc() {}
 
 func searchToAST(node interface{}) SearchExpr {
 	switch n := node.(type) {
@@ -198,9 +219,29 @@ func searchToAST(node interface{}) SearchExpr {
 	}
 }
 
-func aggregationToAST(agg *grammar.Aggregation) *Aggregation {
+func aggregationToAST(agg *grammar.Aggregation) AggregationExpr {
 	if agg == nil {
 		return nil
+	}
+
+	var function AggregationFunc
+	switch {
+	case agg.Function.Count:
+		function = Count{}
+	case agg.Function.Min:
+		function = Min{}
+	case agg.Function.Max:
+		function = Max{}
+	case agg.Function.Avg:
+		function = Average{}
+	case agg.Function.Sum:
+		function = Sum{}
+	default:
+		panic("unknown aggregation function")
+	}
+
+	if agg.Comparison == nil {
+		panic("non comparison aggregations not yet supported")
 	}
 
 	var operation ComparisonOp
@@ -221,27 +262,9 @@ func aggregationToAST(agg *grammar.Aggregation) *Aggregation {
 		panic(fmt.Sprintf("unknown operation %v", agg.Comparison))
 	}
 
-	var function AggregationFunction
-	switch {
-	case agg.Function.Count:
-		function = Count
-	case agg.Function.Min:
-		function = Min
-	case agg.Function.Max:
-		function = Max
-	case agg.Function.Avg:
-		function = Avg
-	case agg.Function.Sum:
-		function = Sum
-	default:
-		panic("unknown aggregation function")
-	}
-
-	return &Aggregation{
-		Function:   function,
-		Field:      agg.AggregationField,
-		GroupedBy:  agg.GroupField,
-		Comparison: operation,
-		Value:      agg.Value,
+	return Comparison{
+		Func:      function,
+		Op:        operation,
+		Threshold: agg.Threshold,
 	}
 }

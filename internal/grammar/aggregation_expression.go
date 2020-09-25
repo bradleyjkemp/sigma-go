@@ -4,8 +4,8 @@ type Aggregation struct {
 	Function         AggregationFunction `@@`
 	AggregationField string              `("(" (@SearchIdentifier)? ")")?`
 	GroupField       string              `("by" @SearchIdentifier)?`
-	Comparison       ComparisonOp        `@@`
-	Value            int                 `@ComparisonValue`
+	Comparison       *ComparisonOp       `(@@`
+	Threshold        int                 `@ComparisonValue)?`
 }
 
 type AggregationFunction struct {

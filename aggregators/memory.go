@@ -3,14 +3,12 @@ package aggregators
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/bradleyjkemp/sigma-go"
 )
 
 type inMemoryValue struct {
-	value     int
-	lastReset time.Time
+	value int
 }
 
 type inMemory struct {
@@ -19,22 +17,10 @@ type inMemory struct {
 }
 
 // Implements a simple bucketed count
-func (i *inMemory) count(ctx context.Context, key sigma.AggregationKey, timeframe time.Duration) int {
+func (i *inMemory) count(ctx context.Context, key sigma.AggregationKey) int {
 	i.Lock()
 	defer i.Unlock()
-	c, ok := i.counts[key.String()]
-	if !ok {
-		c = inMemoryValue{
-			lastReset: time.Now(),
-		}
-	}
-
-	if time.Now().Sub(c.lastReset) > timeframe {
-		c = inMemoryValue{
-			lastReset: time.Now(),
-		}
-	}
-
+	c := i.counts[key.String()]
 	c.value++
 	i.counts[key.String()] = c
 	return c.value
