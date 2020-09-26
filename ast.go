@@ -101,7 +101,7 @@ var (
 type Comparison struct {
 	Func      AggregationFunc
 	Op        ComparisonOp
-	Threshold int
+	Threshold float64
 }
 
 func (Comparison) aggregationExpr() {}
