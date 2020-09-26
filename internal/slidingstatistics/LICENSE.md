@@ -1,5 +1,6 @@
-This data structure is largely copied from https://github.com/RussellLuo/slidingwindow
+The data structures in this package are largely copied from https://github.com/RussellLuo/slidingwindow
 with minor adaptations to expose the count and trim unneeded features.
+They were then also adapted to estimate other statistics than count.
 
 Copyright (c) 2020 Luo Peng
 

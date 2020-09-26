@@ -14,7 +14,7 @@ func TestSlidingCount(t *testing.T) {
 	for i := 1; i <= 10; i++ {
 		now = now.Add(time.Second)
 		count := c.IncrementN(now, 1)
-		if int64(i) != count {
+		if float64(i) != count {
 			t.Fatal("count should be equal to i")
 		}
 	}

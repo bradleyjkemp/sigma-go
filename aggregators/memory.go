@@ -13,9 +13,10 @@ type inMemory struct {
 	sync.Mutex
 	timeframe time.Duration
 	counts    map[string]*slidingstatistics.Counter
+	averages  map[string]*slidingstatistics.Averager
+	sums      map[string]*slidingstatistics.Counter
 }
 
-// Implements a simple bucketed count
 func (i *inMemory) count(ctx context.Context, groupBy sigma.GroupedByValues) float64 {
 	i.Lock()
 	defer i.Unlock()
@@ -25,7 +26,31 @@ func (i *inMemory) count(ctx context.Context, groupBy sigma.GroupedByValues) flo
 		i.counts[groupBy.Key()] = c
 	}
 
-	return float64(c.Increment())
+	return float64(c.IncrementN(time.Now(), 1))
+}
+
+func (i *inMemory) average(ctx context.Context, groupBy sigma.GroupedByValues, value float64) float64 {
+	i.Lock()
+	defer i.Unlock()
+	a, ok := i.averages[groupBy.Key()]
+	if !ok {
+		a = slidingstatistics.Average(i.timeframe)
+		i.averages[groupBy.Key()] = a
+	}
+
+	return a.Average(time.Now(), value)
+}
+
+func (i *inMemory) sum(ctx context.Context, groupBy sigma.GroupedByValues, value float64) float64 {
+	i.Lock()
+	defer i.Unlock()
+	a, ok := i.sums[groupBy.Key()]
+	if !ok {
+		a = slidingstatistics.Count(i.timeframe)
+		i.sums[groupBy.Key()] = a
+	}
+
+	return a.IncrementN(time.Now(), value)
 }
 
 func InMemory(timeframe time.Duration) []sigma.EvaluatorOption {
@@ -36,5 +61,7 @@ func InMemory(timeframe time.Duration) []sigma.EvaluatorOption {
 
 	return []sigma.EvaluatorOption{
 		sigma.CountImplementation(i.count),
+		sigma.SumImplementation(i.sum),
+		sigma.AverageImplementation(i.average),
 	}
 }

@@ -10,7 +10,8 @@ import (
 
 type RuleEvaluator struct {
 	Rule
-	count func(ctx context.Context, gb GroupedByValues) float64 // TODO: how to pass an event timestamp here and enable running rules on historical events?
+	count   func(ctx context.Context, gb GroupedByValues) float64 // TODO: how to pass an event timestamp here and enable running rules on historical events?
+	average func(ctx context.Context, gb GroupedByValues, value float64) float64
 	// TODO: support the other aggregation functions
 }
 
@@ -67,6 +68,18 @@ func Evaluator(rule Rule, options ...EvaluatorOption) *RuleEvaluator {
 func CountImplementation(count func(ctx context.Context, key GroupedByValues) float64) func(evaluator *RuleEvaluator) {
 	return func(e *RuleEvaluator) {
 		e.count = count
+	}
+}
+
+func SumImplementation(average func(ctx context.Context, key GroupedByValues, value float64) float64) func(evaluator *RuleEvaluator) {
+	return func(e *RuleEvaluator) {
+		e.average = average
+	}
+}
+
+func AverageImplementation(average func(ctx context.Context, key GroupedByValues, value float64) float64) func(evaluator *RuleEvaluator) {
+	return func(e *RuleEvaluator) {
+		e.average = average
 	}
 }
 
