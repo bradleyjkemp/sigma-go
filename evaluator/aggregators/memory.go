@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bradleyjkemp/sigma-go"
+	"github.com/bradleyjkemp/sigma-go/evaluator"
 	"github.com/bradleyjkemp/sigma-go/internal/slidingstatistics"
 )
 
@@ -17,7 +17,7 @@ type inMemory struct {
 	sums      map[string]*slidingstatistics.Counter
 }
 
-func (i *inMemory) count(ctx context.Context, groupBy sigma.GroupedByValues) float64 {
+func (i *inMemory) count(ctx context.Context, groupBy evaluator.GroupedByValues) float64 {
 	i.Lock()
 	defer i.Unlock()
 	c, ok := i.counts[groupBy.Key()]
@@ -29,7 +29,7 @@ func (i *inMemory) count(ctx context.Context, groupBy sigma.GroupedByValues) flo
 	return float64(c.IncrementN(time.Now(), 1))
 }
 
-func (i *inMemory) average(ctx context.Context, groupBy sigma.GroupedByValues, value float64) float64 {
+func (i *inMemory) average(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) float64 {
 	i.Lock()
 	defer i.Unlock()
 	a, ok := i.averages[groupBy.Key()]
@@ -41,7 +41,7 @@ func (i *inMemory) average(ctx context.Context, groupBy sigma.GroupedByValues, v
 	return a.Average(time.Now(), value)
 }
 
-func (i *inMemory) sum(ctx context.Context, groupBy sigma.GroupedByValues, value float64) float64 {
+func (i *inMemory) sum(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) float64 {
 	i.Lock()
 	defer i.Unlock()
 	a, ok := i.sums[groupBy.Key()]
@@ -53,15 +53,15 @@ func (i *inMemory) sum(ctx context.Context, groupBy sigma.GroupedByValues, value
 	return a.IncrementN(time.Now(), value)
 }
 
-func InMemory(timeframe time.Duration) []sigma.EvaluatorOption {
+func InMemory(timeframe time.Duration) []evaluator.Option {
 	i := &inMemory{
 		timeframe: timeframe,
 		counts:    map[string]*slidingstatistics.Counter{},
 	}
 
-	return []sigma.EvaluatorOption{
-		sigma.CountImplementation(i.count),
-		sigma.SumImplementation(i.sum),
-		sigma.AverageImplementation(i.average),
+	return []evaluator.Option{
+		evaluator.CountImplementation(i.count),
+		evaluator.SumImplementation(i.sum),
+		evaluator.AverageImplementation(i.average),
 	}
 }
