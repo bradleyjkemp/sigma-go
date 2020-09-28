@@ -1,0 +1,176 @@
+(sigma.Config) {
+  Title: (string) (len=54) "Conversion of Generic Rules into Sysmon Specific Rules",
+  Order: (int) 10,
+  Backends: ([]string) <nil>,
+  FieldMappings: (map[string]sigma.FieldMapping) <nil>,
+  Logsources: (map[string]sigma.LogsourceMapping) (len=9) {
+    (string) (len=9) "dns_query": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=9) "dns_query",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 22
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=13) "driver_loaded": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=11) "driver_load",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 6
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=13) "file_creation": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=10) "file_event",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 11
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=12) "image_loaded": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=10) "image_load",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 7
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=18) "network_connection": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=18) "network_connection",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 3
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=14) "process_access": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=14) "process_access",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 10
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=16) "process_creation": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=16) "process_creation",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 1
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=18) "process_terminated": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=19) "process_termination",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": (int) 5
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    },
+    (string) (len=14) "registry_event": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=14) "registry_event",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (string) "",
+      Conditions: (map[string]interface {}) (len=1) {
+        (string) (len=7) "EventID": ([]interface {}) (len=3) {
+          (int) 12,
+          (int) 13,
+          (int) 14
+        }
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=6) "sysmon",
+        Definition: (string) ""
+      }
+    }
+  },
+  DefaultIndex: (string) "",
+  Placeholders: (map[string][]interface {}) <nil>
+}
