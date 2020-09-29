@@ -11,7 +11,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 22
       },
@@ -29,7 +29,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 6
       },
@@ -47,7 +47,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 11
       },
@@ -65,7 +65,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 7
       },
@@ -83,7 +83,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 3
       },
@@ -101,7 +101,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 10
       },
@@ -119,7 +119,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 1
       },
@@ -137,7 +137,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": (int) 5
       },
@@ -155,7 +155,7 @@
         Service: (string) "",
         Definition: (string) ""
       },
-      Index: (string) "",
+      Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (map[string]interface {}) (len=1) {
         (string) (len=7) "EventID": ([]interface {}) (len=3) {
           (int) 12,

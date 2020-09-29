@@ -9,6 +9,9 @@ import (
 
 type RuleEvaluator struct {
 	sigma.Rule
+	config  []sigma.Config
+	indexes []string // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
+
 	count   func(ctx context.Context, gb GroupedByValues) float64 // TODO: how to pass an event timestamp here and enable running rules on historical events?
 	average func(ctx context.Context, gb GroupedByValues, value float64) float64
 	sum     func(ctx context.Context, gb GroupedByValues, value float64) float64
@@ -55,32 +58,12 @@ func (a GroupedByValues) Key() string {
 	return string(out)
 }
 
-type Option func(*RuleEvaluator)
-
 func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
 	e := &RuleEvaluator{Rule: rule}
 	for _, option := range options {
 		option(e)
 	}
 	return e
-}
-
-func CountImplementation(count func(ctx context.Context, key GroupedByValues) float64) func(evaluator *RuleEvaluator) {
-	return func(e *RuleEvaluator) {
-		e.count = count
-	}
-}
-
-func SumImplementation(sum func(ctx context.Context, key GroupedByValues, value float64) float64) func(evaluator *RuleEvaluator) {
-	return func(e *RuleEvaluator) {
-		e.sum = sum
-	}
-}
-
-func AverageImplementation(average func(ctx context.Context, key GroupedByValues, value float64) float64) func(evaluator *RuleEvaluator) {
-	return func(e *RuleEvaluator) {
-		e.average = average
-	}
 }
 
 func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) bool {

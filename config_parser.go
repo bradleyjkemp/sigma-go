@@ -21,9 +21,27 @@ type FieldMapping struct {
 
 type LogsourceMapping struct {
 	Logsource  `yaml:",inline"`       // Matches the logsource field in Sigma rules
-	Index      string                 // The index that should be used
+	Index      LogsourceIndexes       // The index(es) that should be used
 	Conditions map[string]interface{} // Conditions that are added to all rules targeting this logsource
 	Rewrite    Logsource              // Rewrites this logsource (i.e. so that it can be matched by another lower precedence config)
+}
+
+type LogsourceIndexes []string
+
+func (i *LogsourceIndexes) UnmarshalYAML(value *yaml.Node) error {
+	switch value.Kind {
+	case yaml.ScalarNode:
+		*i = []string{value.Value}
+
+	case yaml.SequenceNode:
+		var values []string
+		err := value.Decode(&values)
+		if err != nil {
+			return err
+		}
+		*i = values
+	}
+	return nil
 }
 
 func ParseConfig(contents []byte) (Config, error) {
