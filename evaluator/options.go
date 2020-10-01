@@ -31,5 +31,6 @@ func WithConfig(config ...sigma.Config) Option {
 		// TODO: assert that the configs are in the correct order
 		e.config = append(e.config, config...)
 		e.calculateIndexes()
+		e.calculateFieldMappings()
 	}
 }

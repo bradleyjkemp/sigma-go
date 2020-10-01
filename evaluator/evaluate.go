@@ -9,8 +9,9 @@ import (
 
 type RuleEvaluator struct {
 	sigma.Rule
-	config  []sigma.Config
-	indexes []string // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
+	config        []sigma.Config
+	indexes       []string            // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
+	fieldmappings map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
 
 	count   func(ctx context.Context, gb GroupedByValues) float64 // TODO: how to pass an event timestamp here and enable running rules on historical events?
 	average func(ctx context.Context, gb GroupedByValues, value float64) float64

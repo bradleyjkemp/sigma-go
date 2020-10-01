@@ -35,14 +35,19 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 		panic("keywords unsupported")
 	}
 
+	// A Search is a series of "does this field match this value" conditions
+	// all need to match, for the Search to evaluate to true
 	for _, matcher := range search.FieldMatchers {
-		andValues := false
+		// A field matcher can specify multiple values to match against
+		// either the field should match all of these values or it should match any of them
+		allValuesMustMatch := false
 		fieldModifiers := matcher.Modifiers
 		if len(matcher.Modifiers) > 0 && fieldModifiers[len(fieldModifiers)-1] == "all" {
-			andValues = true
+			allValuesMustMatch = true
 			fieldModifiers = fieldModifiers[:len(fieldModifiers)-1]
 		}
 
+		// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
 		valueMatcher := baseMatcher
 		for _, name := range fieldModifiers {
 			if modifiers[name] == nil {
@@ -51,16 +56,31 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 			valueMatcher = modifiers[name](valueMatcher)
 		}
 
-		matched := andValues
+		fieldMatched := allValuesMustMatch
 		for _, value := range matcher.Values {
-			if andValues {
-				matched = matched && valueMatcher(event[matcher.Field], value)
+			// There are multiple possible event fields that each value needs to be compared against
+			var valueMatches bool
+			if len(rule.fieldmappings[matcher.Field]) == 0 {
+				// No FieldMapping exists so use the name directly from the rule
+				valueMatches = valueMatcher(event[matcher.Field], value)
 			} else {
-				matched = matched || valueMatcher(event[matcher.Field], value)
+				// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
+				for _, field := range rule.fieldmappings[matcher.Field] {
+					valueMatches = valueMatcher(event[field], value)
+					if valueMatches {
+						break
+					}
+				}
+			}
+
+			if allValuesMustMatch {
+				fieldMatched = fieldMatched && valueMatches
+			} else {
+				fieldMatched = fieldMatched || valueMatches
 			}
 		}
 
-		if !matched {
+		if !fieldMatched {
 			// this field didn't match so the overall matcher doesn't match
 			return false
 		}
@@ -73,7 +93,6 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 type valueMatcher func(actual interface{}, expected string) bool
 
 func baseMatcher(actual interface{}, expected string) bool {
-	//fmt.Printf("=(%s, %s)\n", actual, expected)
 	return fmt.Sprintf("%v", actual) == expected
 }
 
@@ -82,19 +101,16 @@ type valueModifier func(next valueMatcher) valueMatcher
 var modifiers = map[string]valueModifier{
 	"contains": func(next valueMatcher) valueMatcher {
 		return func(actual interface{}, expected string) bool {
-			//fmt.Printf("contains(%s, %s)\n", actual, expected)
 			return strings.Contains(fmt.Sprintf("%v", actual), expected)
 		}
 	},
 	"endswith": func(next valueMatcher) valueMatcher {
 		return func(actual interface{}, expected string) bool {
-			//fmt.Printf("endswith(%s, %s)\n", actual, expected)
 			return strings.HasSuffix(fmt.Sprintf("%v", actual), expected)
 		}
 	},
 	"startswith": func(next valueMatcher) valueMatcher {
 		return func(actual interface{}, expected string) bool {
-			//fmt.Printf("startswith(%s, %s)\n", actual, expected)
 			return strings.HasPrefix(fmt.Sprintf("%v", actual), expected)
 		}
 	},

@@ -14,9 +14,24 @@ type Config struct {
 }
 
 type FieldMapping struct {
-	SourceName  string   // The name that appears in a Sigma rule
 	TargetNames []string // The name(s) that appear in the events being matched
 	// TODO: support conditional mappings?
+}
+
+func (f *FieldMapping) UnmarshalYAML(value *yaml.Node) error {
+	switch value.Kind {
+	case yaml.ScalarNode:
+		f.TargetNames = []string{value.Value}
+
+	case yaml.SequenceNode:
+		var values []string
+		err := value.Decode(&values)
+		if err != nil {
+			return err
+		}
+		f.TargetNames = values
+	}
+	return nil
 }
 
 type LogsourceMapping struct {
