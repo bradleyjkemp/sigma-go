@@ -3,6 +3,7 @@ package evaluator
 import (
 	"encoding/base64"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/bradleyjkemp/sigma-go"
@@ -25,6 +26,52 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 			panic("invalid search identifier")
 		}
 		return rule.evaluateSearch(search, event)
+
+	case sigma.OneOfThem:
+		for name := range rule.Detection.Searches {
+			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+				return true
+			}
+		}
+		return false
+
+	case sigma.OneOfPattern:
+		for name := range rule.Detection.Searches {
+			matchesPattern, err := path.Match(s.Pattern, name)
+			if err != nil {
+				panic(err)
+			}
+			if !matchesPattern {
+				continue
+			}
+			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+				return true
+			}
+		}
+		return false
+
+	case sigma.AllOfThem:
+		for name := range rule.Detection.Searches {
+			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+				return false
+			}
+		}
+		return true
+
+	case sigma.AllOfPattern:
+		for name := range rule.Detection.Searches {
+			matchesPattern, err := path.Match(s.Pattern, name)
+			if err != nil {
+				panic(err)
+			}
+			if !matchesPattern {
+				continue
+			}
+			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+				return false
+			}
+		}
+		return true
 	}
 
 	panic(false)

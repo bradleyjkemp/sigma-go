@@ -46,13 +46,13 @@ type AllOfIdentifier struct {
 func (AllOfIdentifier) searchExpr() {}
 
 type AllOfPattern struct {
-	Pattern SearchIdenfifierPattern
+	Pattern string
 }
 
 func (AllOfPattern) searchExpr() {}
 
 type OneOfPattern struct {
-	Pattern SearchIdenfifierPattern
+	Pattern string
 }
 
 func (OneOfPattern) searchExpr() {}
@@ -70,12 +70,6 @@ type SearchIdentifier struct {
 }
 
 func (SearchIdentifier) searchExpr() {}
-
-type SearchIdenfifierPattern struct {
-	Pattern string
-}
-
-func (SearchIdenfifierPattern) searchExpr() {}
 
 type AggregationExpr interface {
 	aggregationExpr()
@@ -199,12 +193,12 @@ func searchToAST(node interface{}) SearchExpr {
 
 			case o.AllOfPattern != nil:
 				return AllOfPattern{
-					Pattern: SearchIdenfifierPattern{Pattern: *o.AllOfPattern},
+					Pattern: *o.AllOfPattern,
 				}
 
 			case o.OneOfPattern != nil:
 				return OneOfPattern{
-					Pattern: SearchIdenfifierPattern{Pattern: *o.OneOfPattern},
+					Pattern: *o.OneOfPattern,
 				}
 			default:
 				panic("invalid term type: all fields nil")
