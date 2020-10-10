@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/PaesslerAG/jsonpath"
 	"github.com/bradleyjkemp/sigma-go"
 )
 
@@ -95,39 +96,15 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 		}
 
 		// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
-		valueMatcher := baseMatcher
+		comparator := baseComparator
 		for _, name := range fieldModifiers {
 			if modifiers[name] == nil {
 				panic(fmt.Errorf("unsupported modifier %s", name))
 			}
-			valueMatcher = modifiers[name](valueMatcher)
+			comparator = modifiers[name](comparator)
 		}
 
-		fieldMatched := allValuesMustMatch
-		for _, value := range matcher.Values {
-			// There are multiple possible event fields that each value needs to be compared against
-			var valueMatches bool
-			if len(rule.fieldmappings[matcher.Field]) == 0 {
-				// No FieldMapping exists so use the name directly from the rule
-				valueMatches = valueMatcher(event[matcher.Field], value)
-			} else {
-				// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
-				for _, field := range rule.fieldmappings[matcher.Field] {
-					valueMatches = valueMatcher(event[field], value)
-					if valueMatches {
-						break
-					}
-				}
-			}
-
-			if allValuesMustMatch {
-				fieldMatched = fieldMatched && valueMatches
-			} else {
-				fieldMatched = fieldMatched || valueMatches
-			}
-		}
-
-		if !fieldMatched {
+		if !rule.matcherMatchesValues(matcher, comparator, allValuesMustMatch, event) {
 			// this field didn't match so the overall matcher doesn't match
 			return false
 		}
@@ -137,31 +114,71 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 	return true
 }
 
-type valueMatcher func(actual interface{}, expected string) bool
+func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, event map[string]interface{}) bool {
+	// First collect this list of event values we're matching against
+	var actualValues []interface{}
+	if len(rule.fieldmappings[matcher.Field]) == 0 {
+		// No FieldMapping exists so use the name directly from the rule
+		actualValues = []interface{}{event[matcher.Field]}
+	} else {
+		// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
+		for _, mapping := range rule.fieldmappings[matcher.Field] {
+			if strings.HasPrefix(mapping, "$.") || strings.HasPrefix(mapping, "$[") {
+				// This is a jsonpath expression
+				value, _ := jsonpath.Get(mapping, event) // TODO: handle/return this error?
+				actualValues = append(actualValues, value)
+			} else {
+				// This is just a field name
+				actualValues = append(actualValues, event[mapping])
+			}
+		}
+	}
 
-func baseMatcher(actual interface{}, expected string) bool {
+	matched := allValuesMustMatch
+	for _, expectedValue := range matcher.Values {
+		valueMatchedEvent := false
+		// There are multiple possible event fields that each expected value needs to be compared against
+		for _, actualValue := range actualValues {
+			if comparator(actualValue, expectedValue) {
+				valueMatchedEvent = true
+				break
+			}
+		}
+
+		if allValuesMustMatch {
+			matched = matched && valueMatchedEvent
+		} else {
+			matched = matched || valueMatchedEvent
+		}
+	}
+	return matched
+}
+
+type valueComparator func(actual interface{}, expected string) bool
+
+func baseComparator(actual interface{}, expected string) bool {
 	return fmt.Sprintf("%v", actual) == expected
 }
 
-type valueModifier func(next valueMatcher) valueMatcher
+type valueModifier func(next valueComparator) valueComparator
 
 var modifiers = map[string]valueModifier{
-	"contains": func(next valueMatcher) valueMatcher {
+	"contains": func(next valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
 			return strings.Contains(fmt.Sprintf("%v", actual), expected)
 		}
 	},
-	"endswith": func(next valueMatcher) valueMatcher {
+	"endswith": func(next valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
 			return strings.HasSuffix(fmt.Sprintf("%v", actual), expected)
 		}
 	},
-	"startswith": func(next valueMatcher) valueMatcher {
+	"startswith": func(next valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
 			return strings.HasPrefix(fmt.Sprintf("%v", actual), expected)
 		}
 	},
-	"base64": func(next valueMatcher) valueMatcher {
+	"base64": func(next valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
 			return next(actual, base64.StdEncoding.EncodeToString([]byte(expected)))
 		}
