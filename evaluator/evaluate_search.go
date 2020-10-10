@@ -2,8 +2,10 @@ package evaluator
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
@@ -125,8 +127,7 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 		for _, mapping := range rule.fieldmappings[matcher.Field] {
 			if strings.HasPrefix(mapping, "$.") || strings.HasPrefix(mapping, "$[") {
 				// This is a jsonpath expression
-				value, _ := jsonpath.Get(mapping, event) // TODO: handle/return this error?
-				actualValues = append(actualValues, value)
+				actualValues = append(actualValues, evaluateJSONPath(mapping, event))
 			} else {
 				// This is just a field name
 				actualValues = append(actualValues, event[mapping])
@@ -152,6 +153,35 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 		}
 	}
 	return matched
+}
+
+// This is a hack because none of the JSONPath libraries expose the parsed AST :(
+// Matches JSONPaths with either a $.fieldname or $["fieldname"] prefix and extracts 'fieldname'
+var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"])?`)
+
+func evaluateJSONPath(expr string, event map[string]interface{}) interface{} {
+	jsonPathField := firstJSONPathField.FindStringSubmatch(expr)
+	if jsonPathField == nil {
+		panic("couldn't parse JSONPath expression")
+	}
+	fmt.Println("evaluating JSONPath", expr, event, jsonPathField)
+
+	var subValue interface{}
+	switch sub := event[jsonPathField[1]].(type) {
+	case string:
+		json.Unmarshal([]byte(sub), &subValue)
+	case []byte:
+		json.Unmarshal(sub, &subValue)
+	default:
+		// Oh well, don't try to unmarshal the nested field
+		value, _ := jsonpath.Get(expr, event)
+		return value
+	}
+
+	value, _ := jsonpath.Get(expr, map[string]interface{}{
+		jsonPathField[1]: subValue,
+	})
+	return value
 }
 
 type valueComparator func(actual interface{}, expected string) bool
