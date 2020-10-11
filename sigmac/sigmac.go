@@ -155,8 +155,7 @@ func registerConfig(contents string) {
 func init() {
 	registerRule({{.}})
 }
-{{end}}
-{{range .Configs}}
+{{end}}{{range .Configs}}
 func init() {
 	registerConfig({{.}})
 }
