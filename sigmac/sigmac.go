@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/bradleyjkemp/sigma-go"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -33,7 +34,9 @@ func main() {
 }
 
 func run(root string, recursive bool) error {
+	directories := map[string]struct{}{}
 	rulesByDirectory := map[string][]string{}
+	configByDirectory := map[string][]string{}
 
 	// Collect all the rules under this root
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -53,14 +56,31 @@ func run(root string, recursive bool) error {
 			return fmt.Errorf("error reading %s: %w", path, err)
 		}
 
-		// Just check the rule is valid
-		_, err = sigma.ParseRule(contents)
-		if err != nil {
-			return fmt.Errorf("error parsing %s: %w", path, err)
+		var ruleOrConfig ruleOrConfig
+		yaml.Unmarshal(contents, &ruleOrConfig)
+
+		if ruleOrConfig.IsRule() {
+			// Just check the rule is valid
+			_, err = sigma.ParseRule(contents)
+			if err != nil {
+				return fmt.Errorf("error parsing %s: %w", path, err)
+			}
+
+			dir := filepath.Dir(path)
+			directories[dir] = struct{}{}
+			rulesByDirectory[dir] = append(rulesByDirectory[dir], strconv.Quote(string(contents)))
+		} else {
+			// Just check the config is valid
+			_, err = sigma.ParseConfig(contents)
+			if err != nil {
+				return fmt.Errorf("error parsing %s: %w", path, err)
+			}
+
+			dir := filepath.Dir(path)
+			directories[dir] = struct{}{}
+			configByDirectory[dir] = append(configByDirectory[dir], strconv.Quote(string(contents)))
 		}
 
-		dir := filepath.Dir(path)
-		rulesByDirectory[dir] = append(rulesByDirectory[dir], strconv.Quote(string(contents)))
 		return nil
 	})
 	if err != nil {
@@ -68,7 +88,7 @@ func run(root string, recursive bool) error {
 	}
 
 	// For each directory containing Sigma rules, write a sigma.go file containing all the rules
-	for dir, rules := range rulesByDirectory {
+	for dir := range directories {
 		registryFile, err := os.OpenFile(filepath.Join(dir, "sigma.go"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		if err != nil {
 			return err
@@ -76,7 +96,8 @@ func run(root string, recursive bool) error {
 		_, packageName := filepath.Split(dir)
 		params := map[string]interface{}{
 			"PackageName": packageName,
-			"Rules":       rules,
+			"Rules":       rulesByDirectory[dir],
+			"Configs":     configByDirectory[dir],
 		}
 		err = registryTmpl.Execute(registryFile, params)
 		if err != nil {
@@ -92,9 +113,13 @@ package {{.PackageName}}
 
 import (
 	sigma "github.com/bradleyjkemp/sigma-go"
+
+	"sort"
 )
 
 var Rules = map[string]sigma.Rule{}
+
+var Configs []sigma.Config
 
 func registerRule(contents string) {
 	// TODO: it'd be better if this were already parsed rather than being parsed at runtime
@@ -113,9 +138,26 @@ func registerRule(contents string) {
 	}
 	Rules[id] = rule
 }
+
+func registerConfig(contents string) {
+	// TODO: it'd be better if this were already parsed rather than being parsed at runtime
+	config, err := sigma.ParseConfig([]byte(contents))
+	if err != nil {
+		panic(err)
+	}
+
+	Configs = append(Configs, config)
+	sort.Slice(Configs, func(i, j int) bool {
+		return Configs[i].Order < Configs[j].Order
+	})
+}
 {{range .Rules}}
 func init() {
 	registerRule({{.}})
+}
+{{end}}{{range .Configs}}
+func init() {
+	registerConfig({{.}})
 }
 {{end}}
 `))
