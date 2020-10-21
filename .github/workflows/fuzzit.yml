@@ -40,8 +40,8 @@ jobs:
           wget -q -O fuzzit https://github.com/fuzzitdev/fuzzit/releases/latest/download/fuzzit_Linux_x86_64
           chmod a+x fuzzit
           ./fuzzit create target --skip-if-exists sigma-go
-          ./fuzzit create job --engine go-fuzz --type fuzzing sigma-go/rule ./sigma-go-rule-fuzz.zip
-          ./fuzzit create job --engine go-fuzz --type fuzzing sigma-go/config ./sigma-go-config-fuzz.zip
-          ./fuzzit create job --engine go-fuzz --type fuzzing sigma-go/condition ./sigma-go-condition-fuzz.zip
+          ./fuzzit create job --engine go-fuzz --type fuzzing bradleyjkemp/sigma-go/rule ./sigma-go-rule-fuzz.zip
+          ./fuzzit create job --engine go-fuzz --type fuzzing bradleyjkemp/sigma-go/config ./sigma-go-config-fuzz.zip
+          ./fuzzit create job --engine go-fuzz --type fuzzing bradleyjkemp/sigma-go/condition ./sigma-go-condition-fuzz.zip
         env:
           FUZZIT_API_KEY: ${{ secrets.FUZZIT_API_KEY }}
