@@ -1,4 +1,4 @@
-name: Go
+name: Continuous Fuzzing
 
 on:
   push:
@@ -38,3 +38,5 @@ jobs:
           chmod a+x fuzzit
           ./fuzzit create target --skip-if-exists sigma-go
           ./fuzzit create job --engine go-fuzz --type fuzzing bradleyjkemp/sigma-go ./sigma-go-fuzz.zip
+        env:
+          FUZZIT_API_KEY: ${{ secrets.FUZZIT_API_KEY }}
