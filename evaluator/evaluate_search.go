@@ -164,7 +164,6 @@ func evaluateJSONPath(expr string, event map[string]interface{}) interface{} {
 	if jsonPathField == nil {
 		panic("couldn't parse JSONPath expression")
 	}
-	fmt.Println("evaluating JSONPath", expr, event, jsonPathField)
 
 	var subValue interface{}
 	switch sub := event[jsonPathField[1]].(type) {
