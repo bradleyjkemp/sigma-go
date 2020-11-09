@@ -17,7 +17,7 @@ type inMemory struct {
 	sums      map[string]*slidingstatistics.Counter
 }
 
-func (i *inMemory) count(ctx context.Context, groupBy evaluator.GroupedByValues) float64 {
+func (i *inMemory) count(ctx context.Context, groupBy evaluator.GroupedByValues) (float64, error) {
 	i.Lock()
 	defer i.Unlock()
 	c, ok := i.counts[groupBy.Key()]
@@ -26,10 +26,10 @@ func (i *inMemory) count(ctx context.Context, groupBy evaluator.GroupedByValues)
 		i.counts[groupBy.Key()] = c
 	}
 
-	return float64(c.IncrementN(time.Now(), 1))
+	return float64(c.IncrementN(time.Now(), 1)), nil
 }
 
-func (i *inMemory) average(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) float64 {
+func (i *inMemory) average(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) (float64, error) {
 	i.Lock()
 	defer i.Unlock()
 	a, ok := i.averages[groupBy.Key()]
@@ -38,10 +38,10 @@ func (i *inMemory) average(ctx context.Context, groupBy evaluator.GroupedByValue
 		i.averages[groupBy.Key()] = a
 	}
 
-	return a.Average(time.Now(), value)
+	return a.Average(time.Now(), value), nil
 }
 
-func (i *inMemory) sum(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) float64 {
+func (i *inMemory) sum(ctx context.Context, groupBy evaluator.GroupedByValues, value float64) (float64, error) {
 	i.Lock()
 	defer i.Unlock()
 	a, ok := i.sums[groupBy.Key()]
@@ -50,7 +50,7 @@ func (i *inMemory) sum(ctx context.Context, groupBy evaluator.GroupedByValues, v
 		i.sums[groupBy.Key()] = a
 	}
 
-	return a.IncrementN(time.Now(), value)
+	return a.IncrementN(time.Now(), value), nil
 }
 
 func InMemory(timeframe time.Duration) []evaluator.Option {
