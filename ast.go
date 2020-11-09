@@ -221,15 +221,30 @@ func aggregationToAST(agg *grammar.Aggregation) AggregationExpr {
 	var function AggregationFunc
 	switch {
 	case agg.Function.Count:
-		function = Count{}
+		function = Count{
+			Field:     agg.AggregationField,
+			GroupedBy: agg.GroupField,
+		}
 	case agg.Function.Min:
-		function = Min{}
+		function = Min{
+			Field:     agg.AggregationField,
+			GroupedBy: agg.GroupField,
+		}
 	case agg.Function.Max:
-		function = Max{}
+		function = Max{
+			Field:     agg.AggregationField,
+			GroupedBy: agg.GroupField,
+		}
 	case agg.Function.Avg:
-		function = Average{}
+		function = Average{
+			Field:     agg.AggregationField,
+			GroupedBy: agg.GroupField,
+		}
 	case agg.Function.Sum:
-		function = Sum{}
+		function = Sum{
+			Field:     agg.AggregationField,
+			GroupedBy: agg.GroupField,
+		}
 	default:
 		panic("unknown aggregation function")
 	}
