@@ -32,15 +32,15 @@ func TestRuleEvaluator_HandlesBasicFieldMappings(t *testing.T) {
 		},
 	}))
 
-	if rule.Matches(context.Background(), map[string]interface{}{
+	matches, _ := rule.Matches(context.Background(), map[string]interface{}{
 		"name": "value",
-	}) {
+	})
+	if matches {
 		t.Error("If a field is mapped, the old name shouldn't be used")
 	}
 
-	if !rule.Matches(context.Background(), map[string]interface{}{
-		"mapped-name": "value",
-	}) {
+	matches, _ = rule.Matches(context.Background(), map[string]interface{}{"mapped-name": "value"})
+	if !matches {
 		t.Error("If a field is mapped, the mapped name should work")
 	}
 }
@@ -70,17 +70,19 @@ func TestRuleEvaluator_HandlesJSONPathFieldMappings(t *testing.T) {
 		},
 	}))
 
-	if rule.Matches(context.Background(), map[string]interface{}{
+	matches, _ := rule.Matches(context.Background(), map[string]interface{}{
 		"name": "value",
-	}) {
+	})
+	if matches {
 		t.Error("If a field is mapped, the old name shouldn't be used")
 	}
 
-	if !rule.Matches(context.Background(), map[string]interface{}{
+	matches, _ = rule.Matches(context.Background(), map[string]interface{}{
 		"mapped": map[string]interface{}{
 			"name": "value",
 		},
-	}) {
+	})
+	if !matches {
 		t.Error("If a fieldmapping is a JSONPath expression, the nested field should be matched")
 	}
 }
@@ -110,9 +112,10 @@ func TestRuleEvaluator_HandlesJSONPathByteSlice(t *testing.T) {
 		},
 	}))
 
-	if !rule.Matches(context.Background(), map[string]interface{}{
+	matches, _ := rule.Matches(context.Background(), map[string]interface{}{
 		"mapped": `{"name": "value"}`,
-	}) {
+	})
+	if !matches {
 		t.Error("If a JSONPath expression encounters a string, the string should be parsed and then matched")
 	}
 }

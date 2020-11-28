@@ -13,9 +13,9 @@ type RuleEvaluator struct {
 	indexes       []string            // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
 	fieldmappings map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
 
-	count   func(ctx context.Context, gb GroupedByValues) float64 // TODO: how to pass an event timestamp here and enable running rules on historical events?
-	average func(ctx context.Context, gb GroupedByValues, value float64) float64
-	sum     func(ctx context.Context, gb GroupedByValues, value float64) float64
+	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
+	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
+	sum     func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
 	// TODO: support the other aggregation functions
 }
 
@@ -67,7 +67,7 @@ func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
 	return e
 }
 
-func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) bool {
+func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) (bool, error) {
 	ruleMatches := false
 	for conditionIndex, condition := range rule.Detection.Conditions {
 		searchMatches := rule.evaluateSearchExpression(condition.Search, event)
@@ -84,7 +84,10 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interfac
 
 		// Search expression matched but still need to see if the aggregation returns true
 		case searchMatches && condition.Aggregation != nil:
-			aggregationMatches := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
+			aggregationMatches, err := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
+			if err != nil {
+				return false, err
+			}
 			if aggregationMatches {
 				ruleMatches = true
 			}
@@ -93,5 +96,5 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interfac
 
 	}
 
-	return ruleMatches
+	return ruleMatches, nil
 }

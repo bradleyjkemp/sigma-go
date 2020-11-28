@@ -7,36 +7,39 @@ import (
 	"github.com/bradleyjkemp/sigma-go"
 )
 
-func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, conditionIndex int, aggregation sigma.AggregationExpr, event map[string]interface{}) bool {
+func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, conditionIndex int, aggregation sigma.AggregationExpr, event map[string]interface{}) (bool, error) {
 	switch agg := aggregation.(type) {
 	case sigma.Near:
 		panic("near isn't supported yet")
 
 	case sigma.Comparison:
-		aggregationValue := rule.evaluateAggregationFunc(ctx, conditionIndex, agg.Func, event)
+		aggregationValue, err := rule.evaluateAggregationFunc(ctx, conditionIndex, agg.Func, event)
+		if err != nil {
+			return false, err
+		}
 		switch agg.Op {
 		case sigma.Equal:
-			return aggregationValue == agg.Threshold
+			return aggregationValue == agg.Threshold, nil
 		case sigma.NotEqual:
-			return aggregationValue != agg.Threshold
+			return aggregationValue != agg.Threshold, nil
 		case sigma.LessThan:
-			return aggregationValue < agg.Threshold
+			return aggregationValue < agg.Threshold, nil
 		case sigma.LessThanEqual:
-			return aggregationValue <= agg.Threshold
+			return aggregationValue <= agg.Threshold, nil
 		case sigma.GreaterThan:
-			return aggregationValue > agg.Threshold
+			return aggregationValue > agg.Threshold, nil
 		case sigma.GreaterThanEqual:
-			return aggregationValue >= agg.Threshold
+			return aggregationValue >= agg.Threshold, nil
 		default:
-			panic(fmt.Sprintf("unsupported comparison operation %v", agg.Op))
+			return false, fmt.Errorf("unsupported comparison operation %v", agg.Op)
 		}
 
 	default:
-		panic("unknown aggregation expression")
+		return false, fmt.Errorf("unknown aggregation expression")
 	}
 }
 
-func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, conditionIndex int, aggregation sigma.AggregationFunc, event map[string]interface{}) float64 {
+func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, conditionIndex int, aggregation sigma.AggregationFunc, event map[string]interface{}) (float64, error) {
 	switch agg := aggregation.(type) {
 	case sigma.Count:
 		if agg.Field == "" {
