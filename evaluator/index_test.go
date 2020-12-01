@@ -7,7 +7,7 @@ import (
 	"github.com/bradleyjkemp/sigma-go"
 )
 
-func TestRuleEvaluator_RelevantToIndex(t *testing.T) {
+func TestRuleEvaluator_RelevantToEvent_LogsourceRewriting(t *testing.T) {
 	rule := ForRule(sigma.Rule{Logsource: sigma.Logsource{
 		Category: "category",
 		Product:  "product",
@@ -18,9 +18,8 @@ func TestRuleEvaluator_RelevantToIndex(t *testing.T) {
 				Logsource: sigma.Logsource{
 					Category: "category",
 				},
-				Index:      []string{"just-category"},
-				Conditions: nil,
-				Rewrite:    sigma.Logsource{},
+				Index:   []string{"just-category"},
+				Rewrite: sigma.Logsource{},
 			},
 		}}, sigma.Config{
 		Logsources: map[string]sigma.LogsourceMapping{
@@ -37,9 +36,8 @@ func TestRuleEvaluator_RelevantToIndex(t *testing.T) {
 				Logsource: sigma.Logsource{
 					Category: "category-rewritten",
 				},
-				Index:      []string{"category-rewritten-index"},
-				Conditions: nil,
-				Rewrite:    sigma.Logsource{},
+				Index:   []string{"category-rewritten-index"},
+				Rewrite: sigma.Logsource{},
 			},
 		},
 		DefaultIndex: "",
@@ -52,7 +50,7 @@ func TestRuleEvaluator_RelevantToIndex(t *testing.T) {
 		"category-rewritten-index",
 	}
 	for _, tc := range relevant {
-		if !rule.RelevantToIndex(tc) {
+		if !rule.RelevantToEvent(tc, nil) {
 			t.Fatal(tc, "should have been relevant")
 		}
 	}
@@ -61,7 +59,81 @@ func TestRuleEvaluator_RelevantToIndex(t *testing.T) {
 		"foobar",
 	}
 	for _, tc := range irrelevant {
-		if rule.RelevantToIndex(tc) {
+		if rule.RelevantToEvent(tc, nil) {
+			t.Fatal(tc, "shouldn't have been relevant")
+		}
+	}
+}
+
+func TestRuleEvaluator_ReleventToEvent_LogsourceConditions(t *testing.T) {
+	rule := ForRule(sigma.Rule{Logsource: sigma.Logsource{
+		Category: "category",
+		Product:  "product",
+		Service:  "service",
+	}}, WithConfig(sigma.Config{
+		Logsources: map[string]sigma.LogsourceMapping{
+			"base": {
+				Logsource: sigma.Logsource{
+					Category: "category",
+				},
+				Index:   []string{"just-category"},
+				Rewrite: sigma.Logsource{},
+			},
+			"conditin": {
+				Logsource: sigma.Logsource{
+					Category: "category",
+					Product:  "product",
+				},
+				Conditions: sigma.Search{
+					FieldMatchers: []sigma.FieldMatcher{
+						{
+							Field:  "foo",
+							Values: []string{"bar"},
+						},
+					},
+				},
+			},
+		},
+		FieldMappings: map[string]sigma.FieldMapping{
+			"foo": {TargetNames: []string{"foo", "foo-mapped"}},
+		}},
+	))
+
+	relevant := []map[string]interface{}{
+		{
+			"index": "just-category",
+			"foo":   "bar",
+		},
+		{
+			"index":      "just-category",
+			"foo-mapped": "bar",
+		},
+	}
+	for _, tc := range relevant {
+		if !rule.RelevantToEvent(tc["index"].(string), tc) {
+			t.Fatal(tc, "should have been relevant")
+		}
+	}
+
+	irrelevant := []map[string]interface{}{
+		{
+			"index": "wrong-category",
+			"foo":   "bar",
+		},
+		{
+			"index": "just-category",
+		},
+		{
+			"index": "wrong-category",
+			"foo":   "baz",
+		},
+		{
+			"index": "wrong-category",
+			"bar":   "foo",
+		},
+	}
+	for _, tc := range irrelevant {
+		if rule.RelevantToEvent(tc["index"].(string), tc) {
 			t.Fatal(tc, "shouldn't have been relevant")
 		}
 	}

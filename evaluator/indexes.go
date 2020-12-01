@@ -41,6 +41,9 @@ func (rule *RuleEvaluator) calculateIndexes() {
 
 			// If the mapping has indexes then append them to the possible ones
 			indexes = append(indexes, logsource.Index...)
+
+			// If the mapping declares conditions then AND them with the current one
+			rule.indexConditions = append(rule.indexConditions, logsource.Conditions)
 		}
 
 		if !matched && config.DefaultIndex != "" {
@@ -55,13 +58,28 @@ func (rule RuleEvaluator) Indexes() []string {
 	return rule.indexes
 }
 
-func (rule RuleEvaluator) RelevantToIndex(eventIndex string) bool {
-	// Now finally actually check if the eventIndex matches this rule
+// RelevantToIndex calculates whether a rule is applicable to an event based on:
+// 	* Whether the rule has been configured with a config file that matches the eventIndex
+//	* Whether the event matches the conditions from the config file
+func (rule RuleEvaluator) RelevantToEvent(eventIndex string, event map[string]interface{}) bool {
+	matchedIndex := false
 	for _, index := range rule.indexes {
 		if index == eventIndex { // TODO: this also needs to support wildcards
-			return true
+			matchedIndex = true
+			break
 		}
 	}
+	if !matchedIndex {
+		return false
+	}
 
-	return false
+	// The event *does* come from an index we're interested in but we still
+	// need to check for any value constraints that have been specified
+	// TODO: this doesn't yet support the logsourcemerging option to choose between ANDing/ORing these conditions
+	for _, condition := range rule.indexConditions {
+		if !rule.evaluateSearch(condition, event) {
+			return false
+		}
+	}
+	return true
 }

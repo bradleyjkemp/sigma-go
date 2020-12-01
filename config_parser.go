@@ -1,6 +1,8 @@
 package sigma
 
-import "gopkg.in/yaml.v3"
+import (
+	"gopkg.in/yaml.v3"
+)
 
 type Config struct {
 	Title         string   // A short description of what this configuration does
@@ -35,10 +37,10 @@ func (f *FieldMapping) UnmarshalYAML(value *yaml.Node) error {
 }
 
 type LogsourceMapping struct {
-	Logsource  `yaml:",inline"`       // Matches the logsource field in Sigma rules
-	Index      LogsourceIndexes       // The index(es) that should be used
-	Conditions map[string]interface{} // Conditions that are added to all rules targeting this logsource
-	Rewrite    Logsource              // Rewrites this logsource (i.e. so that it can be matched by another lower precedence config)
+	Logsource  `yaml:",inline"` // Matches the logsource field in Sigma rules
+	Index      LogsourceIndexes // The index(es) that should be used
+	Conditions Search           // Conditions that are added to all rules targeting this logsource
+	Rewrite    Logsource        // Rewrites this logsource (i.e. so that it can be matched by another lower precedence config)
 }
 
 type LogsourceIndexes []string

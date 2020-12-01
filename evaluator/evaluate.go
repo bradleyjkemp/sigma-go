@@ -9,9 +9,10 @@ import (
 
 type RuleEvaluator struct {
 	sigma.Rule
-	config        []sigma.Config
-	indexes       []string            // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
-	fieldmappings map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
+	config          []sigma.Config
+	indexes         []string            // the list of indexes that this rule should be applied to. Computed from the Logsource field in the rule and any config that's supplied.
+	indexConditions []sigma.Search      // any field-value conditions that need to match for this rule to apply to events from []indexes
+	fieldmappings   map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
 
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
 	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)

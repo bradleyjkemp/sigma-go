@@ -12,8 +12,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 22
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=2) "22"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -30,8 +40,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 6
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=1) "6"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -48,8 +68,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 11
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=2) "11"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -66,8 +96,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 7
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=1) "7"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -84,8 +124,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 3
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=1) "3"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -102,8 +152,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 10
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=2) "10"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -120,8 +180,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 1
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=1) "1"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -138,8 +208,18 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": (int) 5
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=1) "5"
+            }
+          }
+        }
       },
       Rewrite: (sigma.Logsource) {
         Category: (string) "",
@@ -156,11 +236,19 @@
         Definition: (string) ""
       },
       Index: (sigma.LogsourceIndexes) <nil>,
-      Conditions: (map[string]interface {}) (len=1) {
-        (string) (len=7) "EventID": ([]interface {}) (len=3) {
-          (int) 12,
-          (int) 13,
-          (int) 14
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=3) {
+              (string) (len=2) "12",
+              (string) (len=2) "13",
+              (string) (len=2) "14"
+            }
+          }
         }
       },
       Rewrite: (sigma.Logsource) {
