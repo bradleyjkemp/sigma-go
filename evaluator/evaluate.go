@@ -68,34 +68,51 @@ func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
 	return e
 }
 
-func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) (bool, error) {
-	ruleMatches := false
+type Result struct {
+	Match            bool            // whether this event matches the Sigma rule
+	SearchResults    map[string]bool // For each Search, whether it matched the event
+	ConditionResults []bool          // For each Condition, whether it matched the event
+}
+
+func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) (Result, error) {
+	result := Result{
+		Match:            false,
+		SearchResults:    map[string]bool{},
+		ConditionResults: make([]bool, len(rule.Detection.Conditions)),
+	}
+	for identifier, search := range rule.Detection.Searches {
+		// TODO: don't duplicate this work later within the call to rule.evaluateSearchExpression
+		result.SearchResults[identifier] = rule.evaluateSearch(search, event)
+	}
+
 	for conditionIndex, condition := range rule.Detection.Conditions {
 		searchMatches := rule.evaluateSearchExpression(condition.Search, event)
 
 		switch {
 		// Event didn't match filters
 		case !searchMatches:
+			result.ConditionResults[conditionIndex] = false
 			continue
 
 		// Simple query without any aggregation
 		case searchMatches && condition.Aggregation == nil:
-			ruleMatches = true
+			result.ConditionResults[conditionIndex] = true
+			result.Match = true
 			continue // need to continue in case other conditions contain aggregations that need to be evaluated
 
 		// Search expression matched but still need to see if the aggregation returns true
 		case searchMatches && condition.Aggregation != nil:
 			aggregationMatches, err := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
 			if err != nil {
-				return false, err
+				return Result{}, err
 			}
 			if aggregationMatches {
-				ruleMatches = true
+				result.Match = true
+				result.ConditionResults[conditionIndex] = true
 			}
 			continue
 		}
-
 	}
 
-	return ruleMatches, nil
+	return result, nil
 }
