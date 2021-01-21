@@ -12,7 +12,7 @@ import (
 	"github.com/bradleyjkemp/sigma-go"
 )
 
-func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, event map[string]interface{}) bool {
+func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, event Event) bool {
 	switch s := search.(type) {
 	case sigma.And:
 		return rule.evaluateSearchExpression(s.Left, event) && rule.evaluateSearchExpression(s.Right, event)
@@ -80,7 +80,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 	panic(false)
 }
 
-func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]interface{}) bool {
+func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool {
 	if len(search.Keywords) > 0 {
 		panic("keywords unsupported")
 	}
@@ -116,12 +116,12 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event map[string]i
 	return true
 }
 
-func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, event map[string]interface{}) bool {
+func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, event Event) bool {
 	// First collect this list of event values we're matching against
 	var actualValues []interface{}
 	if len(rule.fieldmappings[matcher.Field]) == 0 {
 		// No FieldMapping exists so use the name directly from the rule
-		actualValues = []interface{}{event[matcher.Field]}
+		actualValues = []interface{}{eventValue(event, matcher.Field)}
 	} else {
 		// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
 		for _, mapping := range rule.fieldmappings[matcher.Field] {
@@ -130,7 +130,7 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 				actualValues = append(actualValues, evaluateJSONPath(mapping, event))
 			} else {
 				// This is just a field name
-				actualValues = append(actualValues, event[mapping])
+				actualValues = append(actualValues, eventValue(event, mapping))
 			}
 		}
 	}
@@ -159,22 +159,27 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 // Matches JSONPaths with either a $.fieldname or $["fieldname"] prefix and extracts 'fieldname'
 var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"])?`)
 
-func evaluateJSONPath(expr string, event map[string]interface{}) interface{} {
+func evaluateJSONPath(expr string, event Event) interface{} {
 	jsonPathField := firstJSONPathField.FindStringSubmatch(expr)
 	if jsonPathField == nil {
 		panic("couldn't parse JSONPath expression")
 	}
 
 	var subValue interface{}
-	switch sub := event[jsonPathField[1]].(type) {
-	case string:
-		json.Unmarshal([]byte(sub), &subValue)
-	case []byte:
-		json.Unmarshal(sub, &subValue)
-	default:
-		// Oh well, don't try to unmarshal the nested field
-		value, _ := jsonpath.Get(expr, event)
-		return value
+	switch e := event.(type) {
+	case map[string]string:
+		json.Unmarshal([]byte(e[jsonPathField[1]]), &subValue)
+	case map[string]interface{}:
+		switch sub := e[jsonPathField[1]].(type) {
+		case string:
+			json.Unmarshal([]byte(sub), &subValue)
+		case []byte:
+			json.Unmarshal(sub, &subValue)
+		default:
+			// Oh well, don't try to unmarshal the nested field
+			value, _ := jsonpath.Get(expr, event)
+			return value
+		}
 	}
 
 	value, _ := jsonpath.Get(expr, map[string]interface{}{

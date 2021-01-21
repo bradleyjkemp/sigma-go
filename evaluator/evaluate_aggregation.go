@@ -3,11 +3,12 @@ package evaluator
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/bradleyjkemp/sigma-go"
 )
 
-func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, conditionIndex int, aggregation sigma.AggregationExpr, event map[string]interface{}) (bool, error) {
+func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, conditionIndex int, aggregation sigma.AggregationExpr, event Event) (bool, error) {
 	switch agg := aggregation.(type) {
 	case sigma.Near:
 		panic("near isn't supported yet")
@@ -39,7 +40,7 @@ func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, con
 	}
 }
 
-func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, conditionIndex int, aggregation sigma.AggregationFunc, event map[string]interface{}) (float64, error) {
+func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, conditionIndex int, aggregation sigma.AggregationFunc, event Event) (float64, error) {
 	switch agg := aggregation.(type) {
 	case sigma.Count:
 		if agg.Field == "" {
@@ -48,7 +49,7 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 				ConditionID: conditionIndex,
 				EventValues: map[string]interface{}{
 					// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-					agg.GroupedBy: event[agg.GroupedBy],
+					agg.GroupedBy: eventValue(event, agg.GroupedBy),
 				},
 			})
 		} else {
@@ -58,22 +59,30 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		}
 
 	case sigma.Average:
+		val, err := strconv.ParseFloat(eventValue(event, agg.Field), 64)
+		if err != nil {
+			return 0, fmt.Errorf("invalid float value: %w", err)
+		}
 		return rule.average(ctx, GroupedByValues{
 			ConditionID: conditionIndex,
 			EventValues: map[string]interface{}{
 				// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-				agg.GroupedBy: event[agg.GroupedBy],
+				agg.GroupedBy: eventValue(event, agg.GroupedBy),
 			},
-		}, event[agg.Field].(float64))
+		}, val)
 
 	case sigma.Sum:
+		val, err := strconv.ParseFloat(eventValue(event, agg.Field), 64)
+		if err != nil {
+			return 0, fmt.Errorf("invalid float value: %w", err)
+		}
 		return rule.sum(ctx, GroupedByValues{
 			ConditionID: conditionIndex,
 			EventValues: map[string]interface{}{
 				// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-				agg.GroupedBy: event[agg.GroupedBy],
+				agg.GroupedBy: eventValue(event, agg.GroupedBy),
 			},
-		}, event[agg.Field].(float64))
+		}, val)
 
 	default:
 		panic("unsupported aggregation function")

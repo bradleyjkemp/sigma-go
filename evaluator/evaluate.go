@@ -3,6 +3,7 @@ package evaluator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/bradleyjkemp/sigma-go"
 )
@@ -74,7 +75,21 @@ type Result struct {
 	ConditionResults []bool          // For each Condition, whether it matched the event
 }
 
-func (rule RuleEvaluator) Matches(ctx context.Context, event map[string]interface{}) (Result, error) {
+// Event should be some form a map[string]interface{} or map[string]string
+type Event interface{}
+
+func eventValue(e Event, key string) string {
+	switch evt := e.(type) {
+	case map[string]string:
+		return evt[key]
+	case map[string]interface{}:
+		return fmt.Sprint(evt[key])
+	default:
+		return ""
+	}
+}
+
+func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, error) {
 	result := Result{
 		Match:            false,
 		SearchResults:    map[string]bool{},
