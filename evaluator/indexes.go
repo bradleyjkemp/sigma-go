@@ -61,7 +61,7 @@ func (rule RuleEvaluator) Indexes() []string {
 // RelevantToIndex calculates whether a rule is applicable to an event based on:
 // 	* Whether the rule has been configured with a config file that matches the eventIndex
 //	* Whether the event matches the conditions from the config file
-func (rule RuleEvaluator) RelevantToEvent(eventIndex string, event map[string]interface{}) bool {
+func (rule RuleEvaluator) RelevantToEvent(eventIndex string, event Event) bool {
 	matchedIndex := false
 	for _, index := range rule.indexes {
 		if index == eventIndex { // TODO: this also needs to support wildcards
