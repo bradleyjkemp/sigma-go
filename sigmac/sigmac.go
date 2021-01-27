@@ -1,15 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"go/format"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
+	"reflect"
 	"text/template"
 
 	"github.com/bradleyjkemp/sigma-go"
+	"github.com/sanity-io/litter"
 	"gopkg.in/yaml.v3"
 )
 
@@ -31,6 +34,18 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+var litterConfig = litter.Options{
+	// Work around bug: https://github.com/sanity-io/litter/issues/33
+	FieldFilter: func(field reflect.StructField, value reflect.Value) bool {
+		switch value.Kind() {
+		case reflect.Slice:
+			return value.Len() != 0
+		default:
+			return true
+		}
+	},
 }
 
 func run(root string, recursive bool) error {
@@ -61,24 +76,24 @@ func run(root string, recursive bool) error {
 
 		if ruleOrConfig.IsRule() {
 			// Just check the rule is valid
-			_, err = sigma.ParseRule(contents)
+			ruleFile, err := sigma.ParseRule(contents)
 			if err != nil {
 				return fmt.Errorf("error parsing %s: %w", path, err)
 			}
 
 			dir := filepath.Dir(path)
 			directories[dir] = struct{}{}
-			rulesByDirectory[dir] = append(rulesByDirectory[dir], strconv.Quote(string(contents)))
+			rulesByDirectory[dir] = append(rulesByDirectory[dir], litterConfig.Sdump(ruleFile))
 		} else {
 			// Just check the config is valid
-			_, err = sigma.ParseConfig(contents)
+			configFile, err := sigma.ParseConfig(contents)
 			if err != nil {
 				return fmt.Errorf("error parsing %s: %w", path, err)
 			}
 
 			dir := filepath.Dir(path)
 			directories[dir] = struct{}{}
-			configByDirectory[dir] = append(configByDirectory[dir], strconv.Quote(string(contents)))
+			configByDirectory[dir] = append(configByDirectory[dir], litterConfig.Sdump(configFile))
 		}
 
 		return nil
@@ -89,18 +104,21 @@ func run(root string, recursive bool) error {
 
 	// For each directory containing Sigma rules, write a sigma.go file containing all the rules
 	for dir := range directories {
-		registryFile, err := os.OpenFile(filepath.Join(dir, "sigma.go"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
-		if err != nil {
-			return err
-		}
 		_, packageName := filepath.Split(dir)
 		params := map[string]interface{}{
 			"PackageName": packageName,
 			"Rules":       rulesByDirectory[dir],
 			"Configs":     configByDirectory[dir],
 		}
-		err = registryTmpl.Execute(registryFile, params)
+		rendered := &bytes.Buffer{}
+		if err := registryTmpl.Execute(rendered, params); err != nil {
+			return err
+		}
+		formattedBytes, err := format.Source(rendered.Bytes())
 		if err != nil {
+			return err
+		}
+		if err := ioutil.WriteFile(filepath.Join(dir, "sigma.go"), formattedBytes, 0644); err != nil {
 			return err
 		}
 	}
@@ -121,43 +139,31 @@ var Rules = map[string]sigma.Rule{}
 
 var Configs []sigma.Config
 
-func registerRule(contents string) {
-	// TODO: it'd be better if this were already parsed rather than being parsed at runtime
-	rule, err := sigma.ParseRule([]byte(contents))
-	if err != nil {
-		panic(err)
-	}
-
+func registerRule(rule sigma.Rule) {
 	id := rule.ID
 	if id == "" {
-		id = "MISSING_ID_"+rule.Title
+		id = "MISSING_ID_" + rule.Title
 	}
 
 	if _, ok := Rules[id]; ok {
-		panic("rule with id "+id+" already registered")
+		panic("rule with id " + id + " already registered")
 	}
 	Rules[id] = rule
 }
 
-func registerConfig(contents string) {
-	// TODO: it'd be better if this were already parsed rather than being parsed at runtime
-	config, err := sigma.ParseConfig([]byte(contents))
-	if err != nil {
-		panic(err)
-	}
-
+func registerConfig(config sigma.Config) {
 	Configs = append(Configs, config)
 	sort.Slice(Configs, func(i, j int) bool {
 		return Configs[i].Order < Configs[j].Order
 	})
 }
-{{range .Rules}}
+
 func init() {
-	registerRule({{.}})
-}
-{{end}}{{range .Configs}}
-func init() {
-	registerConfig({{.}})
-}
+{{- range .Rules}}
+	registerRule({{ . }})
 {{end}}
+{{- range .Configs}}
+	registerConfig({{ . }})
+{{end}}
+}
 `))
