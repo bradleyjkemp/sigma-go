@@ -71,11 +71,11 @@ func run(root string, recursive bool) error {
 			return fmt.Errorf("error reading %s: %w", path, err)
 		}
 
-		var ruleOrConfig ruleOrConfig
-		yaml.Unmarshal(contents, &ruleOrConfig)
+		var fileType fileType
+		yaml.Unmarshal(contents, &fileType)
 
-		if ruleOrConfig.IsRule() {
-			// Just check the rule is valid
+		switch fileType {
+		case rule:
 			ruleFile, err := sigma.ParseRule(contents)
 			if err != nil {
 				return fmt.Errorf("error parsing %s: %w", path, err)
@@ -84,8 +84,8 @@ func run(root string, recursive bool) error {
 			dir := filepath.Dir(path)
 			directories[dir] = struct{}{}
 			rulesByDirectory[dir] = append(rulesByDirectory[dir], litterConfig.Sdump(ruleFile))
-		} else {
-			// Just check the config is valid
+
+		case config:
 			configFile, err := sigma.ParseConfig(contents)
 			if err != nil {
 				return fmt.Errorf("error parsing %s: %w", path, err)

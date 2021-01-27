@@ -8,8 +8,8 @@ import (
 
 func Test_isSigmaRule(t *testing.T) {
 	tests := []struct {
-		file           string
-		expectedIsRule bool
+		file         string
+		expectedType fileType
 	}{
 		{
 			`title: foo
@@ -18,7 +18,7 @@ logsources:
     category: process_creation
     index: bar
 `,
-			false,
+			config,
 		},
 		{
 			`title: foo
@@ -28,16 +28,16 @@ detection:
         - baz
     selection: foo
 `,
-			true,
+			rule,
 		},
 	}
 	for _, tt := range tests {
-		var isRule ruleOrConfig
-		err := yaml.Unmarshal([]byte(tt.file), &isRule)
+		var fileType fileType
+		err := yaml.Unmarshal([]byte(tt.file), &fileType)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if isRule.IsRule() != tt.expectedIsRule {
+		if fileType != tt.expectedType {
 			t.Errorf("Expected\n%s to be detected as a rule", tt.file)
 		}
 	}
