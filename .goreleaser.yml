@@ -11,7 +11,7 @@ builds:
 
 brews:
   -
-    github:
+    tap:
       owner: bradleyjkemp
       name: homebrew-formulae
     homepage: "https://github.com/bradleyjkemp/sigma-go"
