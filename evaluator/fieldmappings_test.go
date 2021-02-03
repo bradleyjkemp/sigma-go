@@ -119,3 +119,36 @@ func TestRuleEvaluator_HandlesJSONPathByteSlice(t *testing.T) {
 		t.Error("If a JSONPath expression encounters a string, the string should be parsed and then matched")
 	}
 }
+
+func TestRuleEvaluator_HandlesToplevelJSONPath(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Logsource: sigma.Logsource{
+			Category: "category",
+			Product:  "product",
+			Service:  "service",
+		},
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"test": {
+					FieldMatchers: []sigma.FieldMatcher{{
+						Field:  "name",
+						Values: []string{"value"},
+					}},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{Search: sigma.SearchIdentifier{Name: "test"}}},
+		},
+	}, WithConfig(sigma.Config{
+		FieldMappings: map[string]sigma.FieldMapping{
+			"name": {TargetNames: []string{"$.toplevel"}},
+		},
+	}))
+
+	result, _ := rule.Matches(context.Background(), map[string]interface{}{
+		"toplevel": "value",
+	})
+	if !result.Match {
+		t.Error("A single-level JSONPath expression (e.g. Name: $.name) should be behave identically to a plain field mapping (e.g. Name: name)")
+	}
+}

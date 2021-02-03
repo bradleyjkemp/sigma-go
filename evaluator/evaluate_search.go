@@ -160,6 +160,22 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"])?`)
 
 func evaluateJSONPath(expr string, event Event) interface{} {
+	// First, just try to evaluate the JSONPath expression directly
+	value, err := jsonpath.Get(expr, event)
+	if err == nil {
+		// Got no error so return the value directly
+		return value
+	}
+	if !strings.HasPrefix(err.Error(), "unsupported value type") {
+		return nil
+	}
+
+	// Got an error: "unsupported value type X for select, expected map[string]interface{} or []interface{}"
+	// This means we tried to access a nested field that hasn't yet been unmarshalled.
+	// We try to fix this by finding the top-level field being selected and attempting to unmarshal it.
+	// This is best effort and only works for top-level fields.
+	// A longer term solution would be to either build this into the JSONPath library directly or remove this feature and let the user do it.
+
 	jsonPathField := firstJSONPathField.FindStringSubmatch(expr)
 	if jsonPathField == nil {
 		panic("couldn't parse JSONPath expression")
@@ -182,7 +198,7 @@ func evaluateJSONPath(expr string, event Event) interface{} {
 		}
 	}
 
-	value, _ := jsonpath.Get(expr, map[string]interface{}{
+	value, _ = jsonpath.Get(expr, map[string]interface{}{
 		jsonPathField[1]: subValue,
 	})
 	return value
