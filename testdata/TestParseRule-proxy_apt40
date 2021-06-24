@@ -48,7 +48,15 @@
   References: ([]string) (len=1) {
     (string) (len=35) "Internal research from Florian Roth"
   },
-  AdditionalFields: (map[string]interface {}) (len=6) {
+  Tags: ([]string) (len=6) {
+    (string) (len=26) "attack.command_and_control",
+    (string) (len=16) "attack.t1071.001",
+    (string) (len=12) "attack.t1043",
+    (string) (len=19) "attack.exfiltration",
+    (string) (len=16) "attack.t1567.002",
+    (string) (len=12) "attack.t1048"
+  },
+  AdditionalFields: (map[string]interface {}) (len=5) {
     (string) (len=4) "date": (string) (len=10) "2019/11/12",
     (string) (len=14) "falsepositives": ([]interface {}) (len=1) {
       (string) (len=12) "Old browsers"
@@ -58,14 +66,6 @@
       (string) (len=5) "c-uri"
     },
     (string) (len=5) "level": (string) (len=4) "high",
-    (string) (len=8) "modified": (string) (len=10) "2020/09/02",
-    (string) (len=4) "tags": ([]interface {}) (len=6) {
-      (string) (len=26) "attack.command_and_control",
-      (string) (len=16) "attack.t1071.001",
-      (string) (len=12) "attack.t1043",
-      (string) (len=19) "attack.exfiltration",
-      (string) (len=16) "attack.t1567.002",
-      (string) (len=12) "attack.t1048"
-    }
+    (string) (len=8) "modified": (string) (len=10) "2020/09/02"
   }
 }

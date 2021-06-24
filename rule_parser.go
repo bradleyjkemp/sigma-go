@@ -20,6 +20,7 @@ type Rule struct {
 	Description string
 	Author      string
 	References  []string
+	Tags        []string
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`
