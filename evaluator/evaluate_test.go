@@ -45,8 +45,8 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 			Conditions: []sigma.Condition{
 				{
 					Search: sigma.And{
-						Left:  sigma.SearchIdentifier{Name: "foo"},
-						Right: sigma.SearchIdentifier{Name: "bar"},
+						sigma.SearchIdentifier{Name: "foo"},
+						sigma.SearchIdentifier{Name: "bar"},
 					},
 				},
 				{

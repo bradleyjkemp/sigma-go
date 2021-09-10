@@ -15,10 +15,20 @@ import (
 func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, event Event) bool {
 	switch s := search.(type) {
 	case sigma.And:
-		return rule.evaluateSearchExpression(s.Left, event) && rule.evaluateSearchExpression(s.Right, event)
+		for _, node := range s {
+			if !rule.evaluateSearchExpression(node, event) {
+				return false
+			}
+		}
+		return true
 
 	case sigma.Or:
-		return rule.evaluateSearchExpression(s.Left, event) || rule.evaluateSearchExpression(s.Right, event)
+		for _, node := range s {
+			if rule.evaluateSearchExpression(node, event) {
+				return true
+			}
+		}
+		return false
 
 	case sigma.Not:
 		return !rule.evaluateSearchExpression(s.Expr, event)

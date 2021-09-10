@@ -15,15 +15,11 @@ type SearchExpr interface {
 	searchExpr()
 }
 
-type And struct {
-	Left, Right SearchExpr
-}
+type And []SearchExpr
 
 func (And) searchExpr() {}
 
-type Or struct {
-	Left, Right SearchExpr
-}
+type Or []SearchExpr
 
 func (Or) searchExpr() {}
 
@@ -142,24 +138,26 @@ func (Sum) aggregationFunc() {}
 func searchToAST(node interface{}) SearchExpr {
 	switch n := node.(type) {
 	case grammar.Disjunction:
-		if n.Right == nil {
-			return searchToAST(n.Left)
+		if len(n.Nodes) == 1 {
+			return searchToAST(*n.Nodes[0])
 		}
 
-		return Or{
-			Left:  searchToAST(n.Left),
-			Right: searchToAST(*n.Right),
+		or := Or{}
+		for _, node := range n.Nodes {
+			or = append(or, searchToAST(*node))
 		}
+		return or
 
 	case grammar.Conjunction:
-		if n.Right == nil {
-			return searchToAST(n.Left)
+		if len(n.Nodes) == 1 {
+			return searchToAST(*n.Nodes[0])
 		}
 
-		return And{
-			Left:  searchToAST(n.Left),
-			Right: searchToAST(*n.Right),
+		and := And{}
+		for _, node := range n.Nodes {
+			and = append(and, searchToAST(*node))
 		}
+		return and
 
 	case grammar.Term:
 		switch {

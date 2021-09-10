@@ -6,13 +6,11 @@ type Condition struct {
 }
 
 type Disjunction struct {
-	Left  Conjunction  `@@`
-	Right *Conjunction `("or" @@)?`
+	Nodes []*Conjunction `@@ ("or" @@)*`
 }
 
 type Conjunction struct {
-	Left  Term  `@@`
-	Right *Term `("and" @@)?`
+	Nodes []*Term `@@ ("and" @@)*`
 }
 
 type Term struct {
