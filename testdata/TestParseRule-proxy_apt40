@@ -45,6 +45,7 @@
   Status: (string) (len=12) "experimental",
   Description: (string) (len=58) "Detects suspicious user agent string of APT40 Dropbox tool",
   Author: (string) (len=13) "Thomas Patzke",
+  Level: (string) (len=4) "high",
   References: ([]string) (len=1) {
     (string) (len=35) "Internal research from Florian Roth"
   },
@@ -56,7 +57,7 @@
     (string) (len=16) "attack.t1567.002",
     (string) (len=12) "attack.t1048"
   },
-  AdditionalFields: (map[string]interface {}) (len=5) {
+  AdditionalFields: (map[string]interface {}) (len=4) {
     (string) (len=4) "date": (string) (len=10) "2019/11/12",
     (string) (len=14) "falsepositives": ([]interface {}) (len=1) {
       (string) (len=12) "Old browsers"
@@ -65,7 +66,6 @@
       (string) (len=4) "c-ip",
       (string) (len=5) "c-uri"
     },
-    (string) (len=5) "level": (string) (len=4) "high",
     (string) (len=8) "modified": (string) (len=10) "2020/09/02"
   }
 }
