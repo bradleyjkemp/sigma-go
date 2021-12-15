@@ -19,6 +19,7 @@ type Rule struct {
 	Status      string
 	Description string
 	Author      string
+	Level       string
 	References  []string
 	Tags        []string
 
