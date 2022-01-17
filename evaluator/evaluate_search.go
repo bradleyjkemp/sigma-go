@@ -116,7 +116,8 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool 
 			comparator = modifiers[name](comparator)
 		}
 
-		if !rule.matcherMatchesValues(matcher, comparator, allValuesMustMatch, event) {
+		values := rule.GetFieldValuesFromEvent(matcher.Field, event)
+		if !rule.matcherMatchesValues(matcher, comparator, allValuesMustMatch, values) {
 			// this field didn't match so the overall matcher doesn't match
 			return false
 		}
@@ -126,15 +127,15 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool 
 	return true
 }
 
-func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, event Event) bool {
+func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) []interface{} {
 	// First collect this list of event values we're matching against
 	var actualValues []interface{}
-	if len(rule.fieldmappings[matcher.Field]) == 0 {
+	if len(rule.fieldmappings[field]) == 0 {
 		// No FieldMapping exists so use the name directly from the rule
-		actualValues = []interface{}{eventValue(event, matcher.Field)}
+		actualValues = []interface{}{eventValue(event, field)}
 	} else {
 		// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
-		for _, mapping := range rule.fieldmappings[matcher.Field] {
+		for _, mapping := range rule.fieldmappings[field] {
 			if strings.HasPrefix(mapping, "$.") || strings.HasPrefix(mapping, "$[") {
 				// This is a jsonpath expression
 				actualValues = append(actualValues, evaluateJSONPath(mapping, event))
@@ -144,7 +145,11 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comp
 			}
 		}
 	}
+	return actualValues
+}
 
+
+func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, actualValues []interface{}) bool {
 	matched := allValuesMustMatch
 	for _, expectedValue := range matcher.Values {
 		valueMatchedEvent := false
