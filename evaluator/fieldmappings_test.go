@@ -152,3 +152,42 @@ func TestRuleEvaluator_HandlesToplevelJSONPath(t *testing.T) {
 		t.Error("A single-level JSONPath expression (e.g. Name: $.name) should be behave identically to a plain field mapping (e.g. Name: name)")
 	}
 }
+
+func TestRuleEvaluator_GetFieldValuesFromEvent(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Logsource: sigma.Logsource{
+			Category: "category",
+			Product:  "product",
+			Service:  "service",
+		},
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"test": {
+					FieldMatchers: []sigma.FieldMatcher{{
+						Field:  "name",
+						Values: []string{"value"},
+					}},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{Search: sigma.SearchIdentifier{Name: "test"}}},
+		},
+	}, WithConfig(sigma.Config{
+		FieldMappings: map[string]sigma.FieldMapping{
+			"name": {TargetNames: []string{"$.toplevel"}},
+		},
+	}))
+
+	expected := "value"
+	actual := rule.GetFieldValuesFromEvent("name", map[string]interface{}{
+		"toplevel": "value",
+	})
+
+	if len(actual) != 1 {
+		t.Error("Expected 1 value in the resulting array of GetFieldValuesFromEvent")
+	}
+
+	if expected != actual[0] {
+		t.Error("The field obtained from GetFieldValuesFromEvent() does not match the expected value.")
+	}
+}
