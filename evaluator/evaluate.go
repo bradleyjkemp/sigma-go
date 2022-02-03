@@ -15,6 +15,8 @@ type RuleEvaluator struct {
 	indexConditions []sigma.Search      // any field-value conditions that need to match for this rule to apply to events from []indexes
 	fieldmappings   map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
 
+	expandPlaceholder func(ctx context.Context, placeholderName string) ([]string, error)
+
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
 	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
 	sum     func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
