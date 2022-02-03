@@ -72,3 +72,46 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 		t.Fatal("expected first condition to be true and second condition to be false")
 	}
 }
+
+func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo": {
+					FieldMatchers: []sigma.FieldMatcher{
+						{
+							Field: "foo-field",
+							Values: []string{
+								"%foo-placeholder%",
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{
+					Search: sigma.SearchIdentifier{Name: "foo"},
+				},
+				{
+					Search: sigma.AllOfThem{},
+				},
+			},
+		},
+	}, WithPlaceholderExpander(func(ctx context.Context, placeholderName string) ([]string, error) {
+		if placeholderName != "%foo-placeholder%" {
+			return nil, nil
+		}
+
+		return []string{"foo-value"}, nil
+	}))
+
+	result, err := rule.Matches(context.Background(), map[string]interface{}{
+		"foo-field": "foo-value",
+	})
+	switch {
+	case err != nil:
+		t.Fatal(err)
+	case !result.Match:
+		t.Fatal("rule should have matched")
+	}
+}
