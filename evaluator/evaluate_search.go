@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -116,8 +117,9 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool 
 			comparator = modifiers[name](comparator)
 		}
 
+		matcherValues, _ := rule.getMatcherValues(context.TODO(), matcher)
 		values := rule.GetFieldValuesFromEvent(matcher.Field, event)
-		if !rule.matcherMatchesValues(matcher, comparator, allValuesMustMatch, values) {
+		if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 			// this field didn't match so the overall matcher doesn't match
 			return false
 		}
@@ -125,6 +127,23 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool 
 
 	// all fields matched
 	return true
+}
+
+func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.FieldMatcher) ([]string, error) {
+	matcherValues := []string{}
+	for _, value := range matcher.Values {
+		if strings.HasPrefix(value, "%") && strings.HasSuffix(value, "%") {
+			// expand placeholder to values
+			placeholderValues, err := rule.expandPlaceholder(ctx, value)
+			if err != nil {
+				return nil, err
+			}
+			matcherValues = append(matcherValues, placeholderValues...)
+		} else {
+			matcherValues = append(matcherValues, value)
+		}
+	}
+	return matcherValues, nil
 }
 
 func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) []interface{} {
@@ -148,10 +167,9 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) []
 	return actualValues
 }
 
-
-func (rule *RuleEvaluator) matcherMatchesValues(matcher sigma.FieldMatcher, comparator valueComparator, allValuesMustMatch bool, actualValues []interface{}) bool {
+func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparator valueComparator, allValuesMustMatch bool, actualValues []interface{}) bool {
 	matched := allValuesMustMatch
-	for _, expectedValue := range matcher.Values {
+	for _, expectedValue := range matcherValues {
 		valueMatchedEvent := false
 		// There are multiple possible event fields that each expected value needs to be compared against
 		for _, actualValue := range actualValues {
