@@ -13,11 +13,11 @@ import (
 	"github.com/bradleyjkemp/sigma-go"
 )
 
-func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, event Event) bool {
+func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, searchResults map[string]bool) bool {
 	switch s := search.(type) {
 	case sigma.And:
 		for _, node := range s {
-			if !rule.evaluateSearchExpression(node, event) {
+			if !rule.evaluateSearchExpression(node, searchResults) {
 				return false
 			}
 		}
@@ -25,25 +25,25 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 
 	case sigma.Or:
 		for _, node := range s {
-			if rule.evaluateSearchExpression(node, event) {
+			if rule.evaluateSearchExpression(node, searchResults) {
 				return true
 			}
 		}
 		return false
 
 	case sigma.Not:
-		return !rule.evaluateSearchExpression(s.Expr, event)
+		return !rule.evaluateSearchExpression(s.Expr, searchResults)
 
 	case sigma.SearchIdentifier:
-		search, ok := rule.Detection.Searches[s.Name]
+		result, ok := searchResults[s.Name]
 		if !ok {
 			panic("invalid search identifier")
 		}
-		return rule.evaluateSearch(search, event)
+		return result
 
 	case sigma.OneOfThem:
 		for name := range rule.Detection.Searches {
-			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, searchResults) {
 				return true
 			}
 		}
@@ -58,7 +58,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 			if !matchesPattern {
 				continue
 			}
-			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+			if rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, searchResults) {
 				return true
 			}
 		}
@@ -66,7 +66,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 
 	case sigma.AllOfThem:
 		for name := range rule.Detection.Searches {
-			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, searchResults) {
 				return false
 			}
 		}
@@ -81,7 +81,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, even
 			if !matchesPattern {
 				continue
 			}
-			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, event) {
+			if !rule.evaluateSearchExpression(sigma.SearchIdentifier{Name: name}, searchResults) {
 				return false
 			}
 		}

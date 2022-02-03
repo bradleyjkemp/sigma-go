@@ -103,7 +103,7 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, err
 	}
 
 	for conditionIndex, condition := range rule.Detection.Conditions {
-		searchMatches := rule.evaluateSearchExpression(condition.Search, event)
+		searchMatches := rule.evaluateSearchExpression(condition.Search, result.SearchResults)
 
 		switch {
 		// Event didn't match filters
