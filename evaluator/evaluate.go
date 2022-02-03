@@ -98,8 +98,11 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, err
 		ConditionResults: make([]bool, len(rule.Detection.Conditions)),
 	}
 	for identifier, search := range rule.Detection.Searches {
-		// TODO: don't duplicate this work later within the call to rule.evaluateSearchExpression
-		result.SearchResults[identifier] = rule.evaluateSearch(search, event)
+		var err error
+		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event)
+		if err != nil {
+			return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
+		}
 	}
 
 	for conditionIndex, condition := range rule.Detection.Conditions {

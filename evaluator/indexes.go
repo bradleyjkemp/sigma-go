@@ -1,5 +1,10 @@
 package evaluator
 
+import (
+	"context"
+	"fmt"
+)
+
 // RelevantToIndex calculates whether this rule is applicable to a given index.
 // Only applicable if a config file has been loaded otherwise it always returns false.
 func (rule *RuleEvaluator) calculateIndexes() {
@@ -58,10 +63,10 @@ func (rule RuleEvaluator) Indexes() []string {
 	return rule.indexes
 }
 
-// RelevantToIndex calculates whether a rule is applicable to an event based on:
+// RelevantToEvent calculates whether a rule is applicable to an event based on:
 // 	* Whether the rule has been configured with a config file that matches the eventIndex
 //	* Whether the event matches the conditions from the config file
-func (rule RuleEvaluator) RelevantToEvent(eventIndex string, event Event) bool {
+func (rule RuleEvaluator) RelevantToEvent(ctx context.Context, eventIndex string, event Event) (bool, error) {
 	matchedIndex := false
 	for _, index := range rule.indexes {
 		if index == eventIndex { // TODO: this also needs to support wildcards
@@ -70,16 +75,20 @@ func (rule RuleEvaluator) RelevantToEvent(eventIndex string, event Event) bool {
 		}
 	}
 	if !matchedIndex {
-		return false
+		return false, nil
 	}
 
 	// The event *does* come from an index we're interested in but we still
 	// need to check for any value constraints that have been specified
 	// TODO: this doesn't yet support the logsourcemerging option to choose between ANDing/ORing these conditions
 	for _, condition := range rule.indexConditions {
-		if !rule.evaluateSearch(condition, event) {
-			return false
+		searchMatches, err := rule.evaluateSearch(ctx, condition, event)
+		if err != nil {
+			return false, fmt.Errorf("failed to evaluate index condition: %w", err)
+		}
+		if !searchMatches {
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }

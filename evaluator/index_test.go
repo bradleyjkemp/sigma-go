@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -50,7 +51,8 @@ func TestRuleEvaluator_RelevantToEvent_LogsourceRewriting(t *testing.T) {
 		"category-rewritten-index",
 	}
 	for _, tc := range relevant {
-		if !rule.RelevantToEvent(tc, nil) {
+		relevant, _ := rule.RelevantToEvent(context.Background(), tc, nil)
+		if !relevant {
 			t.Fatal(tc, "should have been relevant")
 		}
 	}
@@ -59,7 +61,8 @@ func TestRuleEvaluator_RelevantToEvent_LogsourceRewriting(t *testing.T) {
 		"foobar",
 	}
 	for _, tc := range irrelevant {
-		if rule.RelevantToEvent(tc, nil) {
+		relevant, _ := rule.RelevantToEvent(context.Background(), tc, nil)
+		if relevant {
 			t.Fatal(tc, "shouldn't have been relevant")
 		}
 	}
@@ -110,7 +113,8 @@ func TestRuleEvaluator_ReleventToEvent_LogsourceConditions(t *testing.T) {
 		},
 	}
 	for _, tc := range relevant {
-		if !rule.RelevantToEvent(tc["index"].(string), tc) {
+		relevant, _ := rule.RelevantToEvent(context.Background(), tc["index"].(string), tc)
+		if !relevant {
 			t.Fatal(tc, "should have been relevant")
 		}
 	}
@@ -133,7 +137,8 @@ func TestRuleEvaluator_ReleventToEvent_LogsourceConditions(t *testing.T) {
 		},
 	}
 	for _, tc := range irrelevant {
-		if rule.RelevantToEvent(tc["index"].(string), tc) {
+		relevant, _ := rule.RelevantToEvent(context.Background(), tc["index"].(string), tc)
+		if relevant {
 			t.Fatal(tc, "shouldn't have been relevant")
 		}
 	}

@@ -91,7 +91,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 	panic(false)
 }
 
-func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool {
+func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Search, event Event) (bool, error) {
 	if len(search.Keywords) > 0 {
 		panic("keywords unsupported")
 	}
@@ -117,16 +117,19 @@ func (rule RuleEvaluator) evaluateSearch(search sigma.Search, event Event) bool 
 			comparator = modifiers[name](comparator)
 		}
 
-		matcherValues, _ := rule.getMatcherValues(context.TODO(), matcher)
+		matcherValues, err := rule.getMatcherValues(ctx, matcher)
+		if err != nil {
+			return false, err
+		}
 		values := rule.GetFieldValuesFromEvent(matcher.Field, event)
 		if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 			// this field didn't match so the overall matcher doesn't match
-			return false
+			return false, nil
 		}
 	}
 
 	// all fields matched
-	return true
+	return true, nil
 }
 
 func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.FieldMatcher) ([]string, error) {
@@ -136,7 +139,7 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 			// expand placeholder to values
 			placeholderValues, err := rule.expandPlaceholder(ctx, value)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to expand placeholder: %w", err)
 			}
 			matcherValues = append(matcherValues, placeholderValues...)
 		} else {
