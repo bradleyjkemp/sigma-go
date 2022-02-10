@@ -12,7 +12,7 @@ var (
 		`|(?P<SearchIdentifierPattern>\*?[a-zA-Z_]+\*[a-zA-Z0-9_*]*)` +
 		`|(?P<SearchIdentifier>[a-zA-Z_][a-zA-Z0-9_]*)` +
 		`|(?P<ComparisonOperation>=|!=|<|<=|>|>=)` +
-		`|(?P<ComparisonValue>[1-9][0-9]*)` +
+		`|(?P<ComparisonValue>[0-9][0-9]*)` +
 		`|(?P<Pipe>[|])` +
 		`|(\s+)`,
 	))
