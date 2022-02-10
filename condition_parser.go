@@ -11,7 +11,7 @@ var (
 		`|(?P<Operator>(?i)and|or|not|[()])` +
 		`|(?P<SearchIdentifierPattern>\*?[a-zA-Z_]+\*[a-zA-Z0-9_*]*)` +
 		`|(?P<SearchIdentifier>[a-zA-Z_][a-zA-Z0-9_]*)` +
-		`|(?P<ComparisonOperation>=|!=|<|<=|>|>=)` +
+		`|(?P<ComparisonOperation>=|!=|<=|>=|<|>)` +
 		`|(?P<ComparisonValue>0|[1-9][0-9]*)` +
 		`|(?P<Pipe>[|])` +
 		`|(\s+)`,
