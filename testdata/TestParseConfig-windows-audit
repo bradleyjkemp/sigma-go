@@ -2,18 +2,6 @@
   Title: (string) (len=63) "Conversion of generic process_creation rules into Security/4688",
   Order: (int) 10,
   Backends: ([]string) <nil>,
-  FieldMappings: (map[string]sigma.FieldMapping) (len=2) {
-    (string) (len=5) "Image": (sigma.FieldMapping) {
-      TargetNames: ([]string) (len=1) {
-        (string) (len=14) "NewProcessName"
-      }
-    },
-    (string) (len=11) "ParentImage": (sigma.FieldMapping) {
-      TargetNames: ([]string) (len=1) {
-        (string) (len=17) "ParentProcessName"
-      }
-    }
-  },
   Logsources: (map[string]sigma.LogsourceMapping) (len=1) {
     (string) (len=16) "process_creation": (sigma.LogsourceMapping) {
       Logsource: (sigma.Logsource) {
@@ -45,5 +33,17 @@
     }
   },
   DefaultIndex: (string) "",
+  FieldMappings: (map[string]sigma.FieldMapping) (len=2) {
+    (string) (len=5) "Image": (sigma.FieldMapping) {
+      TargetNames: ([]string) (len=1) {
+        (string) (len=14) "NewProcessName"
+      }
+    },
+    (string) (len=11) "ParentImage": (sigma.FieldMapping) {
+      TargetNames: ([]string) (len=1) {
+        (string) (len=17) "ParentProcessName"
+      }
+    }
+  },
   Placeholders: (map[string][]interface {}) <nil>
 }

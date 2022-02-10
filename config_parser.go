@@ -8,10 +8,10 @@ type Config struct {
 	Title         string                      // A short description of what this configuration does
 	Order         int                         `yaml:",omitempty"` // Defines the order of expansion when multiple config files are applicable
 	Backends      []string                    `yaml:",omitempty"` // Lists the Sigma implementations that this config file is compatible with
-	FieldMappings map[string]FieldMapping     `yaml:",omitempty"`
 	Logsources    map[string]LogsourceMapping `yaml:",omitempty"`
+	DefaultIndex  string                      `yaml:",omitempty"` // Defines a default index if no logsources match
+	FieldMappings map[string]FieldMapping     `yaml:",omitempty"`
 	// TODO: LogsourceMerging option
-	DefaultIndex string                   `yaml:",omitempty"` // Defines a default index if no logsources match
 	Placeholders map[string][]interface{} `yaml:",omitempty"` // Defines values for placeholders that might appear in Sigma rules
 }
 

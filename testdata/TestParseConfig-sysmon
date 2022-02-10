@@ -2,7 +2,6 @@
   Title: (string) (len=54) "Conversion of Generic Rules into Sysmon Specific Rules",
   Order: (int) 10,
   Backends: ([]string) <nil>,
-  FieldMappings: (map[string]sigma.FieldMapping) <nil>,
   Logsources: (map[string]sigma.LogsourceMapping) (len=9) {
     (string) (len=9) "dns_query": (sigma.LogsourceMapping) {
       Logsource: (sigma.Logsource) {
@@ -260,5 +259,6 @@
     }
   },
   DefaultIndex: (string) "",
+  FieldMappings: (map[string]sigma.FieldMapping) <nil>,
   Placeholders: (map[string][]interface {}) <nil>
 }
