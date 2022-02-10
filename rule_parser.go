@@ -28,10 +28,10 @@ type Rule struct {
 }
 
 type Logsource struct {
-	Category   string
-	Product    string
-	Service    string
-	Definition string
+	Category   string `yaml:",omitempty"`
+	Product    string `yaml:",omitempty"`
+	Service    string `yaml:",omitempty"`
+	Definition string `yaml:",omitempty"`
 }
 
 type Detection struct {
@@ -108,6 +108,20 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	}
 }
 
+func (s Search) MarshalYAML() (interface{}, error) {
+	if len(s.Keywords) > 0 {
+		return s.Keywords, nil
+	}
+
+	fieldMatchers := map[string]interface{}{}
+	for _, matcher := range s.FieldMatchers {
+		key, val := matcher.marshal()
+		fieldMatchers[key] = val
+	}
+
+	return fieldMatchers, nil
+}
+
 type FieldMatcher struct {
 	Field     string
 	Modifiers []string
@@ -126,6 +140,21 @@ func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
 		return values.Decode(&f.Values)
 	}
 	return nil
+}
+
+func (f *FieldMatcher) marshal() (string, interface{}) {
+	key := f.Field
+	for _, modifier := range f.Modifiers {
+		key += "|" + modifier
+	}
+
+	var value interface{}
+	if len(f.Values) == 1 {
+		value = f.Values[0]
+	} else {
+		value = f.Values
+	}
+	return key, value
 }
 
 func ParseRule(input []byte) (Rule, error) {

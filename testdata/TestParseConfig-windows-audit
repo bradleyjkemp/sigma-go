@@ -1,0 +1,49 @@
+(sigma.Config) {
+  Title: (string) (len=63) "Conversion of generic process_creation rules into Security/4688",
+  Order: (int) 10,
+  Backends: ([]string) <nil>,
+  FieldMappings: (map[string]sigma.FieldMapping) (len=2) {
+    (string) (len=5) "Image": (sigma.FieldMapping) {
+      TargetNames: ([]string) (len=1) {
+        (string) (len=14) "NewProcessName"
+      }
+    },
+    (string) (len=11) "ParentImage": (sigma.FieldMapping) {
+      TargetNames: ([]string) (len=1) {
+        (string) (len=17) "ParentProcessName"
+      }
+    }
+  },
+  Logsources: (map[string]sigma.LogsourceMapping) (len=1) {
+    (string) (len=16) "process_creation": (sigma.LogsourceMapping) {
+      Logsource: (sigma.Logsource) {
+        Category: (string) (len=16) "process_creation",
+        Product: (string) (len=7) "windows",
+        Service: (string) "",
+        Definition: (string) ""
+      },
+      Index: (sigma.LogsourceIndexes) <nil>,
+      Conditions: (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        FieldMatchers: ([]sigma.FieldMatcher) (len=1) {
+          (sigma.FieldMatcher) {
+            Field: (string) (len=7) "EventID",
+            Modifiers: ([]string) {
+            },
+            Values: ([]string) (len=1) {
+              (string) (len=4) "4688"
+            }
+          }
+        }
+      },
+      Rewrite: (sigma.Logsource) {
+        Category: (string) "",
+        Product: (string) (len=7) "windows",
+        Service: (string) (len=8) "security",
+        Definition: (string) ""
+      }
+    }
+  },
+  DefaultIndex: (string) "",
+  Placeholders: (map[string][]interface {}) <nil>
+}

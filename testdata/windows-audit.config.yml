@@ -1,0 +1,16 @@
+# Copied from https://github.com/SigmaHQ/sigma/blob/d7d9c0e77237b69f8b29c0ed9613c0828da3bc11/tools/config/generic/windows-audit.yml
+# under license https://github.com/Neo23x0/sigma/blob/master/LICENSE.Detection.Rules.md
+title: Conversion of generic process_creation rules into Security/4688
+order: 10
+logsources:
+  process_creation:
+    category: process_creation
+    product: windows
+    conditions:
+      EventID: 4688
+    rewrite:
+      product: windows
+      service: security
+fieldmappings:
+  Image: NewProcessName
+  ParentImage: ParentProcessName

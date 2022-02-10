@@ -5,14 +5,14 @@ import (
 )
 
 type Config struct {
-	Title         string   // A short description of what this configuration does
-	Order         int      // Defines the order of expansion when multiple config files are applicable
-	Backends      []string // Lists the Sigma implementations that this config file is compatible with
-	FieldMappings map[string]FieldMapping
-	Logsources    map[string]LogsourceMapping
+	Title         string                      // A short description of what this configuration does
+	Order         int                         `yaml:",omitempty"` // Defines the order of expansion when multiple config files are applicable
+	Backends      []string                    `yaml:",omitempty"` // Lists the Sigma implementations that this config file is compatible with
+	FieldMappings map[string]FieldMapping     `yaml:",omitempty"`
+	Logsources    map[string]LogsourceMapping `yaml:",omitempty"`
 	// TODO: LogsourceMerging option
-	DefaultIndex string                   // Defines a default index if no logsources match
-	Placeholders map[string][]interface{} // Defines values for placeholders that might appear in Sigma rules
+	DefaultIndex string                   `yaml:",omitempty"` // Defines a default index if no logsources match
+	Placeholders map[string][]interface{} `yaml:",omitempty"` // Defines values for placeholders that might appear in Sigma rules
 }
 
 type FieldMapping struct {
@@ -36,11 +36,19 @@ func (f *FieldMapping) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
+func (f FieldMapping) MarshalYAML() (interface{}, error) {
+	if len(f.TargetNames) == 1 {
+		return f.TargetNames[0], nil // just a plain string
+	}
+
+	return f.TargetNames, nil // an array of strings
+}
+
 type LogsourceMapping struct {
 	Logsource  `yaml:",inline"` // Matches the logsource field in Sigma rules
-	Index      LogsourceIndexes // The index(es) that should be used
-	Conditions Search           // Conditions that are added to all rules targeting this logsource
-	Rewrite    Logsource        // Rewrites this logsource (i.e. so that it can be matched by another lower precedence config)
+	Index      LogsourceIndexes `yaml:",omitempty"` // The index(es) that should be used
+	Conditions Search           `yaml:",omitempty"` // Conditions that are added to all rules targeting this logsource
+	Rewrite    Logsource        `yaml:",omitempty"` // Rewrites this logsource (i.e. so that it can be matched by another lower precedence config)
 }
 
 type LogsourceIndexes []string
@@ -59,6 +67,14 @@ func (i *LogsourceIndexes) UnmarshalYAML(value *yaml.Node) error {
 		*i = values
 	}
 	return nil
+}
+
+func (i LogsourceIndexes) MarshalYAML() (interface{}, error) {
+	if len(i) == 1 {
+		return i[0], nil
+	}
+
+	return i, nil
 }
 
 func ParseConfig(contents []byte) (Config, error) {

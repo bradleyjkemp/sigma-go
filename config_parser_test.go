@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
+	"gopkg.in/yaml.v3"
 )
 
 func TestParseConfig(t *testing.T) {
@@ -30,6 +31,24 @@ func TestParseConfig(t *testing.T) {
 			}
 
 			cupaloy.New(cupaloy.SnapshotSubdirectory("testdata")).SnapshotT(t, rule)
+		})
+		t.Run(strings.TrimSuffix(filepath.Base(path), ".config.yaml")+"-remarshalled", func(t *testing.T) {
+			contents, err := ioutil.ReadFile(path)
+			if err != nil {
+				t.Fatalf("failed reading test input: %v", err)
+			}
+
+			rule, err := ParseConfig(contents)
+			if err != nil {
+				t.Fatalf("error parsing config: %v", err)
+			}
+
+			reMarshalled, err := yaml.Marshal(rule)
+			if err != nil {
+				t.Fatalf("error remarshalling config: %v", err)
+			}
+
+			cupaloy.New(cupaloy.SnapshotSubdirectory("testdata")).SnapshotT(t, reMarshalled)
 		})
 		return nil
 	})
