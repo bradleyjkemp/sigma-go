@@ -17,6 +17,7 @@ func TestParseCondition(t *testing.T) {
 		{"a and b and c", Condition{Search: And{SearchIdentifier{"a"}, SearchIdentifier{"b"}, SearchIdentifier{"c"}}}},
 		{"a | count(b) > 0", Condition{Search: SearchIdentifier{"a"}, Aggregation: Comparison{Func: Count{Field: "b"}, Op: GreaterThan, Threshold: 0}}},
 		{"a | count(b) >= 0", Condition{Search: SearchIdentifier{"a"}, Aggregation: Comparison{Func: Count{Field: "b"}, Op: GreaterThanEqual, Threshold: 0}}},
+		{"note and pad", Condition{Search: And{SearchIdentifier{"note"}, SearchIdentifier{"pad"}}}},
 	}
 
 	for _, tc := range tt {
