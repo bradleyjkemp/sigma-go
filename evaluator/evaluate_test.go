@@ -41,12 +41,23 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 						},
 					},
 				},
+				"null-field": {
+					FieldMatchers: []sigma.FieldMatcher{
+						{
+							Field: "non-existent-field",
+							Values: []string{
+								"null",
+							},
+						},
+					},
+				},
 			},
 			Conditions: []sigma.Condition{
 				{
 					Search: sigma.And{
 						sigma.SearchIdentifier{Name: "foo"},
 						sigma.SearchIdentifier{Name: "bar"},
+						sigma.SearchIdentifier{Name: "null-field"},
 					},
 				},
 				{
@@ -65,11 +76,11 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 	case err != nil:
 		t.Fatal(err)
 	case !result.Match:
-		t.Fatal("rule should have matched")
+		t.Error("rule should have matched", result.SearchResults)
 	case !result.SearchResults["foo"] || !result.SearchResults["bar"] || result.SearchResults["baz"]:
-		t.Fatal("expected foo and bar to be true but not baz")
+		t.Error("expected foo and bar to be true but not baz")
 	case !result.ConditionResults[0] || result.ConditionResults[1]:
-		t.Fatal("expected first condition to be true and second condition to be false")
+		t.Error("expected first condition to be true and second condition to be false")
 	}
 }
 

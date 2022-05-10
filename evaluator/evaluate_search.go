@@ -247,7 +247,13 @@ func evaluateJSONPath(expr string, event Event) interface{} {
 type valueComparator func(actual interface{}, expected string) bool
 
 func baseComparator(actual interface{}, expected string) bool {
-	return fmt.Sprintf("%v", actual) == expected
+	switch {
+	case actual == nil && expected == "null":
+		// special case: "null" should match the case where a field isn't present (and so actual is nil)
+		return true
+	default:
+		return fmt.Sprintf("%v", actual) == expected
+	}
 }
 
 type valueModifier func(next valueComparator) valueComparator

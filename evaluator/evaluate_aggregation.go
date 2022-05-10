@@ -59,7 +59,7 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		}
 
 	case sigma.Average:
-		val, err := strconv.ParseFloat(eventValue(event, agg.Field), 64)
+		val, err := strconv.ParseFloat(fmt.Sprint(eventValue(event, agg.Field)), 64)
 		if err != nil {
 			return 0, fmt.Errorf("invalid float value: %w", err)
 		}
@@ -72,7 +72,7 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		}, val)
 
 	case sigma.Sum:
-		val, err := strconv.ParseFloat(eventValue(event, agg.Field), 64)
+		val, err := strconv.ParseFloat(fmt.Sprint(eventValue(event, agg.Field)), 64)
 		if err != nil {
 			return 0, fmt.Errorf("invalid float value: %w", err)
 		}

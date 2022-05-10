@@ -80,12 +80,12 @@ type Result struct {
 // Event should be some form a map[string]interface{} or map[string]string
 type Event interface{}
 
-func eventValue(e Event, key string) string {
+func eventValue(e Event, key string) interface{} {
 	switch evt := e.(type) {
 	case map[string]string:
 		return evt[key]
 	case map[string]interface{}:
-		return fmt.Sprint(evt[key])
+		return evt[key]
 	default:
 		return ""
 	}
