@@ -2,8 +2,6 @@ package sigma
 
 import (
 	"testing"
-
-	"gopkg.in/yaml.v3"
 )
 
 func Test_isSigmaRule(t *testing.T) {
@@ -30,13 +28,14 @@ detection:
 `,
 			RuleFile,
 		},
+		{
+			`this: |
+isnt valid`,
+			InvalidFile,
+		},
 	}
 	for _, tt := range tests {
-		var fileType FileType
-		err := yaml.Unmarshal([]byte(tt.file), &fileType)
-		if err != nil {
-			t.Fatal(err)
-		}
+		fileType := InferFileType([]byte(tt.file))
 		if fileType != tt.expectedType {
 			t.Errorf("Expected\n%s to be detected as a rule", tt.file)
 		}

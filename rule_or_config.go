@@ -6,7 +6,9 @@ import (
 
 func InferFileType(contents []byte) FileType {
 	var fileType FileType
-	yaml.Unmarshal(contents, &fileType)
+	if err := yaml.Unmarshal(contents, &fileType); err != nil {
+		fileType = InvalidFile
+	}
 	return fileType
 }
 
@@ -14,6 +16,7 @@ type FileType string
 
 const (
 	UnknownFile FileType = ""
+	InvalidFile FileType = "invalid"
 	RuleFile    FileType = "rule"
 	ConfigFile  FileType = "config"
 )
