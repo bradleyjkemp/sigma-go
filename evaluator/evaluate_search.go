@@ -129,6 +129,9 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 	for _, value := range matcher.Values {
 		if strings.HasPrefix(value, "%") && strings.HasSuffix(value, "%") {
 			// expand placeholder to values
+			if rule.expandPlaceholder == nil {
+				return nil, fmt.Errorf("can't expand %s, no placeholder expander function defined", value)
+			}
 			placeholderValues, err := rule.expandPlaceholder(ctx, value)
 			if err != nil {
 				return nil, fmt.Errorf("failed to expand placeholder: %w", err)
