@@ -31,8 +31,16 @@ func ParseCondition(input string) (Condition, error) {
 		return Condition{}, err
 	}
 
+	search, err := searchToAST(root.Search)
+	if err != nil {
+		return Condition{}, err
+	}
+	aggregation, err := aggregationToAST(root.Aggregation)
+	if err != nil {
+		return Condition{}, err
+	}
 	return Condition{
-		Search:      searchToAST(root.Search),
-		Aggregation: aggregationToAST(root.Aggregation),
+		Search:      search,
+		Aggregation: aggregation,
 	}, nil
 }

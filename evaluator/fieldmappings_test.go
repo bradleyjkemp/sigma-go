@@ -179,9 +179,12 @@ func TestRuleEvaluator_GetFieldValuesFromEvent(t *testing.T) {
 	}))
 
 	expected := "value"
-	actual := rule.GetFieldValuesFromEvent("name", map[string]interface{}{
+	actual, err := rule.GetFieldValuesFromEvent("name", map[string]interface{}{
 		"toplevel": "value",
 	})
+	if err != nil {
+		t.Error(err)
+	}
 
 	if len(actual) != 1 {
 		t.Error("Expected 1 value in the resulting array of GetFieldValuesFromEvent")

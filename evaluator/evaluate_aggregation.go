@@ -11,7 +11,7 @@ import (
 func (rule RuleEvaluator) evaluateAggregationExpression(ctx context.Context, conditionIndex int, aggregation sigma.AggregationExpr, event Event) (bool, error) {
 	switch agg := aggregation.(type) {
 	case sigma.Near:
-		panic("near isn't supported yet")
+		return false, fmt.Errorf("near isn't supported yet")
 
 	case sigma.Comparison:
 		aggregationValue, err := rule.evaluateAggregationFunc(ctx, conditionIndex, agg.Func, event)
@@ -55,7 +55,7 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		} else {
 			// This is a more complex, count distinct values for a field
 			// TODO: implement this
-			panic("count_distinct not yet implemented")
+			return 0, fmt.Errorf("count_distinct not yet implemented")
 		}
 
 	case sigma.Average:
@@ -85,6 +85,6 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		}, val)
 
 	default:
-		panic("unsupported aggregation function")
+		return 0, fmt.Errorf("unsupported aggregation function")
 	}
 }

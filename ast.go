@@ -135,7 +135,7 @@ type Sum struct {
 
 func (Sum) aggregationFunc() {}
 
-func searchToAST(node interface{}) SearchExpr {
+func searchToAST(node interface{}) (SearchExpr, error) {
 	switch n := node.(type) {
 	case grammar.Disjunction:
 		if len(n.Nodes) == 1 {
@@ -144,9 +144,13 @@ func searchToAST(node interface{}) SearchExpr {
 
 		or := Or{}
 		for _, node := range n.Nodes {
-			or = append(or, searchToAST(*node))
+			n, err := searchToAST(*node)
+			if err != nil {
+				return nil, err
+			}
+			or = append(or, n)
 		}
-		return or
+		return or, nil
 
 	case grammar.Conjunction:
 		if len(n.Nodes) == 1 {
@@ -155,17 +159,25 @@ func searchToAST(node interface{}) SearchExpr {
 
 		and := And{}
 		for _, node := range n.Nodes {
-			and = append(and, searchToAST(*node))
+			n, err := searchToAST(*node)
+			if err != nil {
+				return nil, err
+			}
+			and = append(and, n)
 		}
-		return and
+		return and, nil
 
 	case grammar.Term:
 		switch {
 		case n.Negated != nil:
-			return Not{Expr: searchToAST(*n.Negated)}
+			n, err := searchToAST(*n.Negated)
+			if err != nil {
+				return nil, err
+			}
+			return Not{Expr: n}, nil
 
 		case n.Identifer != nil:
-			return SearchIdentifier{Name: *n.Identifer}
+			return SearchIdentifier{Name: *n.Identifer}, nil
 
 		case n.Subexpression != nil:
 			return searchToAST(*n.Subexpression)
@@ -174,46 +186,46 @@ func searchToAST(node interface{}) SearchExpr {
 			o := n.OneAllOf
 			switch {
 			case o.ALlOfThem:
-				return AllOfThem{}
+				return AllOfThem{}, nil
 
 			case o.OneOfThem:
-				return OneOfThem{}
+				return OneOfThem{}, nil
 
 			case o.AllOfIdentifier != nil:
 				return AllOfIdentifier{
 					Ident: SearchIdentifier{Name: *o.AllOfIdentifier},
-				}
+				}, nil
 
 			case o.OneOfIdentifier != nil:
 				return OneOfIdentifier{
 					Ident: SearchIdentifier{Name: *o.OneOfIdentifier},
-				}
+				}, nil
 
 			case o.AllOfPattern != nil:
 				return AllOfPattern{
 					Pattern: *o.AllOfPattern,
-				}
+				}, nil
 
 			case o.OneOfPattern != nil:
 				return OneOfPattern{
 					Pattern: *o.OneOfPattern,
-				}
+				}, nil
 			default:
-				panic("invalid term type: all fields nil")
+				return nil, fmt.Errorf("invalid term type: all fields nil")
 			}
 
 		default:
-			panic("invalid term")
+			return nil, fmt.Errorf("invalid term")
 		}
 
 	default:
-		panic(fmt.Sprintf("unhandled node type %T", node))
+		return nil, fmt.Errorf("unhandled node type %T", node)
 	}
 }
 
-func aggregationToAST(agg *grammar.Aggregation) AggregationExpr {
+func aggregationToAST(agg *grammar.Aggregation) (AggregationExpr, error) {
 	if agg == nil {
-		return nil
+		return nil, nil
 	}
 
 	var function AggregationFunc
@@ -244,11 +256,11 @@ func aggregationToAST(agg *grammar.Aggregation) AggregationExpr {
 			GroupedBy: agg.GroupField,
 		}
 	default:
-		panic("unknown aggregation function")
+		return nil, fmt.Errorf("unknown aggregation function")
 	}
 
 	if agg.Comparison == nil {
-		panic("non comparison aggregations not yet supported")
+		return nil, fmt.Errorf("non comparison aggregations not yet supported")
 	}
 
 	var operation ComparisonOp
@@ -266,12 +278,12 @@ func aggregationToAST(agg *grammar.Aggregation) AggregationExpr {
 	case agg.Comparison.GreaterThanEqual:
 		operation = GreaterThanEqual
 	default:
-		panic(fmt.Sprintf("unknown operation %v", agg.Comparison))
+		return nil, fmt.Errorf("unknown operation %v", agg.Comparison)
 	}
 
 	return Comparison{
 		Func:      function,
 		Op:        operation,
 		Threshold: agg.Threshold,
-	}
+	}, nil
 }

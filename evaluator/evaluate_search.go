@@ -35,11 +35,8 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 		return !rule.evaluateSearchExpression(s.Expr, searchResults)
 
 	case sigma.SearchIdentifier:
-		result, ok := searchResults[s.Name]
-		if !ok {
-			panic("invalid search identifier")
-		}
-		return result
+		// If `s.Name` is not defined, this is always false
+		return searchResults[s.Name]
 
 	case sigma.OneOfThem:
 		for name := range rule.Detection.Searches {
@@ -51,10 +48,8 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 
 	case sigma.OneOfPattern:
 		for name := range rule.Detection.Searches {
-			matchesPattern, err := path.Match(s.Pattern, name)
-			if err != nil {
-				panic(err)
-			}
+			// it's not possible for this call to error because the search expression parser won't allow this to contain invalid expressions
+			matchesPattern, _ := path.Match(s.Pattern, name)
 			if !matchesPattern {
 				continue
 			}
@@ -74,10 +69,8 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 
 	case sigma.AllOfPattern:
 		for name := range rule.Detection.Searches {
-			matchesPattern, err := path.Match(s.Pattern, name)
-			if err != nil {
-				panic(err)
-			}
+			// it's not possible for this call to error because the search expression parser won't allow this to contain invalid expressions
+			matchesPattern, _ := path.Match(s.Pattern, name)
 			if !matchesPattern {
 				continue
 			}
@@ -87,13 +80,12 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 		}
 		return true
 	}
-
-	panic(false)
+	panic(fmt.Sprintf("unhandled node type %T", search))
 }
 
 func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Search, event Event) (bool, error) {
 	if len(search.Keywords) > 0 {
-		panic("keywords unsupported")
+		return false, fmt.Errorf("keywords unsupported")
 	}
 
 	// A Search is a series of "does this field match this value" conditions
@@ -112,7 +104,7 @@ func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Searc
 		comparator := baseComparator
 		for _, name := range fieldModifiers {
 			if modifiers[name] == nil {
-				panic(fmt.Errorf("unsupported modifier %s", name))
+				return false, fmt.Errorf("unsupported modifier %s", name)
 			}
 			comparator = modifiers[name](comparator)
 		}
@@ -121,7 +113,7 @@ func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Searc
 		if err != nil {
 			return false, err
 		}
-		values := rule.GetFieldValuesFromEvent(matcher.Field, event)
+		values, err := rule.GetFieldValuesFromEvent(matcher.Field, event)
 		if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 			// this field didn't match so the overall matcher doesn't match
 			return false, nil
@@ -149,7 +141,7 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 	return matcherValues, nil
 }
 
-func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) []interface{} {
+func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([]interface{}, error) {
 	// First collect this list of event values we're matching against
 	var actualValues []interface{}
 	if len(rule.fieldmappings[field]) == 0 {
@@ -159,18 +151,22 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) []
 		// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
 		for _, mapping := range rule.fieldmappings[field] {
 			var v interface{}
+			var err error
 
 			switch {
 			case strings.HasPrefix(mapping, "$.") || strings.HasPrefix(mapping, "$["):
-				v = evaluateJSONPath(mapping, event)
+				v, err = evaluateJSONPath(mapping, event)
 			default:
 				v = eventValue(event, mapping)
+			}
+			if err != nil {
+				return nil, err
 			}
 
 			actualValues = append(actualValues, toGenericSlice(v)...)
 		}
 	}
-	return actualValues
+	return actualValues, nil
 }
 
 func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparator valueComparator, allValuesMustMatch bool, actualValues []interface{}) bool {
@@ -198,15 +194,15 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparat
 // Matches JSONPaths with either a $.fieldname or $["fieldname"] prefix and extracts 'fieldname'
 var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"])?`)
 
-func evaluateJSONPath(expr string, event Event) interface{} {
+func evaluateJSONPath(expr string, event Event) (interface{}, error) {
 	// First, just try to evaluate the JSONPath expression directly
 	value, err := jsonpath.Get(expr, event)
 	if err == nil {
 		// Got no error so return the value directly
-		return value
+		return value, nil
 	}
 	if !strings.HasPrefix(err.Error(), "unsupported value type") {
-		return nil
+		return nil, err
 	}
 
 	// Got an error: "unsupported value type X for select, expected map[string]interface{} or []interface{}"
@@ -217,7 +213,7 @@ func evaluateJSONPath(expr string, event Event) interface{} {
 
 	jsonPathField := firstJSONPathField.FindStringSubmatch(expr)
 	if jsonPathField == nil {
-		panic("couldn't parse JSONPath expression")
+		return nil, fmt.Errorf("couldn't parse JSONPath expression")
 	}
 
 	var subValue interface{}
@@ -233,14 +229,14 @@ func evaluateJSONPath(expr string, event Event) interface{} {
 		default:
 			// Oh well, don't try to unmarshal the nested field
 			value, _ := jsonpath.Get(expr, event)
-			return value
+			return value, nil
 		}
 	}
 
 	value, _ = jsonpath.Get(expr, map[string]interface{}{
 		jsonPathField[1]: subValue,
 	})
-	return value
+	return value, nil
 }
 
 func toGenericSlice(v interface{}) []interface{} {
