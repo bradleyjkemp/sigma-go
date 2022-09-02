@@ -3,6 +3,7 @@ package evaluator
 import (
 	"encoding/base64"
 	"fmt"
+	"net"
 	"regexp"
 	"strings"
 )
@@ -51,6 +52,18 @@ var modifiers = map[string]valueModifier{
 			}
 
 			return re.MatchString(fmt.Sprintf("%v", actual))
+		}
+	},
+	"cidr": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected string) bool {
+			_, cidr, err := net.ParseCIDR(expected)
+			if err != nil {
+				// TODO: what to do here?
+				return false
+			}
+
+			ip := net.ParseIP(fmt.Sprintf("%v", actual))
+			return cidr.Contains(ip)
 		}
 	},
 }
