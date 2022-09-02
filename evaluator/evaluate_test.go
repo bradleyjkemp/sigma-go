@@ -126,3 +126,41 @@ func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {
 		t.Fatal("rule should have matched")
 	}
 }
+
+func TestRuleEvaluator_Matches_Regex(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo": {
+					FieldMatchers: []sigma.FieldMatcher{
+						{
+							Field:     "foo-field",
+							Modifiers: []string{"re"},
+							Values: []string{
+								"foo.*baz",
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{
+					Search: sigma.SearchIdentifier{Name: "foo"},
+				},
+				{
+					Search: sigma.AllOfThem{},
+				},
+			},
+		},
+	})
+
+	result, err := rule.Matches(context.Background(), map[string]interface{}{
+		"foo-field": "foo-bar-baz",
+	})
+	switch {
+	case err != nil:
+		t.Fatal(err)
+	case !result.Match:
+		t.Fatal("rule should have matched")
+	}
+}
