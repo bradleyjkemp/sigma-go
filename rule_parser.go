@@ -78,34 +78,49 @@ func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
 
 type Search struct {
 	Keywords      []string
-	FieldMatchers []FieldMatcher
+	EventMatchers []EventMatcher
 }
 
 func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	switch node.Kind {
-	// SearchIdentifiers can be a list of keywords
-	case yaml.SequenceNode:
-		return node.Decode(&s.Keywords)
-
-	// Or SearchIdentifiers can a map of field names to values
+	// In the common case, SearchIdentifiers are a single EventMatcher (map of field names to values)
 	case yaml.MappingNode:
-		if len(node.Content)%2 != 0 {
-			return fmt.Errorf("internal: node.Content %% 2 != 0")
-		}
+		s.EventMatchers = []EventMatcher{{}}
+		return node.Decode(&s.EventMatchers[0])
 
-		for i := 0; i < len(node.Content); i += 2 {
-			matcher := FieldMatcher{}
-			err := matcher.unmarshal(node.Content[i], node.Content[i+1])
-			if err != nil {
-				return err
-			}
-			s.FieldMatchers = append(s.FieldMatchers, matcher)
+	// Or, SearchIdentifiers can be a list.
+	// Either of keywords (not supported by this library) or a list of EventMatchers (maps of fields to values)
+	case yaml.SequenceNode:
+		switch node.Content[0].Kind {
+		case yaml.ScalarNode:
+			return node.Decode(&s.Keywords)
+		case yaml.MappingNode:
+			return node.Decode(&s.EventMatchers)
+		default:
+			return fmt.Errorf("invalid condition list node type %d", node.Kind)
 		}
-		return nil
 
 	default:
 		return fmt.Errorf("invalid condition node type %d", node.Kind)
 	}
+}
+
+type EventMatcher []FieldMatcher
+
+func (f *EventMatcher) UnmarshalYAML(node *yaml.Node) error {
+	if len(node.Content)%2 != 0 {
+		return fmt.Errorf("internal: node.Content %% 2 != 0")
+	}
+
+	for i := 0; i < len(node.Content); i += 2 {
+		matcher := FieldMatcher{}
+		err := matcher.unmarshal(node.Content[i], node.Content[i+1])
+		if err != nil {
+			return err
+		}
+		*f = append(*f, matcher)
+	}
+	return nil
 }
 
 type FieldMatcher struct {

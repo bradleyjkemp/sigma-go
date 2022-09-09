@@ -88,40 +88,52 @@ func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Searc
 		return false, fmt.Errorf("keywords unsupported")
 	}
 
-	// A Search is a series of "does this field match this value" conditions
-	// all need to match, for the Search to evaluate to true
-	for _, matcher := range search.FieldMatchers {
-		// A field matcher can specify multiple values to match against
-		// either the field should match all of these values or it should match any of them
-		allValuesMustMatch := false
-		fieldModifiers := matcher.Modifiers
-		if len(matcher.Modifiers) > 0 && fieldModifiers[len(fieldModifiers)-1] == "all" {
-			allValuesMustMatch = true
-			fieldModifiers = fieldModifiers[:len(fieldModifiers)-1]
-		}
-
-		// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
-		comparator := baseComparator
-		for _, name := range fieldModifiers {
-			if modifiers[name] == nil {
-				return false, fmt.Errorf("unsupported modifier %s", name)
-			}
-			comparator = modifiers[name](comparator)
-		}
-
-		matcherValues, err := rule.getMatcherValues(ctx, matcher)
-		if err != nil {
-			return false, err
-		}
-		values, err := rule.GetFieldValuesFromEvent(matcher.Field, event)
-		if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
-			// this field didn't match so the overall matcher doesn't match
-			return false, nil
-		}
+	if len(search.EventMatchers) == 0 {
+		// degenerate case (but common for logsource conditions)
+		return true, nil
 	}
 
-	// all fields matched
-	return true, nil
+	// A Search is a series of EventMatchers (usually one)
+	// Each EventMatchers is a series of "does this field match this value" conditions
+	// all fields need to match for an EventMatcher to match, but only one EventMatcher needs to match for the Search to evaluate to true
+eventMatcher:
+	for _, eventMatcher := range search.EventMatchers {
+		for _, fieldMatcher := range eventMatcher {
+			// A field matcher can specify multiple values to match against
+			// either the field should match all of these values or it should match any of them
+			allValuesMustMatch := false
+			fieldModifiers := fieldMatcher.Modifiers
+			if len(fieldMatcher.Modifiers) > 0 && fieldModifiers[len(fieldModifiers)-1] == "all" {
+				allValuesMustMatch = true
+				fieldModifiers = fieldModifiers[:len(fieldModifiers)-1]
+			}
+
+			// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
+			comparator := baseComparator
+			for _, name := range fieldModifiers {
+				if modifiers[name] == nil {
+					return false, fmt.Errorf("unsupported modifier %s", name)
+				}
+				comparator = modifiers[name](comparator)
+			}
+
+			matcherValues, err := rule.getMatcherValues(ctx, fieldMatcher)
+			if err != nil {
+				return false, err
+			}
+			values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
+			if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
+				// this field didn't match so the overall matcher doesn't match, try the next EventMatcher
+				continue eventMatcher
+			}
+		}
+
+		// all fields matched!
+		return true, nil
+	}
+
+	// None of the event matchers explicitly matched
+	return false, nil
 }
 
 func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.FieldMatcher) ([]string, error) {
