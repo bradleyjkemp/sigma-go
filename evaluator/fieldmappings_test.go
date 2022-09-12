@@ -17,10 +17,12 @@ func TestRuleEvaluator_HandlesBasicFieldMappings(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{
@@ -55,10 +57,12 @@ func TestRuleEvaluator_HandlesJSONPathFieldMappings(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{
@@ -97,10 +101,12 @@ func TestRuleEvaluator_HandlesJSONPathByteSlice(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{
@@ -130,10 +136,12 @@ func TestRuleEvaluator_HandlesToplevelJSONPath(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{
@@ -163,10 +171,12 @@ func TestRuleEvaluator_GetFieldValuesFromEvent(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{
@@ -205,16 +215,20 @@ func TestRuleEvaluator_HandlesToplevelNestedJSONPath(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"test": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "name",
-						Values: []string{"value1"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value1"},
+						}},
+					},
 				},
 				"field2": {
-					FieldMatchers: []sigma.FieldMatcher{{
-						Field:  "field2",
-						Values: []string{"hello"},
-					}},
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "field2",
+							Values: []string{"hello"},
+						}},
+					},
 				},
 			},
 			Conditions: []sigma.Condition{

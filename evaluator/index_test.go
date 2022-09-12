@@ -88,10 +88,12 @@ func TestRuleEvaluator_ReleventToEvent_LogsourceConditions(t *testing.T) {
 					Product:  "product",
 				},
 				Conditions: sigma.Search{
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field:  "foo",
-							Values: []string{"bar"},
+							{
+								Field:  "foo",
+								Values: []string{"bar"},
+							},
 						},
 					},
 				},

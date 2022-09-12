@@ -12,41 +12,49 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"foo": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field: "foo-field",
-							Values: []string{
-								"foo-value",
+							{
+								Field: "foo-field",
+								Values: []string{
+									"foo-value",
+								},
 							},
 						},
 					},
 				},
 				"bar": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field: "bar-field",
-							Values: []string{
-								"bar-value",
+							{
+								Field: "bar-field",
+								Values: []string{
+									"bar-value",
+								},
 							},
 						},
 					},
 				},
 				"baz": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field: "baz-field",
-							Values: []string{
-								"baz-value",
+							{
+								Field: "baz-field",
+								Values: []string{
+									"baz-value",
+								},
 							},
 						},
 					},
 				},
 				"null-field": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field: "non-existent-field",
-							Values: []string{
-								"null",
+							{
+								Field: "non-existent-field",
+								Values: []string{
+									"null",
+								},
 							},
 						},
 					},
@@ -89,11 +97,13 @@ func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"foo": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field: "foo-field",
-							Values: []string{
-								"%foo-placeholder%",
+							{
+								Field: "foo-field",
+								Values: []string{
+									"%foo-placeholder%",
+								},
 							},
 						},
 					},
@@ -132,12 +142,14 @@ func TestRuleEvaluator_Matches_Regex(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"foo": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field:     "foo-field",
-							Modifiers: []string{"re"},
-							Values: []string{
-								"foo.*baz",
+							{
+								Field:     "foo-field",
+								Modifiers: []string{"re"},
+								Values: []string{
+									"foo.*baz",
+								},
 							},
 						},
 					},
@@ -170,12 +182,14 @@ func TestRuleEvaluator_Matches_CIDR(t *testing.T) {
 		Detection: sigma.Detection{
 			Searches: map[string]sigma.Search{
 				"foo": {
-					FieldMatchers: []sigma.FieldMatcher{
+					EventMatchers: []sigma.EventMatcher{
 						{
-							Field:     "foo-field",
-							Modifiers: []string{"cidr"},
-							Values: []string{
-								"10.0.0.0/8",
+							{
+								Field:     "foo-field",
+								Modifiers: []string{"cidr"},
+								Values: []string{
+									"10.0.0.0/8",
+								},
 							},
 						},
 					},

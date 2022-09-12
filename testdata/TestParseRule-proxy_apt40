@@ -10,21 +10,23 @@
     Searches: (map[string]sigma.Search) (len=1) {
       (string) (len=9) "selection": (sigma.Search) {
         Keywords: ([]string) <nil>,
-        FieldMatchers: ([]sigma.FieldMatcher) (len=2) {
-          (sigma.FieldMatcher) {
-            Field: (string) (len=11) "c-useragent",
-            Modifiers: ([]string) {
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "c-useragent",
+              Modifiers: ([]string) {
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=109) "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36"
+              }
             },
-            Values: ([]string) (len=1) {
-              (string) (len=109) "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36"
-            }
-          },
-          (sigma.FieldMatcher) {
-            Field: (string) (len=5) "r-dns",
-            Modifiers: ([]string) {
-            },
-            Values: ([]string) (len=1) {
-              (string) (len=15) "api.dropbox.com"
+            (sigma.FieldMatcher) {
+              Field: (string) (len=5) "r-dns",
+              Modifiers: ([]string) {
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=15) "api.dropbox.com"
+              }
             }
           }
         }
