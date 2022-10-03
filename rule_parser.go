@@ -34,7 +34,7 @@ type Logsource struct {
 	Definition string
 
 	// Any non-standard fields will end up in here
-	AditionalFields map[string]interface{} `yaml:",inline"`
+	AdditionalFields map[string]interface{} `yaml:",inline"`
 }
 
 type Detection struct {

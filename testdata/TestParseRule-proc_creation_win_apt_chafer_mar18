@@ -4,7 +4,8 @@
     Category: (string) (len=16) "process_creation",
     Product: (string) (len=7) "windows",
     Service: (string) "",
-    Definition: (string) ""
+    Definition: (string) "",
+    AdditionalFields: (map[string]interface {}) <nil>
   },
   Detection: (sigma.Detection) {
     Searches: (map[string]sigma.Search) (len=4) {
