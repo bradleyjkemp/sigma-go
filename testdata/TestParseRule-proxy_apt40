@@ -4,7 +4,8 @@
     Category: (string) (len=5) "proxy",
     Product: (string) "",
     Service: (string) "",
-    Definition: (string) ""
+    Definition: (string) "",
+    AdditionalFields: (map[string]interface {}) <nil>
   },
   Detection: (sigma.Detection) {
     Searches: (map[string]sigma.Search) (len=1) {
