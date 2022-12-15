@@ -9,19 +9,21 @@ import (
 )
 
 type Rule struct {
-	// Required fields
-	Title     string
+	RuleMetadata
 	Logsource Logsource
 	Detection Detection
+}
 
-	ID          string
-	Related     []string
-	Status      string
-	Description string
-	Author      string
-	Level       string
-	References  []string
-	Tags        []string
+type RuleMetadata struct {
+	ID          string   // a unique ID identifying this rule
+	Title       string   // a human-readable summary
+	Description string   // a longer description of the rule
+	Related     []string // a list of related rules (referenced by ID) TODO: update this to reflect the new Sigma format for this field
+	Status      string   // the stability of this rule
+	Level       string   // the severity of this rule
+	Author      string   // who wrote this rule
+	References  []string // hyperlinks to any supporting research
+	Tags        []string // a set of tags (e.g. MITRE ATT&CK techniques)
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`
