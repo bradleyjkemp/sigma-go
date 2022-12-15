@@ -16,7 +16,8 @@ func baseComparator(actual interface{}, expected string) bool {
 		// special case: "null" should match the case where a field isn't present (and so actual is nil)
 		return true
 	default:
-		return fmt.Sprintf("%v", actual) == expected
+		// The Sigma spec defines that by default comparisons are case-insensitive
+		return strings.EqualFold(fmt.Sprintf("%v", actual), expected)
 	}
 }
 
@@ -25,17 +26,19 @@ type valueModifier func(next valueComparator) valueComparator
 var modifiers = map[string]valueModifier{
 	"contains": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
-			return strings.Contains(fmt.Sprintf("%v", actual), expected)
+			// The Sigma spec defines that by default comparisons are case-insensitive
+			return strings.Contains(strings.ToLower(fmt.Sprintf("%v", actual)), strings.ToLower(expected))
 		}
 	},
 	"endswith": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
-			return strings.HasSuffix(fmt.Sprintf("%v", actual), expected)
+			// The Sigma spec defines that by default comparisons are case-insensitive
+			return strings.HasSuffix(strings.ToLower(fmt.Sprintf("%v", actual)), strings.ToLower(expected))
 		}
 	},
 	"startswith": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected string) bool {
-			return strings.HasPrefix(fmt.Sprintf("%v", actual), expected)
+			return strings.HasPrefix(strings.ToLower(fmt.Sprintf("%v", actual)), strings.ToLower(expected))
 		}
 	},
 	"base64": func(next valueComparator) valueComparator {

@@ -216,3 +216,88 @@ func TestRuleEvaluator_Matches_CIDR(t *testing.T) {
 		t.Fatal("rule should have matched")
 	}
 }
+
+func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field: "foo-field",
+								Values: []string{
+									"foo-value",
+								},
+							},
+						},
+					},
+				},
+				"bar": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field: "bar-field",
+								Values: []string{
+									"bAr-VaLuE",
+								},
+							},
+						},
+					},
+				},
+				"baz": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field: "baz-field",
+								Values: []string{
+									"baz-value",
+								},
+							},
+						},
+					},
+				},
+				"null-field": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field: "non-existent-field",
+								Values: []string{
+									"null",
+								},
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{
+					Search: sigma.And{
+						sigma.SearchIdentifier{Name: "foo"},
+						sigma.SearchIdentifier{Name: "bar"},
+						sigma.SearchIdentifier{Name: "null-field"},
+					},
+				},
+				{
+					Search: sigma.AllOfThem{},
+				},
+			},
+		},
+	})
+
+	result, err := rule.Matches(context.Background(), map[string]interface{}{
+		"foo-field": "FoO-vAlUe",
+		"bar-field": "bar-value",
+		"baz-field": "WrOnG-vAlUe",
+	})
+	switch {
+	case err != nil:
+		t.Fatal(err)
+	case !result.Match:
+		t.Error("rule should have matched", result.SearchResults)
+	case !result.SearchResults["foo"] || !result.SearchResults["bar"] || result.SearchResults["baz"]:
+		t.Error("expected foo and bar to be true but not baz")
+	case !result.ConditionResults[0] || result.ConditionResults[1]:
+		t.Error("expected first condition to be true and second condition to be false")
+	}
+}
