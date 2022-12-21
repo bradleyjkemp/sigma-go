@@ -57,6 +57,19 @@ func TestMultipleSamePaths(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, result.SearchResults["TestCondition"])
 
+	// Now check for other path
+	otherEvent := map[string]interface{}{
+		"payload": map[string]interface{}{
+			"other": map[string]interface{}{
+				"user_id": "abc123",
+			},
+		},
+	}
+
+	result, err = ruleEvaluator.Matches(context.Background(), otherEvent)
+	assert.NoError(t, err)
+	assert.False(t, result.SearchResults["TestCondition"])
+
 }
 
 func placeholderExpander(ctx context.Context, placeholderName string) ([]string, error) {
