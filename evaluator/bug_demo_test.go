@@ -11,18 +11,18 @@ import (
 )
 
 //go:embed logsource_a.config.yml
-var vpnConfigYml []byte
+var logsourceAConfigYml []byte
 
 //go:embed logsource_b.config.yml
-var apiConfigYml []byte
+var logsourceBConfigYml []byte
 
 //go:embed test_rule.yml
 var testRuleYml []byte
 
 func TestMultipleSamePaths(t *testing.T) {
-	vpnConfig, err := sigma.ParseConfig(vpnConfigYml)
+	logsourceAConfig, err := sigma.ParseConfig(logsourceAConfigYml)
 	assert.NoError(t, err)
-	apiConfig, err := sigma.ParseConfig(apiConfigYml)
+	logsourceBConfig, err := sigma.ParseConfig(logsourceBConfigYml)
 	assert.NoError(t, err)
 	testRule, err := sigma.ParseRule(testRuleYml)
 	assert.NoError(t, err)
@@ -35,7 +35,7 @@ func TestMultipleSamePaths(t *testing.T) {
 		},
 	}
 
-	ruleEvaluator := ForRule(testRule, WithConfig(vpnConfig, apiConfig), WithPlaceholderExpander(placeholderExpander))
+	ruleEvaluator := ForRule(testRule, WithConfig(logsourceAConfig, logsourceBConfig), WithPlaceholderExpander(placeholderExpander))
 
 	result, err := ruleEvaluator.Matches(context.Background(), event)
 	assert.NoError(t, err)
