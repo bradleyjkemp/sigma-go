@@ -1,6 +1,6 @@
 module github.com/bradleyjkemp/sigma-go
 
-go 1.15
+go 1.16
 
 require (
 	github.com/PaesslerAG/jsonpath v0.1.1

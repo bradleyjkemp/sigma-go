@@ -1,0 +1,10 @@
+title: Logsource B
+backends:
+  - github.com/bradleyjkemp/sigma-go
+logsources:
+  log-source-b:
+    category: logsource-b
+    product: logsource-b
+    index: logsource-b
+fieldmappings:
+  UserID: $.payload.other.user_id

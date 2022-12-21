@@ -1,0 +1,12 @@
+title: Test Rule
+description: "Rule for testing"
+
+logsource:
+    category: logsource-a
+    product: logsource-a
+detection:
+    TestCondition:
+        UserID: abc123
+    condition: TestCondition
+
+id: abc-123
