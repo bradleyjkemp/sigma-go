@@ -260,3 +260,60 @@ func TestRuleEvaluator_HandlesToplevelNestedJSONPath(t *testing.T) {
 		t.Error("A nested JSON field (e.g. Values: $.values[*]) should perform an evaluation on all entries in the array")
 	}
 }
+
+func TestRuleEvaluator_HandlesConflictingJSONPathFieldMappings(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Logsource: sigma.Logsource{
+			Category: "category",
+			Product:  "product",
+			Service:  "service",
+		},
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"test": {
+					EventMatchers: []sigma.EventMatcher{
+						{{
+							Field:  "name",
+							Values: []string{"value"},
+						}},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{Search: sigma.SearchIdentifier{Name: "test"}}},
+		},
+	}, WithConfig(sigma.Config{
+		FieldMappings: map[string]sigma.FieldMapping{
+			"name": {TargetNames: []string{"$.mapped.name"}},
+		},
+	}, sigma.Config{
+		FieldMappings: map[string]sigma.FieldMapping{
+			"name": {TargetNames: []string{"$.nonexistent.name"}},
+		},
+	}))
+
+	result, _ := rule.Matches(context.Background(), map[string]interface{}{
+		"name": "value",
+	})
+	if result.Match {
+		t.Error("If a field is mapped, the old name shouldn't be used")
+	}
+
+	result, _ = rule.Matches(context.Background(), map[string]interface{}{
+		"mapped": map[string]interface{}{
+			"name": "value",
+		},
+	})
+	if !result.Match {
+		t.Error("Both JSONPath mappings should be valid")
+	}
+
+	result, _ = rule.Matches(context.Background(), map[string]interface{}{
+		"nonexistent": map[string]interface{}{
+			"name": "value",
+		},
+	})
+	if !result.Match {
+		t.Error("Both JSONPath mappings should be valid")
+	}
+}
