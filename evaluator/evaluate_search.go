@@ -122,6 +122,9 @@ eventMatcher:
 				return false, err
 			}
 			values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
+			if err != nil {
+				return false, err
+			}
 			if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 				// this field didn't match so the overall matcher doesn't match, try the next EventMatcher
 				continue eventMatcher
@@ -212,11 +215,17 @@ var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"
 func evaluateJSONPath(expr string, event Event) (interface{}, error) {
 	// First, just try to evaluate the JSONPath expression directly
 	value, err := jsonpath.Get(expr, event)
-	if err == nil {
+	switch {
+	case err == nil:
 		// Got no error so return the value directly
 		return value, nil
-	}
-	if !strings.HasPrefix(err.Error(), "unsupported value type") {
+	case strings.HasPrefix(err.Error(), "unknown key "):
+		// This means we tried to access a nested field that wasn't present in the event.
+		// This is an expected situation which just results in returning no value (the same as if we were trying to access a top level field that didn't exist)
+		return nil, nil
+	case strings.HasPrefix(err.Error(), "unsupported value type"):
+		// handled below
+	default:
 		return nil, err
 	}
 
