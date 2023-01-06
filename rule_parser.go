@@ -15,7 +15,7 @@ type Rule struct {
 	Detection Detection
 
 	ID          string
-	Related     []string
+	Related     []map[string]string
 	Status      string
 	Description string
 	Author      string
