@@ -44,7 +44,7 @@
     Timeframe: (time.Duration) 0s
   },
   ID: (string) (len=36) "5ba715b6-71b7-44fd-8245-f66893e81b3d",
-  Related: ([]string) <nil>,
+  Related: ([]sigma.RelatedRule) <nil>,
   Status: (string) (len=12) "experimental",
   Description: (string) (len=58) "Detects suspicious user agent string of APT40 Dropbox tool",
   Author: (string) (len=13) "Thomas Patzke",

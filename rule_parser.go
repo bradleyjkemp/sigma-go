@@ -15,7 +15,7 @@ type Rule struct {
 	Detection Detection
 
 	ID          string
-	Related     []map[string]string
+	Related     []RelatedRule
 	Status      string
 	Description string
 	Author      string
@@ -25,6 +25,11 @@ type Rule struct {
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`
+}
+
+type RelatedRule struct {
+	ID   string
+	Type string
 }
 
 type Logsource struct {

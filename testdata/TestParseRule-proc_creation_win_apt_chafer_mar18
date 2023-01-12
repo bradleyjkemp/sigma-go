@@ -126,7 +126,7 @@
     Timeframe: (time.Duration) 0s
   },
   ID: (string) (len=36) "ce6e34ca-966d-41c9-8d93-5b06c8b97a06",
-  Related: ([]string) <nil>,
+  Related: ([]sigma.RelatedRule) <nil>,
   Status: (string) (len=4) "test",
   Description: (string) (len=88) "Detects Chafer activity attributed to OilRig as reported in Nyotron report in March 2018",
   Author: (string) (len=82) "Florian Roth, Markus Neis, Jonhnathan Ribeiro, Daniil Yugoslavskiy, oscd.community",
