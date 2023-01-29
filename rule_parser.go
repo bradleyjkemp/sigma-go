@@ -14,14 +14,14 @@ type Rule struct {
 	Logsource Logsource
 	Detection Detection
 
-	ID          string
-	Related     []RelatedRule
-	Status      string
-	Description string
-	Author      string
-	Level       string
-	References  []string
-	Tags        []string
+	ID          string        `yaml:",omitempty"`
+	Related     []RelatedRule `yaml:",omitempty"`
+	Status      string        `yaml:",omitempty"`
+	Description string        `yaml:",omitempty"`
+	Author      string        `yaml:",omitempty"`
+	Level       string        `yaml:",omitempty"`
+	References  []string      `yaml:",omitempty"`
+	Tags        []string      `yaml:",omitempty"`
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`
@@ -33,10 +33,10 @@ type RelatedRule struct {
 }
 
 type Logsource struct {
-	Category   string
-	Product    string
-	Service    string
-	Definition string
+	Category   string `yaml:",omitempty"`
+	Product    string `yaml:",omitempty"`
+	Service    string `yaml:",omitempty"`
+	Definition string `yaml:",omitempty"`
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`

@@ -79,7 +79,7 @@ func TestMarshalRule(t *testing.T) {
 				t.Fatalf("error decoding rule copy: %v", err)
 			}
 
-			if !cmp.Equal(rule.Detection, rule_copy.Detection) {
+			if !cmp.Equal(rule, rule_copy) {
 				t.Fatalf("rule and marshalled copy are not equal")
 			}
 
