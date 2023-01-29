@@ -84,6 +84,15 @@ func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
+// Marshal the conditions back to grammar expressions :sob:
+func (c Conditions) MarshalYAML() (interface{}, error) {
+	if len(c) == 1 {
+		return c[0], nil
+	} else {
+		return []Condition(c), nil
+	}
+}
+
 type Search struct {
 	Keywords      []string
 	EventMatchers []EventMatcher
@@ -113,6 +122,22 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	}
 }
 
+func (s Search) MarshalYAML() (interface{}, error) {
+
+	var err error
+	result := &yaml.Node{}
+
+	if s.Keywords != nil {
+		err = result.Encode(&s.Keywords)
+	} else if len(s.EventMatchers) == 1 {
+		err = result.Encode(&s.EventMatchers[0])
+	} else {
+		err = result.Encode(&s.EventMatchers)
+	}
+
+	return result, err
+}
+
 type EventMatcher []FieldMatcher
 
 func (f *EventMatcher) UnmarshalYAML(node *yaml.Node) error {
@@ -129,6 +154,27 @@ func (f *EventMatcher) UnmarshalYAML(node *yaml.Node) error {
 		*f = append(*f, matcher)
 	}
 	return nil
+}
+
+func (f EventMatcher) MarshalYAML() (interface{}, error) {
+
+	// Event matchers are represented by mapping nodes
+	result := &yaml.Node{
+		Kind: yaml.MappingNode,
+	}
+
+	// Reconstruct the mapping node for this event matcher
+	for _, matcher := range f {
+		// Reconstruct the field and value nodes
+		if field_node, value_node, err := matcher.marshal(); err != nil {
+			return nil, err
+		} else {
+			// Store the field name/value
+			result.Content = append(result.Content, field_node, value_node)
+		}
+	}
+
+	return result, nil
 }
 
 type FieldMatcher struct {
@@ -149,6 +195,35 @@ func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
 		return values.Decode(&f.Values)
 	}
 	return nil
+}
+
+func (f *FieldMatcher) marshal() (field_node *yaml.Node, value_node *yaml.Node, err error) {
+
+	// Reconstruct the field name with modifiers
+	field := f.Field
+	if len(f.Modifiers) > 0 {
+		field = field + "|" + strings.Join(f.Modifiers, "|")
+	}
+
+	// Encode the field name
+	field_node = &yaml.Node{}
+	err = field_node.Encode(&field)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Encode the field value(s)
+	value_node = &yaml.Node{}
+	if len(f.Values) > 1 {
+		err = value_node.Encode(&f.Values)
+	} else {
+		err = value_node.Encode(&f.Values[0])
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return field_node, value_node, err
 }
 
 func ParseRule(input []byte) (Rule, error) {

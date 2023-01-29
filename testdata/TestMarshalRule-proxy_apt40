@@ -1,0 +1,74 @@
+(sigma.Rule) {
+  Title: (string) (len=29) "APT40 Dropbox Tool User Agent",
+  Logsource: (sigma.Logsource) {
+    Category: (string) (len=5) "proxy",
+    Product: (string) "",
+    Service: (string) "",
+    Definition: (string) "",
+    AdditionalFields: (map[string]interface {}) <nil>
+  },
+  Detection: (sigma.Detection) {
+    Searches: (map[string]sigma.Search) (len=1) {
+      (string) (len=9) "selection": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "c-useragent",
+              Modifiers: ([]string) {
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=109) "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36"
+              }
+            },
+            (sigma.FieldMatcher) {
+              Field: (string) (len=5) "r-dns",
+              Modifiers: ([]string) {
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=15) "api.dropbox.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    Conditions: (sigma.Conditions) (len=1) {
+      (sigma.Condition) {
+        Search: (sigma.SearchIdentifier) {
+          Name: (string) (len=9) "selection"
+        },
+        Aggregation: (sigma.AggregationExpr) <nil>
+      }
+    },
+    Timeframe: (time.Duration) 0s
+  },
+  ID: (string) (len=36) "5ba715b6-71b7-44fd-8245-f66893e81b3d",
+  Related: ([]sigma.RelatedRule) <nil>,
+  Status: (string) (len=12) "experimental",
+  Description: (string) (len=58) "Detects suspicious user agent string of APT40 Dropbox tool",
+  Author: (string) (len=13) "Thomas Patzke",
+  Level: (string) (len=4) "high",
+  References: ([]string) (len=1) {
+    (string) (len=35) "Internal research from Florian Roth"
+  },
+  Tags: ([]string) (len=6) {
+    (string) (len=26) "attack.command_and_control",
+    (string) (len=16) "attack.t1071.001",
+    (string) (len=12) "attack.t1043",
+    (string) (len=19) "attack.exfiltration",
+    (string) (len=16) "attack.t1567.002",
+    (string) (len=12) "attack.t1048"
+  },
+  AdditionalFields: (map[string]interface {}) (len=4) {
+    (string) (len=4) "date": (string) (len=10) "2019/11/12",
+    (string) (len=14) "falsepositives": ([]interface {}) (len=1) {
+      (string) (len=12) "Old browsers"
+    },
+    (string) (len=6) "fields": ([]interface {}) (len=2) {
+      (string) (len=4) "c-ip",
+      (string) (len=5) "c-uri"
+    },
+    (string) (len=8) "modified": (string) (len=10) "2020/09/02"
+  }
+}
