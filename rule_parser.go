@@ -214,10 +214,10 @@ func (f *FieldMatcher) marshal() (field_node *yaml.Node, value_node *yaml.Node, 
 
 	// Encode the field value(s)
 	value_node = &yaml.Node{}
-	if len(f.Values) > 1 {
-		err = value_node.Encode(&f.Values)
-	} else {
+	if len(f.Values) == 1 {
 		err = value_node.Encode(&f.Values[0])
+	} else {
+		err = value_node.Encode(&f.Values)
 	}
 	if err != nil {
 		return nil, nil, err
