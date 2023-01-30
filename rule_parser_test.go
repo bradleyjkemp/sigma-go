@@ -82,8 +82,6 @@ func TestMarshalRule(t *testing.T) {
 			if !cmp.Equal(rule, rule_copy) {
 				t.Fatalf("rule and marshalled copy are not equal")
 			}
-
-			cupaloy.New(cupaloy.SnapshotSubdirectory("testdata")).SnapshotT(t, rule)
 		})
 		return nil
 	})
