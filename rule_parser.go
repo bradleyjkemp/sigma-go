@@ -108,6 +108,10 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	// Or, SearchIdentifiers can be a list.
 	// Either of keywords (not supported by this library) or a list of EventMatchers (maps of fields to values)
 	case yaml.SequenceNode:
+		if len(node.Content) == 0 {
+			return fmt.Errorf("invalid search condition node (empty)")
+		}
+
 		switch node.Content[0].Kind {
 		case yaml.ScalarNode:
 			return node.Decode(&s.Keywords)
@@ -131,6 +135,8 @@ func (s Search) MarshalYAML() (interface{}, error) {
 		err = result.Encode(&s.Keywords)
 	} else if len(s.EventMatchers) == 1 {
 		err = result.Encode(&s.EventMatchers[0])
+	} else if len(s.EventMatchers) == 0 {
+		err = fmt.Errorf("no search criteria")
 	} else {
 		err = result.Encode(&s.EventMatchers)
 	}
@@ -180,7 +186,7 @@ func (f EventMatcher) MarshalYAML() (interface{}, error) {
 type FieldMatcher struct {
 	Field     string
 	Modifiers []string
-	Values    []string
+	Values    []interface{}
 }
 
 func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
@@ -189,10 +195,17 @@ func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
 
 	switch values.Kind {
 	case yaml.ScalarNode:
-		f.Values = []string{values.Value}
-
+		f.Values = []interface{}{nil}
+		return values.Decode(&f.Values[0])
 	case yaml.SequenceNode:
 		return values.Decode(&f.Values)
+	case yaml.MappingNode:
+		fallthrough
+	case yaml.DocumentNode:
+		f.Values = []interface{}{map[string]interface{}{}}
+		return values.Decode(&f.Values[0])
+	case yaml.AliasNode:
+		return f.unmarshal(field, values.Alias)
 	}
 	return nil
 }

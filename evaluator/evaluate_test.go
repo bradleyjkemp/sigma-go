@@ -16,7 +16,7 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 						{
 							{
 								Field: "foo-field",
-								Values: []string{
+								Values: []interface{}{
 									"foo-value",
 								},
 							},
@@ -28,7 +28,7 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 						{
 							{
 								Field: "bar-field",
-								Values: []string{
+								Values: []interface{}{
 									"bar-value",
 								},
 							},
@@ -40,7 +40,7 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 						{
 							{
 								Field: "baz-field",
-								Values: []string{
+								Values: []interface{}{
 									"baz-value",
 								},
 							},
@@ -52,7 +52,7 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 						{
 							{
 								Field: "non-existent-field",
-								Values: []string{
+								Values: []interface{}{
 									"null",
 								},
 							},
@@ -101,7 +101,7 @@ func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {
 						{
 							{
 								Field: "foo-field",
-								Values: []string{
+								Values: []interface{}{
 									"%foo-placeholder%",
 								},
 							},
@@ -147,7 +147,7 @@ func TestRuleEvaluator_Matches_Regex(t *testing.T) {
 							{
 								Field:     "foo-field",
 								Modifiers: []string{"re"},
-								Values: []string{
+								Values: []interface{}{
 									"foo.*baz",
 								},
 							},
@@ -187,7 +187,7 @@ func TestRuleEvaluator_Matches_CIDR(t *testing.T) {
 							{
 								Field:     "foo-field",
 								Modifiers: []string{"cidr"},
-								Values: []string{
+								Values: []interface{}{
 									"10.0.0.0/8",
 								},
 							},
@@ -226,7 +226,7 @@ func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
 						{
 							{
 								Field: "foo-field",
-								Values: []string{
+								Values: []interface{}{
 									"foo-value",
 								},
 							},
@@ -238,7 +238,7 @@ func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
 						{
 							{
 								Field: "bar-field",
-								Values: []string{
+								Values: []interface{}{
 									"bAr-VaLuE",
 								},
 							},
@@ -250,7 +250,7 @@ func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
 						{
 							{
 								Field: "baz-field",
-								Values: []string{
+								Values: []interface{}{
 									"baz-value",
 								},
 							},
@@ -262,7 +262,7 @@ func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
 						{
 							{
 								Field: "non-existent-field",
-								Values: []string{
+								Values: []interface{}{
 									"null",
 								},
 							},

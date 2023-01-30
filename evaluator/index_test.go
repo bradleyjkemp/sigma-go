@@ -92,7 +92,7 @@ func TestRuleEvaluator_ReleventToEvent_LogsourceConditions(t *testing.T) {
 						{
 							{
 								Field:  "foo",
-								Values: []string{"bar"},
+								Values: []interface{}{"bar"},
 							},
 						},
 					},

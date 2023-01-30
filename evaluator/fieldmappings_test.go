@@ -20,7 +20,7 @@ func TestRuleEvaluator_HandlesBasicFieldMappings(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
@@ -60,7 +60,7 @@ func TestRuleEvaluator_HandlesJSONPathFieldMappings(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
@@ -104,7 +104,7 @@ func TestRuleEvaluator_HandlesJSONPathByteSlice(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
@@ -139,7 +139,7 @@ func TestRuleEvaluator_HandlesToplevelJSONPath(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
@@ -174,7 +174,7 @@ func TestRuleEvaluator_GetFieldValuesFromEvent(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
@@ -218,7 +218,7 @@ func TestRuleEvaluator_HandlesToplevelNestedJSONPath(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value1"},
+							Values: []interface{}{"value1"},
 						}},
 					},
 				},
@@ -226,7 +226,7 @@ func TestRuleEvaluator_HandlesToplevelNestedJSONPath(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "field2",
-							Values: []string{"hello"},
+							Values: []interface{}{"hello"},
 						}},
 					},
 				},
@@ -274,7 +274,7 @@ func TestRuleEvaluator_HandlesConflictingJSONPathFieldMappings(t *testing.T) {
 					EventMatchers: []sigma.EventMatcher{
 						{{
 							Field:  "name",
-							Values: []string{"value"},
+							Values: []interface{}{"value"},
 						}},
 					},
 				},
