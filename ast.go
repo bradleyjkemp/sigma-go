@@ -145,6 +145,10 @@ type Near struct {
 
 func (Near) aggregationExpr() {}
 
+func (n Near) toString() string {
+	return "near " + n.Condition.toString()
+}
+
 type ComparisonOp string
 
 var (
