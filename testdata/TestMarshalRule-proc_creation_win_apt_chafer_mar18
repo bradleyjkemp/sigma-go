@@ -1,0 +1,155 @@
+(sigma.Rule) {
+  Title: (string) (len=15) "Chafer Activity",
+  Logsource: (sigma.Logsource) {
+    Category: (string) (len=16) "process_creation",
+    Product: (string) (len=7) "windows",
+    Service: (string) "",
+    Definition: (string) "",
+    AdditionalFields: (map[string]interface {}) <nil>
+  },
+  Detection: (sigma.Detection) {
+    Searches: (map[string]sigma.Search) (len=4) {
+      (string) (len=18) "selection_process0": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "CommandLine",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "contains"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=12) "\\Service.exe"
+              }
+            },
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "CommandLine",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "endswith"
+              },
+              Values: ([]string) (len=2) {
+                (string) (len=1) "i",
+                (string) (len=1) "u"
+              }
+            }
+          }
+        }
+      },
+      (string) (len=18) "selection_process1": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=2) {
+          (sigma.EventMatcher) (len=1) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "CommandLine",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "endswith"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=30) "\\microsoft\\Taskbar\\autoit3.exe"
+              }
+            }
+          },
+          (sigma.EventMatcher) (len=1) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "CommandLine",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=10) "startswith"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=10) "C:\\wsc.exe"
+              }
+            }
+          }
+        }
+      },
+      (string) (len=18) "selection_process2": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=5) "Image",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "contains"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=17) "\\Windows\\Temp\\DB\\"
+              }
+            },
+            (sigma.FieldMatcher) {
+              Field: (string) (len=5) "Image",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "endswith"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=4) ".exe"
+              }
+            }
+          }
+        }
+      },
+      (string) (len=18) "selection_process3": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "CommandLine",
+              Modifiers: ([]string) (len=2) {
+                (string) (len=8) "contains",
+                (string) (len=3) "all"
+              },
+              Values: ([]string) (len=2) {
+                (string) (len=13) "\\nslookup.exe",
+                (string) (len=6) "-q=TXT"
+              }
+            },
+            (sigma.FieldMatcher) {
+              Field: (string) (len=11) "ParentImage",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "contains"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=7) "\\Autoit"
+              }
+            }
+          }
+        }
+      }
+    },
+    Conditions: (sigma.Conditions) (len=1) {
+      (sigma.Condition) {
+        Search: (sigma.OneOfPattern) {
+          Pattern: (string) (len=10) "selection*"
+        },
+        Aggregation: (sigma.AggregationExpr) <nil>
+      }
+    },
+    Timeframe: (time.Duration) 0s
+  },
+  ID: (string) (len=36) "ce6e34ca-966d-41c9-8d93-5b06c8b97a06",
+  Related: ([]sigma.RelatedRule) <nil>,
+  Status: (string) (len=4) "test",
+  Description: (string) (len=88) "Detects Chafer activity attributed to OilRig as reported in Nyotron report in March 2018",
+  Author: (string) (len=82) "Florian Roth, Markus Neis, Jonhnathan Ribeiro, Daniil Yugoslavskiy, oscd.community",
+  Level: (string) (len=4) "high",
+  References: ([]string) (len=1) {
+    (string) (len=69) "https://nyotron.com/nyotron-discovers-next-generation-oilrig-attacks/"
+  },
+  Tags: ([]string) (len=9) {
+    (string) (len=18) "attack.persistence",
+    (string) (len=12) "attack.g0049",
+    (string) (len=16) "attack.t1053.005",
+    (string) (len=12) "attack.s0111",
+    (string) (len=16) "attack.t1543.003",
+    (string) (len=22) "attack.defense_evasion",
+    (string) (len=12) "attack.t1112",
+    (string) (len=26) "attack.command_and_control",
+    (string) (len=16) "attack.t1071.004"
+  },
+  AdditionalFields: (map[string]interface {}) (len=3) {
+    (string) (len=4) "date": (string) (len=10) "2018/03/23",
+    (string) (len=14) "falsepositives": ([]interface {}) (len=1) {
+      (string) (len=7) "Unknown"
+    },
+    (string) (len=8) "modified": (string) (len=10) "2021/09/19"
+  }
+}
