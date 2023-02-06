@@ -18,7 +18,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=12) "\\Service.exe"
               }
             },
@@ -27,7 +27,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
               },
-              Values: ([]interface {}) (len=2) {
+              Values: ([]string) (len=2) {
                 (string) (len=1) "i",
                 (string) (len=1) "u"
               }
@@ -44,7 +44,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=30) "\\microsoft\\Taskbar\\autoit3.exe"
               }
             }
@@ -55,7 +55,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=10) "startswith"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=10) "C:\\wsc.exe"
               }
             }
@@ -71,7 +71,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=17) "\\Windows\\Temp\\DB\\"
               }
             },
@@ -80,7 +80,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=4) ".exe"
               }
             }
@@ -97,7 +97,7 @@
                 (string) (len=8) "contains",
                 (string) (len=3) "all"
               },
-              Values: ([]interface {}) (len=2) {
+              Values: ([]string) (len=2) {
                 (string) (len=13) "\\nslookup.exe",
                 (string) (len=6) "-q=TXT"
               }
@@ -107,7 +107,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=7) "\\Autoit"
               }
             }

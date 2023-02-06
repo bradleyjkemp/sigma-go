@@ -18,7 +18,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=10) "startswith"
               },
-              Values: ([]interface {}) (len=1) {
+              Values: ([]string) (len=1) {
                 (string) (len=8) "PSEXESVC"
               }
             }
@@ -35,7 +35,7 @@
                 (string) (len=8) "contains",
                 (string) (len=3) "all"
               },
-              Values: ([]interface {}) (len=2) {
+              Values: ([]string) (len=2) {
                 (string) (len=2) "\\\\",
                 (string) (len=5) "\\IPC$"
               }
@@ -45,7 +45,7 @@
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
               },
-              Values: ([]interface {}) (len=3) {
+              Values: ([]string) (len=3) {
                 (string) (len=6) "-stdin",
                 (string) (len=7) "-stdout",
                 (string) (len=7) "-stderr"
