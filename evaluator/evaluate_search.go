@@ -147,16 +147,10 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 		switch abstractValue := abstractValue.(type) {
 		case string:
 			value = abstractValue
-		case int:
-			value = fmt.Sprintf("%v", abstractValue)
-		case float32:
-			value = fmt.Sprintf("%v", abstractValue)
-		case float64:
-			value = fmt.Sprintf("%v", abstractValue)
-		case bool:
+		case int, float32, float64, bool:
 			value = fmt.Sprintf("%v", abstractValue)
 		default:
-			return nil, fmt.Errorf("expected scalar field matching value got: %v", abstractValue)
+			return nil, fmt.Errorf("expected scalar field matching value got: %v (%T)", abstractValue, abstractValue)
 		}
 
 		if strings.HasPrefix(value, "%") && strings.HasSuffix(value, "%") {
