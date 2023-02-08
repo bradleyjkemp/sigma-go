@@ -200,8 +200,6 @@ func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
 	case yaml.SequenceNode:
 		return values.Decode(&f.Values)
 	case yaml.MappingNode:
-		fallthrough
-	case yaml.DocumentNode:
 		f.Values = []interface{}{map[string]interface{}{}}
 		return values.Decode(&f.Values[0])
 	case yaml.AliasNode:
