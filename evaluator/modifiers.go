@@ -71,19 +71,26 @@ var modifiers = map[string]valueModifier{
 	},
 	"gt": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
-			actual, expected, err := coerceNumeric(actual, expected)
-			if err != nil {
-				return false, err
-			}
-
-			switch actual.(type) {
-			case int:
-				return actual.(int) > expected.(int), nil
-			case float64:
-				return actual.(float64) > expected.(float64), nil
-			default:
-				return false, fmt.Errorf("internal, please report! coerceNumeric returned unexpected types %T and %T", actual, expected)
-			}
+			gt, _, _, _, err := compareNumeric(actual, expected)
+			return gt, err
+		}
+	},
+	"gte": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, gte, _, _, err := compareNumeric(actual, expected)
+			return gte, err
+		}
+	},
+	"lt": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, _, lt, _, err := compareNumeric(actual, expected)
+			return lt, err
+		}
+	},
+	"lte": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, _, _, lte, err := compareNumeric(actual, expected)
+			return lte, err
 		}
 	},
 }
@@ -126,5 +133,26 @@ func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
 
 	default:
 		return nil, nil, fmt.Errorf("cannot coerce %T and %T to numeric", left, right)
+	}
+}
+
+func compareNumeric(left, right interface{}) (gt, gte, lt, lte bool, err error) {
+	left, right, err = coerceNumeric(left, right)
+	if err != nil {
+		return
+	}
+
+	switch left.(type) {
+	case int:
+		left := left.(int)
+		right := right.(int)
+		return left > right, left >= right, left < right, left <= right, nil
+	case float64:
+		left := left.(float64)
+		right := right.(float64)
+		return left > right, left >= right, left < right, left <= right, nil
+	default:
+		err = fmt.Errorf("internal, please report! coerceNumeric returned unexpected types %T and %T", left, right)
+		return
 	}
 }
