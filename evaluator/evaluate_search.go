@@ -141,7 +141,18 @@ eventMatcher:
 
 func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.FieldMatcher) ([]string, error) {
 	matcherValues := []string{}
-	for _, value := range matcher.Values {
+	for _, abstractValue := range matcher.Values {
+		value := ""
+
+		switch abstractValue := abstractValue.(type) {
+		case string:
+			value = abstractValue
+		case int, float32, float64, bool:
+			value = fmt.Sprintf("%v", abstractValue)
+		default:
+			return nil, fmt.Errorf("expected scalar field matching value got: %v (%T)", abstractValue, abstractValue)
+		}
+
 		if strings.HasPrefix(value, "%") && strings.HasSuffix(value, "%") {
 			// expand placeholder to values
 			if rule.expandPlaceholder == nil {
