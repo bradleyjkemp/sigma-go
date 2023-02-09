@@ -301,3 +301,55 @@ func TestRuleEvaluator_MatchesCaseInsensitive(t *testing.T) {
 		t.Error("expected first condition to be true and second condition to be false")
 	}
 }
+
+func TestRuleEvaluator_MatchesGreaterThan(t *testing.T) {
+	rule := ForRule(sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo1": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field:     "foo-field",
+								Modifiers: []string{"gt"},
+								Values: []interface{}{
+									"1",
+								},
+							},
+						},
+					},
+				},
+				"foo0.5": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field:     "foo-field",
+								Modifiers: []string{"gt"},
+								Values: []interface{}{
+									"0.5",
+								},
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{
+				{
+					Search: sigma.SearchIdentifier{Name: "foo0.5"},
+				},
+			},
+		},
+	})
+
+	result, err := rule.Matches(context.Background(), map[string]interface{}{
+		"foo-field": 0.75,
+	})
+	switch {
+	case err != nil:
+		t.Fatal(err)
+	case !result.Match:
+		t.Error("rule should have matched", result.SearchResults)
+	case !result.SearchResults["foo0.5"] || result.SearchResults["foo1"]:
+		t.Error("expected foo0.5 to be true but not foo1")
+	}
+}
