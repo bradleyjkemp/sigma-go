@@ -1,38 +1,45 @@
 package evaluator
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 )
 
-func Test_coerceNumeric(t *testing.T) {
+func Test_compareNumeric(t *testing.T) {
 	tests := []struct {
-		name      string
-		left      interface{}
-		right     interface{}
-		wantLeft  interface{}
-		wantRight interface{}
-		wantErr   bool
+		left    interface{}
+		right   interface{}
+		wantGt  bool
+		wantGte bool
+		wantLt  bool
+		wantLte bool
 	}{
-		{"Two integers", 1, 2, 1, 2, false},
-		{"Two floats", 1.1, 1.2, 1.1, 1.2, false},
-		{"One int, one float", 1, 1.2, float64(1.0), 1.2, false},
-		{"One float, one int", 1.1, 2, 1.1, float64(2.0), false},
-		{"One int, one string", 1, "2", 1, 2, false},
-		{"One string, one float", "1.1", 1.2, 1.1, 1.2, false},
+		{1, 2, false, false, true, true},
+		{1.1, 1.2, false, false, true, true},
+		{1, 1.2, false, false, true, true},
+		{1.1, 2, false, false, true, true},
+		{1, "2", false, false, true, true},
+		{"1.1", 1.2, false, false, true, true},
+		{"1.1", 1.1, false, true, false, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := coerceNumeric(tt.left, tt.right)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("coerceNumeric() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(fmt.Sprintf("%s_%s", tt.left, tt.right), func(t *testing.T) {
+			gotGt, gotGte, gotLt, gotLte, err := compareNumeric(tt.left, tt.right)
+			if err != nil {
+				t.Errorf("compareNumeric() error = %v", err)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.wantLeft) {
-				t.Errorf("coerceNumeric() got = %v, want %v", got, tt.wantLeft)
+			if gotGt != tt.wantGt {
+				t.Errorf("compareNumeric() gotGt = %v, want %v", gotGt, tt.wantGt)
 			}
-			if !reflect.DeepEqual(got1, tt.wantRight) {
-				t.Errorf("coerceNumeric() got1 = %v, want %v", got1, tt.wantRight)
+			if gotGte != tt.wantGte {
+				t.Errorf("compareNumeric() gotGte = %v, want %v", gotGte, tt.wantGte)
+			}
+			if gotLt != tt.wantLt {
+				t.Errorf("compareNumeric() gotLt = %v, want %v", gotLt, tt.wantLt)
+			}
+			if gotLte != tt.wantLte {
+				t.Errorf("compareNumeric() gotLte = %v, want %v", gotLte, tt.wantLte)
 			}
 		})
 	}
