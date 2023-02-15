@@ -204,7 +204,11 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparat
 		valueMatchedEvent := false
 		// There are multiple possible event fields that each expected value needs to be compared against
 		for _, actualValue := range actualValues {
-			if comparator(actualValue, expectedValue) {
+			comparatorMatched, err := comparator(actualValue, expectedValue)
+			if err != nil {
+				// todo
+			}
+			if comparatorMatched {
 				valueMatchedEvent = true
 				break
 			}
