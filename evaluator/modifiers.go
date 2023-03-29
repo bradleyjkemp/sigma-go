@@ -19,7 +19,7 @@ func baseComparator(actual interface{}, expected interface{}) (bool, error) {
 		return true, nil
 	default:
 		// The Sigma spec defines that by default comparisons are case-insensitive
-		return strings.EqualFold(fmt.Sprint(actual), fmt.Sprint(expected)), nil
+		return strings.EqualFold(coerceString(actual), coerceString(expected)), nil
 	}
 }
 
@@ -29,43 +29,43 @@ var modifiers = map[string]valueModifier{
 	"contains": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
 			// The Sigma spec defines that by default comparisons are case-insensitive
-			return strings.Contains(strings.ToLower(fmt.Sprint(actual)), strings.ToLower(fmt.Sprint(expected))), nil
+			return strings.Contains(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"endswith": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
 			// The Sigma spec defines that by default comparisons are case-insensitive
-			return strings.HasSuffix(strings.ToLower(fmt.Sprint(actual)), strings.ToLower(fmt.Sprint(expected))), nil
+			return strings.HasSuffix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"startswith": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
-			return strings.HasPrefix(strings.ToLower(fmt.Sprint(actual)), strings.ToLower(fmt.Sprint(expected))), nil
+			return strings.HasPrefix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"base64": func(next valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
-			return next(actual, base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(expected))))
+			return next(actual, base64.StdEncoding.EncodeToString([]byte(coerceString(expected))))
 		}
 	},
 	"re": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
-			re, err := regexp.Compile(fmt.Sprint(expected))
+			re, err := regexp.Compile(coerceString(expected))
 			if err != nil {
 				return false, err
 			}
 
-			return re.MatchString(fmt.Sprint(actual)), nil
+			return re.MatchString(coerceString(actual)), nil
 		}
 	},
 	"cidr": func(_ valueComparator) valueComparator {
 		return func(actual interface{}, expected interface{}) (bool, error) {
-			_, cidr, err := net.ParseCIDR(fmt.Sprint(expected))
+			_, cidr, err := net.ParseCIDR(coerceString(expected))
 			if err != nil {
 				return false, err
 			}
 
-			ip := net.ParseIP(fmt.Sprint(actual))
+			ip := net.ParseIP(coerceString(actual))
 			return cidr.Contains(ip), nil
 		}
 	},
@@ -93,6 +93,17 @@ var modifiers = map[string]valueModifier{
 			return lte, err
 		}
 	},
+}
+
+func coerceString(v interface{}) string {
+	switch vv := v.(type) {
+	case string:
+		return vv
+	case []byte:
+		return string(vv)
+	default:
+		return fmt.Sprint(vv)
+	}
 }
 
 // coerceNumeric makes both operands into the widest possible number of the same type
