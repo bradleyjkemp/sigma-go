@@ -1,0 +1,100 @@
+(sigma.Rule) {
+  Title: (string) (len=34) "Suspicious PsExec Execution - Zeek",
+  Logsource: (sigma.Logsource) {
+    Category: (string) "",
+    Product: (string) (len=4) "zeek",
+    Service: (string) (len=9) "smb_files",
+    Definition: (string) "",
+    AdditionalFields: (map[string]interface {}) <nil>
+  },
+  Detection: (sigma.Detection) {
+    Searches: (map[string]sigma.Search) (len=2) {
+      (string) (len=6) "filter": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=1) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=4) "name",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=10) "startswith"
+              },
+              Values: ([]string) (len=1) {
+                (string) (len=8) "PSEXESVC"
+              }
+            }
+          }
+        }
+      },
+      (string) (len=9) "selection": (sigma.Search) {
+        Keywords: ([]string) <nil>,
+        EventMatchers: ([]sigma.EventMatcher) (len=1) {
+          (sigma.EventMatcher) (len=2) {
+            (sigma.FieldMatcher) {
+              Field: (string) (len=4) "path",
+              Modifiers: ([]string) (len=2) {
+                (string) (len=8) "contains",
+                (string) (len=3) "all"
+              },
+              Values: ([]string) (len=2) {
+                (string) (len=2) "\\\\",
+                (string) (len=5) "\\IPC$"
+              }
+            },
+            (sigma.FieldMatcher) {
+              Field: (string) (len=4) "name",
+              Modifiers: ([]string) (len=1) {
+                (string) (len=8) "endswith"
+              },
+              Values: ([]string) (len=3) {
+                (string) (len=6) "-stdin",
+                (string) (len=7) "-stdout",
+                (string) (len=7) "-stderr"
+              }
+            }
+          }
+        }
+      }
+    },
+    Conditions: (sigma.Conditions) (len=1) {
+      (sigma.Condition) {
+        Search: (sigma.And) (len=2) {
+          (sigma.SearchIdentifier) {
+            Name: (string) (len=9) "selection"
+          },
+          (sigma.Not) {
+            Expr: (sigma.SearchIdentifier) {
+              Name: (string) (len=6) "filter"
+            }
+          }
+        },
+        Aggregation: (sigma.AggregationExpr) <nil>
+      }
+    },
+    Timeframe: (time.Duration) 0s
+  },
+  ID: (string) (len=36) "f1b3a22a-45e6-4004-afb5-4291f9c21166",
+  Related: ([]sigma.RelatedRule) (len=1) {
+    (sigma.RelatedRule) {
+      ID: (string) (len=36) "c462f537-a1e3-41a6-b5fc-b2c2cef9bf82",
+      Type: (string) (len=7) "derived"
+    }
+  },
+  Status: (string) (len=4) "test",
+  Description: (string) (len=214) "detects execution of psexec or paexec with renamed service name, this rule helps to filter out the noise if psexec is used for legit purposes or if attacker uses a different psexec client other than sysinternal one",
+  Author: (string) (len=39) "Samir Bousseaden, @neu5ron, Tim Shelton",
+  Level: (string) (len=4) "high",
+  References: ([]string) (len=1) {
+    (string) (len=71) "https://blog.menasec.net/2019/02/threat-hunting-3-detecting-psexec.html"
+  },
+  Tags: ([]string) (len=2) {
+    (string) (len=23) "attack.lateral_movement",
+    (string) (len=16) "attack.t1021.002"
+  },
+  AdditionalFields: (map[string]interface {}) (len=3) {
+    (string) (len=4) "date": (string) (len=10) "2020/04/02",
+    (string) (len=14) "falsepositives": ([]interface {}) (len=1) {
+      (string) (len=7) "Unknown"
+    },
+    (string) (len=8) "modified": (string) (len=10) "2022/12/27"
+  }
+}

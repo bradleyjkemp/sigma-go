@@ -9,7 +9,8 @@
         Category: (string) (len=9) "dns_query",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -20,8 +21,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=2) "22"
+              Values: ([]interface {}) (len=1) {
+                (int) 22
               }
             }
           }
@@ -31,7 +32,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=13) "driver_loaded": (sigma.LogsourceMapping) {
@@ -39,7 +41,8 @@
         Category: (string) (len=11) "driver_load",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -50,8 +53,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=1) "6"
+              Values: ([]interface {}) (len=1) {
+                (int) 6
               }
             }
           }
@@ -61,7 +64,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=13) "file_creation": (sigma.LogsourceMapping) {
@@ -69,7 +73,8 @@
         Category: (string) (len=10) "file_event",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -80,8 +85,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=2) "11"
+              Values: ([]interface {}) (len=1) {
+                (int) 11
               }
             }
           }
@@ -91,7 +96,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=12) "image_loaded": (sigma.LogsourceMapping) {
@@ -99,7 +105,8 @@
         Category: (string) (len=10) "image_load",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -110,8 +117,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=1) "7"
+              Values: ([]interface {}) (len=1) {
+                (int) 7
               }
             }
           }
@@ -121,7 +128,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=18) "network_connection": (sigma.LogsourceMapping) {
@@ -129,7 +137,8 @@
         Category: (string) (len=18) "network_connection",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -140,8 +149,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=1) "3"
+              Values: ([]interface {}) (len=1) {
+                (int) 3
               }
             }
           }
@@ -151,7 +160,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=14) "process_access": (sigma.LogsourceMapping) {
@@ -159,7 +169,8 @@
         Category: (string) (len=14) "process_access",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -170,8 +181,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=2) "10"
+              Values: ([]interface {}) (len=1) {
+                (int) 10
               }
             }
           }
@@ -181,7 +192,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=16) "process_creation": (sigma.LogsourceMapping) {
@@ -189,7 +201,8 @@
         Category: (string) (len=16) "process_creation",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -200,8 +213,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=1) "1"
+              Values: ([]interface {}) (len=1) {
+                (int) 1
               }
             }
           }
@@ -211,7 +224,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=18) "process_terminated": (sigma.LogsourceMapping) {
@@ -219,7 +233,8 @@
         Category: (string) (len=19) "process_termination",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -230,8 +245,8 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=1) {
-                (string) (len=1) "5"
+              Values: ([]interface {}) (len=1) {
+                (int) 5
               }
             }
           }
@@ -241,7 +256,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     },
     (string) (len=14) "registry_event": (sigma.LogsourceMapping) {
@@ -249,7 +265,8 @@
         Category: (string) (len=14) "registry_event",
         Product: (string) (len=7) "windows",
         Service: (string) "",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
@@ -260,10 +277,10 @@
               Field: (string) (len=7) "EventID",
               Modifiers: ([]string) {
               },
-              Values: ([]string) (len=3) {
-                (string) (len=2) "12",
-                (string) (len=2) "13",
-                (string) (len=2) "14"
+              Values: ([]interface {}) (len=3) {
+                (int) 12,
+                (int) 13,
+                (int) 14
               }
             }
           }
@@ -273,7 +290,8 @@
         Category: (string) "",
         Product: (string) (len=7) "windows",
         Service: (string) (len=6) "sysmon",
-        Definition: (string) ""
+        Definition: (string) "",
+        AdditionalFields: (map[string]interface {}) <nil>
       }
     }
   },

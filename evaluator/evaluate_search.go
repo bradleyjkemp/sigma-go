@@ -122,6 +122,9 @@ eventMatcher:
 				return false, err
 			}
 			values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
+			if err != nil {
+				return false, err
+			}
 			if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 				// this field didn't match so the overall matcher doesn't match, try the next EventMatcher
 				continue eventMatcher
@@ -138,7 +141,18 @@ eventMatcher:
 
 func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.FieldMatcher) ([]string, error) {
 	matcherValues := []string{}
-	for _, value := range matcher.Values {
+	for _, abstractValue := range matcher.Values {
+		value := ""
+
+		switch abstractValue := abstractValue.(type) {
+		case string:
+			value = abstractValue
+		case int, float32, float64, bool:
+			value = fmt.Sprintf("%v", abstractValue)
+		default:
+			return nil, fmt.Errorf("expected scalar field matching value got: %v (%T)", abstractValue, abstractValue)
+		}
+
 		if strings.HasPrefix(value, "%") && strings.HasSuffix(value, "%") {
 			// expand placeholder to values
 			if rule.expandPlaceholder == nil {
@@ -190,7 +204,11 @@ func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparat
 		valueMatchedEvent := false
 		// There are multiple possible event fields that each expected value needs to be compared against
 		for _, actualValue := range actualValues {
-			if comparator(actualValue, expectedValue) {
+			comparatorMatched, err := comparator(actualValue, expectedValue)
+			if err != nil {
+				// todo
+			}
+			if comparatorMatched {
 				valueMatchedEvent = true
 				break
 			}
@@ -212,11 +230,17 @@ var firstJSONPathField = regexp.MustCompile(`^\$(?:[.]|\[")([a-zA-Z0-9_\-]+)(?:"
 func evaluateJSONPath(expr string, event Event) (interface{}, error) {
 	// First, just try to evaluate the JSONPath expression directly
 	value, err := jsonpath.Get(expr, event)
-	if err == nil {
+	switch {
+	case err == nil:
 		// Got no error so return the value directly
 		return value, nil
-	}
-	if !strings.HasPrefix(err.Error(), "unsupported value type") {
+	case strings.HasPrefix(err.Error(), "unknown key "):
+		// This means we tried to access a nested field that wasn't present in the event.
+		// This is an expected situation which just results in returning no value (the same as if we were trying to access a top level field that didn't exist)
+		return nil, nil
+	case strings.HasPrefix(err.Error(), "unsupported value type"):
+		// handled below
+	default:
 		return nil, err
 	}
 

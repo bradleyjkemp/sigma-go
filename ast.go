@@ -2,6 +2,7 @@ package sigma
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bradleyjkemp/sigma-go/internal/grammar"
 )
@@ -11,20 +12,58 @@ type Condition struct {
 	Aggregation AggregationExpr
 }
 
+func (c Condition) MarshalYAML() (interface{}, error) {
+	search := c.Search.toString()
+	if c.Aggregation != nil {
+		return search + " | " + c.Aggregation.toString(), nil
+	} else {
+		return search, nil
+	}
+}
+
 type SearchExpr interface {
 	searchExpr()
+	toString() string
 }
 
 type And []SearchExpr
 
 func (And) searchExpr() {}
 
+func (e And) toString() string {
+	if len(e) == 1 {
+		return e[0].toString()
+	} else {
+		converted := make([]string, len(e))
+		for idx, sub := range e {
+			converted[idx] = sub.toString()
+		}
+		return "(" + strings.Join(converted, " and ") + ")"
+	}
+}
+
 type Or []SearchExpr
 
 func (Or) searchExpr() {}
 
+func (e Or) toString() string {
+	if len(e) == 1 {
+		return e[0].toString()
+	} else {
+		converted := make([]string, len(e))
+		for idx, sub := range e {
+			converted[idx] = sub.toString()
+		}
+		return "(" + strings.Join(converted, " or ") + ")"
+	}
+}
+
 type Not struct {
 	Expr SearchExpr
+}
+
+func (e Not) toString() string {
+	return "not " + e.Expr.toString()
 }
 
 func (Not) searchExpr() {}
@@ -35,11 +74,19 @@ type OneOfIdentifier struct {
 
 func (OneOfIdentifier) searchExpr() {}
 
+func (e OneOfIdentifier) toString() string {
+	return "1 of " + e.Ident.toString()
+}
+
 type AllOfIdentifier struct {
 	Ident SearchIdentifier
 }
 
 func (AllOfIdentifier) searchExpr() {}
+
+func (e AllOfIdentifier) toString() string {
+	return "all of " + e.Ident.toString()
+}
 
 type AllOfPattern struct {
 	Pattern string
@@ -47,19 +94,35 @@ type AllOfPattern struct {
 
 func (AllOfPattern) searchExpr() {}
 
+func (e AllOfPattern) toString() string {
+	return "all of " + e.Pattern
+}
+
 type OneOfPattern struct {
 	Pattern string
 }
 
 func (OneOfPattern) searchExpr() {}
 
+func (e OneOfPattern) toString() string {
+	return "1 of " + e.Pattern
+}
+
 type OneOfThem struct{}
 
 func (OneOfThem) searchExpr() {}
 
+func (OneOfThem) toString() string {
+	return "1 of them"
+}
+
 type AllOfThem struct{}
 
 func (AllOfThem) searchExpr() {}
+
+func (AllOfThem) toString() string {
+	return "all of them"
+}
 
 type SearchIdentifier struct {
 	Name string
@@ -67,8 +130,13 @@ type SearchIdentifier struct {
 
 func (SearchIdentifier) searchExpr() {}
 
+func (e SearchIdentifier) toString() string {
+	return e.Name
+}
+
 type AggregationExpr interface {
 	aggregationExpr()
+	toString() string
 }
 
 type Near struct {
@@ -76,6 +144,10 @@ type Near struct {
 }
 
 func (Near) aggregationExpr() {}
+
+func (n Near) toString() string {
+	return "near " + n.Condition.toString()
+}
 
 type ComparisonOp string
 
@@ -96,8 +168,13 @@ type Comparison struct {
 
 func (Comparison) aggregationExpr() {}
 
+func (e Comparison) toString() string {
+	return fmt.Sprintf("%v %v %v", e.Func.toString(), e.Op, e.Threshold)
+}
+
 type AggregationFunc interface {
 	aggregationFunc()
+	toString() string
 }
 
 type Count struct {
@@ -107,12 +184,28 @@ type Count struct {
 
 func (Count) aggregationFunc() {}
 
+func (c Count) toString() string {
+	result := "count(" + c.Field + ")"
+	if c.GroupedBy != "" {
+		result += " by " + c.GroupedBy
+	}
+	return result
+}
+
 type Min struct {
 	Field     string
 	GroupedBy string
 }
 
 func (Min) aggregationFunc() {}
+
+func (c Min) toString() string {
+	result := "min(" + c.Field + ")"
+	if c.GroupedBy != "" {
+		result += " by " + c.GroupedBy
+	}
+	return result
+}
 
 type Max struct {
 	Field     string
@@ -121,6 +214,14 @@ type Max struct {
 
 func (Max) aggregationFunc() {}
 
+func (c Max) toString() string {
+	result := "max(" + c.Field + ")"
+	if c.GroupedBy != "" {
+		result += " by " + c.GroupedBy
+	}
+	return result
+}
+
 type Average struct {
 	Field     string
 	GroupedBy string
@@ -128,12 +229,28 @@ type Average struct {
 
 func (Average) aggregationFunc() {}
 
+func (c Average) toString() string {
+	result := "avg(" + c.Field + ")"
+	if c.GroupedBy != "" {
+		result += " by " + c.GroupedBy
+	}
+	return result
+}
+
 type Sum struct {
 	Field     string
 	GroupedBy string
 }
 
 func (Sum) aggregationFunc() {}
+
+func (c Sum) toString() string {
+	result := "sum(" + c.Field + ")"
+	if c.GroupedBy != "" {
+		result += " by " + c.GroupedBy
+	}
+	return result
+}
 
 func searchToAST(node interface{}) (SearchExpr, error) {
 	switch n := node.(type) {

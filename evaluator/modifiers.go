@@ -3,20 +3,23 @@ package evaluator
 import (
 	"encoding/base64"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"net"
+	"reflect"
 	"regexp"
 	"strings"
 )
 
-type valueComparator func(actual interface{}, expected string) bool
+type valueComparator func(actual interface{}, expected interface{}) (bool, error)
 
-func baseComparator(actual interface{}, expected string) bool {
+func baseComparator(actual interface{}, expected interface{}) (bool, error) {
 	switch {
 	case actual == nil && expected == "null":
 		// special case: "null" should match the case where a field isn't present (and so actual is nil)
-		return true
+		return true, nil
 	default:
-		return fmt.Sprintf("%v", actual) == expected
+		// The Sigma spec defines that by default comparisons are case-insensitive
+		return strings.EqualFold(coerceString(actual), coerceString(expected)), nil
 	}
 }
 
@@ -24,46 +27,143 @@ type valueModifier func(next valueComparator) valueComparator
 
 var modifiers = map[string]valueModifier{
 	"contains": func(_ valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			return strings.Contains(fmt.Sprintf("%v", actual), expected)
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			// The Sigma spec defines that by default comparisons are case-insensitive
+			return strings.Contains(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"endswith": func(_ valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			return strings.HasSuffix(fmt.Sprintf("%v", actual), expected)
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			// The Sigma spec defines that by default comparisons are case-insensitive
+			return strings.HasSuffix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"startswith": func(_ valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			return strings.HasPrefix(fmt.Sprintf("%v", actual), expected)
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			return strings.HasPrefix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
 		}
 	},
 	"base64": func(next valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			return next(actual, base64.StdEncoding.EncodeToString([]byte(expected)))
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			return next(actual, base64.StdEncoding.EncodeToString([]byte(coerceString(expected))))
 		}
 	},
 	"re": func(_ valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			re, err := regexp.Compile(expected)
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			re, err := regexp.Compile(coerceString(expected))
 			if err != nil {
-				// TODO: what to do here?
-				return false
+				return false, err
 			}
 
-			return re.MatchString(fmt.Sprintf("%v", actual))
+			return re.MatchString(coerceString(actual)), nil
 		}
 	},
 	"cidr": func(_ valueComparator) valueComparator {
-		return func(actual interface{}, expected string) bool {
-			_, cidr, err := net.ParseCIDR(expected)
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, cidr, err := net.ParseCIDR(coerceString(expected))
 			if err != nil {
-				// TODO: what to do here?
-				return false
+				return false, err
 			}
 
-			ip := net.ParseIP(fmt.Sprintf("%v", actual))
-			return cidr.Contains(ip)
+			ip := net.ParseIP(coerceString(actual))
+			return cidr.Contains(ip), nil
 		}
 	},
+	"gt": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			gt, _, _, _, err := compareNumeric(actual, expected)
+			return gt, err
+		}
+	},
+	"gte": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, gte, _, _, err := compareNumeric(actual, expected)
+			return gte, err
+		}
+	},
+	"lt": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, _, lt, _, err := compareNumeric(actual, expected)
+			return lt, err
+		}
+	},
+	"lte": func(_ valueComparator) valueComparator {
+		return func(actual interface{}, expected interface{}) (bool, error) {
+			_, _, _, lte, err := compareNumeric(actual, expected)
+			return lte, err
+		}
+	},
+}
+
+func coerceString(v interface{}) string {
+	switch vv := v.(type) {
+	case string:
+		return vv
+	case []byte:
+		return string(vv)
+	default:
+		return fmt.Sprint(vv)
+	}
+}
+
+// coerceNumeric makes both operands into the widest possible number of the same type
+func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
+	leftV := reflect.ValueOf(left)
+	leftType := reflect.ValueOf(left).Type()
+	rightV := reflect.ValueOf(right)
+	rightType := reflect.ValueOf(right).Type()
+
+	switch {
+	// Both integers or both floats? Return directly
+	case leftType.Kind() == reflect.Int && rightType.Kind() == reflect.Int:
+		fallthrough
+	case leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64:
+		return left, right, nil
+
+	// Mixed integer, float? Return two floats
+	case leftType.Kind() == reflect.Int && rightType.Kind() == reflect.Float64:
+		fallthrough
+	case leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Int:
+		floatType := reflect.TypeOf(float64(0))
+		return leftV.Convert(floatType).Interface(), rightV.Convert(floatType).Interface(), nil
+
+	// One or more strings? Parse and recurse.
+	// We use `yaml.Unmarshal` to parse the string because it's a cheat's way of parsing either an integer or a float
+	case leftType.Kind() == reflect.String:
+		var leftParsed interface{}
+		if err := yaml.Unmarshal([]byte(left.(string)), &leftParsed); err != nil {
+			return nil, nil, err
+		}
+		return coerceNumeric(leftParsed, right)
+	case rightType.Kind() == reflect.String:
+		var rightParsed interface{}
+		if err := yaml.Unmarshal([]byte(right.(string)), &rightParsed); err != nil {
+			return nil, nil, err
+		}
+		return coerceNumeric(left, rightParsed)
+
+	default:
+		return nil, nil, fmt.Errorf("cannot coerce %T and %T to numeric", left, right)
+	}
+}
+
+func compareNumeric(left, right interface{}) (gt, gte, lt, lte bool, err error) {
+	left, right, err = coerceNumeric(left, right)
+	if err != nil {
+		return
+	}
+
+	switch left.(type) {
+	case int:
+		left := left.(int)
+		right := right.(int)
+		return left > right, left >= right, left < right, left <= right, nil
+	case float64:
+		left := left.(float64)
+		right := right.(float64)
+		return left > right, left >= right, left < right, left <= right, nil
+	default:
+		err = fmt.Errorf("internal, please report! coerceNumeric returned unexpected types %T and %T", left, right)
+		return
+	}
 }
