@@ -14,7 +14,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 26,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=2) "22",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 26,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 26,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -61,7 +103,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 69,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=1) "6",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 69,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 69,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -108,7 +192,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 45,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=2) "11",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 45,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 45,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -155,7 +281,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 61,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=1) "7",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 61,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 61,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -202,7 +370,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 18,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=1) "3",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 18,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 18,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -249,7 +459,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 53,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=2) "10",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 53,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 53,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -296,7 +548,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 10,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=1) "1",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 10,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 10,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -343,7 +637,49 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 77,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!int",
+              Value: (string) (len=1) "5",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 77,
+              Column: (int) 16
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 77,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
@@ -390,7 +726,92 @@
       },
       Index: (sigma.LogsourceIndexes) <nil>,
       Conditions: (sigma.Search) {
-        node: (*yaml.Node)(<nil>),
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 4,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!map",
+          Value: (string) "",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) (len=2) {
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 8,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!str",
+              Value: (string) (len=7) "EventID",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) <nil>,
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 34,
+              Column: (int) 7
+            }),
+            (*yaml.Node)({
+              Kind: (yaml.Kind) 2,
+              Style: (yaml.Style) 0,
+              Tag: (string) (len=5) "!!seq",
+              Value: (string) "",
+              Anchor: (string) "",
+              Alias: (*yaml.Node)(<nil>),
+              Content: ([]*yaml.Node) (len=3) {
+                (*yaml.Node)({
+                  Kind: (yaml.Kind) 8,
+                  Style: (yaml.Style) 0,
+                  Tag: (string) (len=5) "!!int",
+                  Value: (string) (len=2) "12",
+                  Anchor: (string) "",
+                  Alias: (*yaml.Node)(<nil>),
+                  Content: ([]*yaml.Node) <nil>,
+                  HeadComment: (string) "",
+                  LineComment: (string) "",
+                  FootComment: (string) "",
+                  Line: (int) 35,
+                  Column: (int) 11
+                }),
+                (*yaml.Node)({
+                  Kind: (yaml.Kind) 8,
+                  Style: (yaml.Style) 0,
+                  Tag: (string) (len=5) "!!int",
+                  Value: (string) (len=2) "13",
+                  Anchor: (string) "",
+                  Alias: (*yaml.Node)(<nil>),
+                  Content: ([]*yaml.Node) <nil>,
+                  HeadComment: (string) "",
+                  LineComment: (string) "",
+                  FootComment: (string) "",
+                  Line: (int) 36,
+                  Column: (int) 11
+                }),
+                (*yaml.Node)({
+                  Kind: (yaml.Kind) 8,
+                  Style: (yaml.Style) 0,
+                  Tag: (string) (len=5) "!!int",
+                  Value: (string) (len=2) "14",
+                  Anchor: (string) "",
+                  Alias: (*yaml.Node)(<nil>),
+                  Content: ([]*yaml.Node) <nil>,
+                  HeadComment: (string) "",
+                  LineComment: (string) "",
+                  FootComment: (string) "",
+                  Line: (int) 37,
+                  Column: (int) 11
+                })
+              },
+              HeadComment: (string) "",
+              LineComment: (string) "",
+              FootComment: (string) "",
+              Line: (int) 35,
+              Column: (int) 9
+            })
+          },
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 34,
+          Column: (int) 7
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {

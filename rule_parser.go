@@ -136,6 +136,7 @@ type Search struct {
 }
 
 func (s *Search) UnmarshalYAML(node *yaml.Node) error {
+	s.node = node
 	switch node.Kind {
 	// In the common case, SearchIdentifiers are a single EventMatcher (map of field names to values)
 	case yaml.MappingNode:
