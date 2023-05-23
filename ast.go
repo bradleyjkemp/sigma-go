@@ -23,8 +23,9 @@ func (c Condition) MarshalYAML() (interface{}, error) {
 	}
 }
 
-func (c Condition) RawYAML() *yaml.Node {
-	return c.node
+// Position returns the line and column of this Condition in the original input
+func (c Condition) Position() (int, int) {
+	return c.node.Line - 1, c.node.Column - 1
 }
 
 type SearchExpr interface {

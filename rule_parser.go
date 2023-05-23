@@ -130,8 +130,9 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	}
 }
 
-func (s Search) RawYAML() *yaml.Node {
-	return s.node
+// Position returns the line and column of this Search in the original input
+func (s Search) Position() (int, int) {
+	return s.node.Line - 1, s.node.Column - 1
 }
 
 func (s Search) MarshalYAML() (interface{}, error) {
@@ -196,6 +197,11 @@ type FieldMatcher struct {
 	Field     string
 	Modifiers []string
 	Values    []interface{}
+}
+
+// Position returns the line and column of this FieldMatcher in the original input
+func (f FieldMatcher) Position() (int, int) {
+	return f.node.Line - 1, f.node.Column - 1
 }
 
 func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
