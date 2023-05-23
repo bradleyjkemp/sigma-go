@@ -62,6 +62,7 @@ func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
+		parsed.node = node
 		*c = []Condition{parsed}
 
 	case yaml.SequenceNode:
@@ -69,11 +70,12 @@ func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
 		if err := node.Decode(&conditions); err != nil {
 			return err
 		}
-		for _, condition := range conditions {
+		for i, condition := range conditions {
 			parsed, err := ParseCondition(condition)
 			if err != nil {
 				return fmt.Errorf("error parsing condition \"%s\": %w", condition, err)
 			}
+			parsed.node = node.Content[i]
 			*c = append(*c, parsed)
 		}
 
@@ -94,11 +96,13 @@ func (c Conditions) MarshalYAML() (interface{}, error) {
 }
 
 type Search struct {
+	node          *yaml.Node
 	Keywords      []string
 	EventMatchers []EventMatcher
 }
 
 func (s *Search) UnmarshalYAML(node *yaml.Node) error {
+	s.node = node
 	switch node.Kind {
 	// In the common case, SearchIdentifiers are a single EventMatcher (map of field names to values)
 	case yaml.MappingNode:
@@ -124,6 +128,10 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	default:
 		return fmt.Errorf("invalid condition node type %d", node.Kind)
 	}
+}
+
+func (s Search) RawYAML() *yaml.Node {
+	return s.node
 }
 
 func (s Search) MarshalYAML() (interface{}, error) {
@@ -184,12 +192,14 @@ func (f EventMatcher) MarshalYAML() (interface{}, error) {
 }
 
 type FieldMatcher struct {
+	node      *yaml.Node
 	Field     string
 	Modifiers []string
 	Values    []interface{}
 }
 
 func (f *FieldMatcher) unmarshal(field *yaml.Node, values *yaml.Node) error {
+	f.node = field
 	fieldParts := strings.Split(field.Value, "|")
 	f.Field, f.Modifiers = fieldParts[0], fieldParts[1:]
 

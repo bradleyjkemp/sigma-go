@@ -2,12 +2,14 @@ package sigma
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"strings"
 
 	"github.com/bradleyjkemp/sigma-go/internal/grammar"
 )
 
 type Condition struct {
+	node        *yaml.Node
 	Search      SearchExpr
 	Aggregation AggregationExpr
 }
@@ -19,6 +21,10 @@ func (c Condition) MarshalYAML() (interface{}, error) {
 	} else {
 		return search, nil
 	}
+}
+
+func (c Condition) RawYAML() *yaml.Node {
+	return c.node
 }
 
 type SearchExpr interface {
