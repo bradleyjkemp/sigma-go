@@ -48,6 +48,40 @@ type Detection struct {
 	Timeframe  time.Duration     `yaml:",omitempty"`
 }
 
+func (d *Detection) UnmarshalYAML(node *yaml.Node) error {
+	// we need a custom unmarshaller here to handle the position information for searches
+	if node.Kind != yaml.MappingNode || len(node.Content)%2 != 0 {
+		return fmt.Errorf("cannot unmarshal %d into Detection", node.Kind)
+	}
+
+	for i := 0; i < len(node.Content); i += 2 {
+		key, value := node.Content[i], node.Content[i+1]
+
+		switch key.Value {
+		case "condition":
+			if err := d.Conditions.UnmarshalYAML(value); err != nil {
+				return err
+			}
+		case "timeframe":
+			if err := node.Decode(&d.Timeframe); err != nil {
+				return err
+			}
+		default:
+			search := Search{}
+			if err := search.UnmarshalYAML(value); err != nil {
+				return err
+			}
+			search.node = key
+			if d.Searches == nil {
+				d.Searches = map[string]Search{}
+			}
+			d.Searches[key.Value] = search
+		}
+
+	}
+	return nil
+}
+
 type Conditions []Condition
 
 func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
@@ -102,7 +136,6 @@ type Search struct {
 }
 
 func (s *Search) UnmarshalYAML(node *yaml.Node) error {
-	s.node = node
 	switch node.Kind {
 	// In the common case, SearchIdentifiers are a single EventMatcher (map of field names to values)
 	case yaml.MappingNode:

@@ -11,75 +11,18 @@
     Searches: (map[string]sigma.Search) (len=1) {
       (string) (len=9) "selection": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=9) "selection",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=4) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=11) "c-useragent",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 23,
-              Column: (int) 7
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=109) "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 23,
-              Column: (int) 20
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=5) "r-dns",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 24,
-              Column: (int) 7
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=15) "api.dropbox.com",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 24,
-              Column: (int) 14
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 23,
-          Column: (int) 7
+          Line: (int) 22,
+          Column: (int) 5
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {

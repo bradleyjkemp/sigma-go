@@ -11,47 +11,18 @@
     Searches: (map[string]sigma.Search) (len=2) {
       (string) (len=6) "filter": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=6) "filter",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=2) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=15) "name|startswith",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 29,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=8) "PSEXESVC",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 29,
-              Column: (int) 22
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 29,
-          Column: (int) 5
+          Line: (int) 28,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
@@ -84,147 +55,18 @@
       },
       (string) (len=9) "selection": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=9) "selection",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=4) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=17) "path|contains|all",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 21,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 2,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!seq",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=2) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=2) "\\\\",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 22,
-                  Column: (int) 9
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=5) "\\IPC$",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 23,
-                  Column: (int) 9
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 22,
-              Column: (int) 7
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=13) "name|endswith",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 24,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 2,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!seq",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=3) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=6) "-stdin",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 25,
-                  Column: (int) 9
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=7) "-stdout",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 26,
-                  Column: (int) 9
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=7) "-stderr",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 27,
-                  Column: (int) 9
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 25,
-              Column: (int) 7
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 21,
-          Column: (int) 5
+          Line: (int) 20,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {

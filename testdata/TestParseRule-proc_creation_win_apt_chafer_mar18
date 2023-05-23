@@ -11,104 +11,18 @@
     Searches: (map[string]sigma.Search) (len=4) {
       (string) (len=18) "selection_process0": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process0",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=4) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=20) "CommandLine|contains",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 28,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=12) "\\Service.exe",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 28,
-              Column: (int) 27
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=20) "CommandLine|endswith",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 29,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 2,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!seq",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=2) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=1) "i",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 30,
-                  Column: (int) 9
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=1) "u",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 31,
-                  Column: (int) 9
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 30,
-              Column: (int) 7
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 28,
-          Column: (int) 5
+          Line: (int) 27,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
@@ -165,105 +79,18 @@
       },
       (string) (len=18) "selection_process1": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 2,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!seq",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process1",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=2) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 4,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!map",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=2) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 0,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=20) "CommandLine|endswith",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 33,
-                  Column: (int) 7
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=30) "\\microsoft\\Taskbar\\autoit3.exe",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 33,
-                  Column: (int) 29
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 33,
-              Column: (int) 7
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 4,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!map",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=2) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 0,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=22) "CommandLine|startswith",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 34,
-                  Column: (int) 7
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=10) "C:\\wsc.exe",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 34,
-                  Column: (int) 31
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 34,
-              Column: (int) 7
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 33,
-          Column: (int) 5
+          Line: (int) 32,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=2) {
@@ -321,75 +148,18 @@
       },
       (string) (len=18) "selection_process2": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process2",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=4) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=14) "Image|contains",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 36,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=17) "\\Windows\\Temp\\DB\\",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 36,
-              Column: (int) 21
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=14) "Image|endswith",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 37,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=4) ".exe",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 37,
-              Column: (int) 21
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 36,
-          Column: (int) 5
+          Line: (int) 35,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
@@ -445,104 +215,18 @@
       },
       (string) (len=18) "selection_process3": (sigma.Search) {
         node: (*yaml.Node)({
-          Kind: (yaml.Kind) 4,
+          Kind: (yaml.Kind) 8,
           Style: (yaml.Style) 0,
-          Tag: (string) (len=5) "!!map",
-          Value: (string) "",
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process3",
           Anchor: (string) "",
           Alias: (*yaml.Node)(<nil>),
-          Content: ([]*yaml.Node) (len=4) {
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=24) "CommandLine|contains|all",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 39,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 2,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!seq",
-              Value: (string) "",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) (len=2) {
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=13) "\\nslookup.exe",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 40,
-                  Column: (int) 9
-                }),
-                (*yaml.Node)({
-                  Kind: (yaml.Kind) 8,
-                  Style: (yaml.Style) 4,
-                  Tag: (string) (len=5) "!!str",
-                  Value: (string) (len=6) "-q=TXT",
-                  Anchor: (string) "",
-                  Alias: (*yaml.Node)(<nil>),
-                  Content: ([]*yaml.Node) <nil>,
-                  HeadComment: (string) "",
-                  LineComment: (string) "",
-                  FootComment: (string) "",
-                  Line: (int) 41,
-                  Column: (int) 9
-                })
-              },
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 40,
-              Column: (int) 7
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 0,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=20) "ParentImage|contains",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 42,
-              Column: (int) 5
-            }),
-            (*yaml.Node)({
-              Kind: (yaml.Kind) 8,
-              Style: (yaml.Style) 4,
-              Tag: (string) (len=5) "!!str",
-              Value: (string) (len=7) "\\Autoit",
-              Anchor: (string) "",
-              Alias: (*yaml.Node)(<nil>),
-              Content: ([]*yaml.Node) <nil>,
-              HeadComment: (string) "",
-              LineComment: (string) "",
-              FootComment: (string) "",
-              Line: (int) 42,
-              Column: (int) 27
-            })
-          },
+          Content: ([]*yaml.Node) <nil>,
           HeadComment: (string) "",
           LineComment: (string) "",
           FootComment: (string) "",
-          Line: (int) 39,
-          Column: (int) 5
+          Line: (int) 38,
+          Column: (int) 3
         }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
