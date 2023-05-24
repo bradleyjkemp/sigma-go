@@ -10,10 +10,38 @@
   Detection: (sigma.Detection) {
     Searches: (map[string]sigma.Search) (len=4) {
       (string) (len=18) "selection_process0": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process0",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 27,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=2) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=20) "CommandLine|contains",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 28,
+                Column: (int) 5
+              }),
               Field: (string) (len=11) "CommandLine",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
@@ -23,6 +51,20 @@
               }
             },
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=20) "CommandLine|endswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 29,
+                Column: (int) 5
+              }),
               Field: (string) (len=11) "CommandLine",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
@@ -36,10 +78,38 @@
         }
       },
       (string) (len=18) "selection_process1": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process1",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 32,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=2) {
           (sigma.EventMatcher) (len=1) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=20) "CommandLine|endswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 33,
+                Column: (int) 7
+              }),
               Field: (string) (len=11) "CommandLine",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
@@ -51,6 +121,20 @@
           },
           (sigma.EventMatcher) (len=1) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=22) "CommandLine|startswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 34,
+                Column: (int) 7
+              }),
               Field: (string) (len=11) "CommandLine",
               Modifiers: ([]string) (len=1) {
                 (string) (len=10) "startswith"
@@ -63,10 +147,38 @@
         }
       },
       (string) (len=18) "selection_process2": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process2",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 35,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=2) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=14) "Image|contains",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 36,
+                Column: (int) 5
+              }),
               Field: (string) (len=5) "Image",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
@@ -76,6 +188,20 @@
               }
             },
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=14) "Image|endswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 37,
+                Column: (int) 5
+              }),
               Field: (string) (len=5) "Image",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
@@ -88,10 +214,38 @@
         }
       },
       (string) (len=18) "selection_process3": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=18) "selection_process3",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 38,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=2) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=24) "CommandLine|contains|all",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 39,
+                Column: (int) 5
+              }),
               Field: (string) (len=11) "CommandLine",
               Modifiers: ([]string) (len=2) {
                 (string) (len=8) "contains",
@@ -103,6 +257,20 @@
               }
             },
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=20) "ParentImage|contains",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 42,
+                Column: (int) 5
+              }),
               Field: (string) (len=11) "ParentImage",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "contains"
@@ -117,6 +285,20 @@
     },
     Conditions: (sigma.Conditions) (len=1) {
       (sigma.Condition) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=15) "1 of selection*",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 43,
+          Column: (int) 14
+        }),
         Search: (sigma.OneOfPattern) {
           Pattern: (string) (len=10) "selection*"
         },

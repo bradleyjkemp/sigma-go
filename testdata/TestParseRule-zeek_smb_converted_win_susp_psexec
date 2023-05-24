@@ -10,10 +10,38 @@
   Detection: (sigma.Detection) {
     Searches: (map[string]sigma.Search) (len=2) {
       (string) (len=6) "filter": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=6) "filter",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 28,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=1) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=15) "name|startswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 29,
+                Column: (int) 5
+              }),
               Field: (string) (len=4) "name",
               Modifiers: ([]string) (len=1) {
                 (string) (len=10) "startswith"
@@ -26,10 +54,38 @@
         }
       },
       (string) (len=9) "selection": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=9) "selection",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 20,
+          Column: (int) 3
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=2) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=17) "path|contains|all",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 21,
+                Column: (int) 5
+              }),
               Field: (string) (len=4) "path",
               Modifiers: ([]string) (len=2) {
                 (string) (len=8) "contains",
@@ -41,6 +97,20 @@
               }
             },
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=13) "name|endswith",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 24,
+                Column: (int) 5
+              }),
               Field: (string) (len=4) "name",
               Modifiers: ([]string) (len=1) {
                 (string) (len=8) "endswith"
@@ -57,6 +127,20 @@
     },
     Conditions: (sigma.Conditions) (len=1) {
       (sigma.Condition) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=24) "selection and not filter",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 30,
+          Column: (int) 14
+        }),
         Search: (sigma.And) (len=2) {
           (sigma.SearchIdentifier) {
             Name: (string) (len=9) "selection"

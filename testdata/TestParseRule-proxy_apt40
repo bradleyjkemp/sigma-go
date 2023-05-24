@@ -10,10 +10,38 @@
   Detection: (sigma.Detection) {
     Searches: (map[string]sigma.Search) (len=1) {
       (string) (len=9) "selection": (sigma.Search) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=9) "selection",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 22,
+          Column: (int) 5
+        }),
         Keywords: ([]string) <nil>,
         EventMatchers: ([]sigma.EventMatcher) (len=1) {
           (sigma.EventMatcher) (len=2) {
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=11) "c-useragent",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 23,
+                Column: (int) 7
+              }),
               Field: (string) (len=11) "c-useragent",
               Modifiers: ([]string) {
               },
@@ -22,6 +50,20 @@
               }
             },
             (sigma.FieldMatcher) {
+              node: (*yaml.Node)({
+                Kind: (yaml.Kind) 8,
+                Style: (yaml.Style) 0,
+                Tag: (string) (len=5) "!!str",
+                Value: (string) (len=5) "r-dns",
+                Anchor: (string) "",
+                Alias: (*yaml.Node)(<nil>),
+                Content: ([]*yaml.Node) <nil>,
+                HeadComment: (string) "",
+                LineComment: (string) "",
+                FootComment: (string) "",
+                Line: (int) 24,
+                Column: (int) 7
+              }),
               Field: (string) (len=5) "r-dns",
               Modifiers: ([]string) {
               },
@@ -35,6 +77,20 @@
     },
     Conditions: (sigma.Conditions) (len=1) {
       (sigma.Condition) {
+        node: (*yaml.Node)({
+          Kind: (yaml.Kind) 8,
+          Style: (yaml.Style) 0,
+          Tag: (string) (len=5) "!!str",
+          Value: (string) (len=9) "selection",
+          Anchor: (string) "",
+          Alias: (*yaml.Node)(<nil>),
+          Content: ([]*yaml.Node) <nil>,
+          HeadComment: (string) "",
+          LineComment: (string) "",
+          FootComment: (string) "",
+          Line: (int) 25,
+          Column: (int) 16
+        }),
         Search: (sigma.SearchIdentifier) {
           Name: (string) (len=9) "selection"
         },
