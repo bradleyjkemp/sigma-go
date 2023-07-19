@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 	"path"
 	"reflect"
 	"regexp"
@@ -109,12 +110,9 @@ eventMatcher:
 			}
 
 			// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
-			comparator := baseComparator
-			for _, name := range fieldModifiers {
-				if modifiers[name] == nil {
-					return false, fmt.Errorf("unsupported modifier %s", name)
-				}
-				comparator = modifiers[name](comparator)
+			comparator, err := modifiers.GetComparator(fieldModifiers...)
+			if err != nil {
+				return false, err
 			}
 
 			matcherValues, err := rule.getMatcherValues(ctx, fieldMatcher)
@@ -198,7 +196,7 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([
 	return actualValues, nil
 }
 
-func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparator valueComparator, allValuesMustMatch bool, actualValues []interface{}) bool {
+func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparator modifiers.ComparatorFunc, allValuesMustMatch bool, actualValues []interface{}) bool {
 	matched := allValuesMustMatch
 	for _, expectedValue := range matcherValues {
 		valueMatchedEvent := false
