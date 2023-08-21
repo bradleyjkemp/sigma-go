@@ -2,6 +2,7 @@ package modifiers
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -42,5 +43,41 @@ func Test_compareNumeric(t *testing.T) {
 				t.Errorf("compareNumeric() gotLte = %v, want %v", gotLte, tt.wantLte)
 			}
 		})
+	}
+}
+
+func BenchmarkContains(b *testing.B) {
+	needle := "abcdefg"
+
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	haystack := make([]rune, 1_000_000)
+	for i := range haystack {
+		haystack[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	haystackString := string(haystack)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := contains{}.Matches(string(haystackString), needle)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkContainsCS(b *testing.B) {
+	needle := "abcdefg"
+
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	haystack := make([]rune, 1_000_000)
+	for i := range haystack {
+		haystack[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	haystackString := string(haystack)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := containsCS{}.Matches(string(haystackString), needle)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }

@@ -40,3 +40,9 @@ func WithConfig(config ...sigma.Config) Option {
 		e.calculateFieldMappings()
 	}
 }
+
+// CaseSensitive turns off the default Sigma behaviour that string operations are by default case-insensitive
+// This can increase performance (especially for larger events) by skipping expensive calls to strings.ToLower
+func CaseSensitive(e *RuleEvaluator) {
+	e.caseSensitive = true
+}

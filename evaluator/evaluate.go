@@ -16,6 +16,7 @@ type RuleEvaluator struct {
 	fieldmappings   map[string][]string // a compiled mapping from rule fieldnames to possible event fieldnames
 
 	expandPlaceholder func(ctx context.Context, placeholderName string) ([]string, error)
+	caseSensitive     bool
 
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
 	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
@@ -29,20 +30,20 @@ type RuleEvaluator struct {
 // For example, if a Sigma rule has a condition like this (attempting to detect login brute forcing)
 //
 // detection:
-//   login_attempt:
-//     # something here
-//   condition:
-//     login_attempt | count() by (username) > 100
-//	 timeframe: 1m
+//	  login_attempt:
+//	    # something here
+//	  condition:
+//	    login_attempt | count() by (username) > 100
+//		 timeframe: 1m
 //
 // Conceptually there's a bunch of boxes somewhere (one for each username) containing their current count.
 // Each different GroupedByValues points to a different box.
 //
 // GroupedByValues
-//      ||
-//   ___↓↓___          ________
-//  | User A |        | User B |
-//  |__2041__|        |___01___|
+//	    ||
+//	 ___↓↓___          ________
+//	| User A |        | User B |
+//	|__2041__|        |___01___|
 //
 // It's up to your implementation to ensure that different GroupedByValues map to different boxes
 // (although a default Key() method is provided which is good enough for most use cases)
