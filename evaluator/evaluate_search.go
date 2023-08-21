@@ -110,7 +110,13 @@ eventMatcher:
 			}
 
 			// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
-			comparator, err := modifiers.GetComparator(fieldModifiers...)
+			var comparator modifiers.ComparatorFunc
+			var err error
+			if rule.caseSensitive {
+				comparator, err = modifiers.GetComparatorCaseSensitive(fieldModifiers...)
+			} else {
+				comparator, err = modifiers.GetComparator(fieldModifiers...)
+			}
 			if err != nil {
 				return false, err
 			}
