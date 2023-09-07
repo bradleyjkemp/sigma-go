@@ -27,13 +27,15 @@ func getComparator(comparators map[string]Comparator, modifiers ...string) (Comp
 	// If a comparator is specified, it must be in the last position and cannot be succeeded by any other modifiers
 	// If no comparator is specified, the default comparator is used
 	var valueModifiers []ValueModifier
+	var eventValueModifiers []ValueModifier
 	var comparator Comparator
 	for i, modifier := range modifiers {
 		comparatorModifier := comparators[modifier]
 		valueModifier := ValueModifiers[modifier]
+		eventValueModifier := EventValueModifiers[modifier]
 		switch {
 		// Validate correctness
-		case comparatorModifier == nil && valueModifier == nil:
+		case comparatorModifier == nil && valueModifier == nil && eventValueModifier == nil:
 			return nil, fmt.Errorf("unknown modifier %s", modifier)
 		case i < len(modifiers)-1 && comparators[modifier] != nil:
 			return nil, fmt.Errorf("comparator modifier %s must be the last modifier", modifier)
@@ -41,6 +43,8 @@ func getComparator(comparators map[string]Comparator, modifiers ...string) (Comp
 		// Build up list of modifiers
 		case valueModifier != nil:
 			valueModifiers = append(valueModifiers, valueModifier)
+		case eventValueModifier != nil:
+			eventValueModifiers = append(eventValueModifiers, eventValueModifier)
 		case comparatorModifier != nil:
 			comparator = comparatorModifier
 		}
@@ -51,6 +55,12 @@ func getComparator(comparators map[string]Comparator, modifiers ...string) (Comp
 
 	return func(actual, expected any) (bool, error) {
 		var err error
+		for _, modifier := range eventValueModifiers {
+			actual, err = modifier.Modify(actual)
+			if err != nil {
+				return false, err
+			}
+		}
 		for _, modifier := range valueModifiers {
 			expected, err = modifier.Modify(expected)
 			if err != nil {
@@ -103,6 +113,9 @@ var ComparatorsCaseSensitive = map[string]Comparator{
 var ValueModifiers = map[string]ValueModifier{
 	"base64": b64{},
 }
+
+// EventValueModifiers modify the value in the event before comparison (as opposed to ValueModifiers which modify the value in the rule)
+var EventValueModifiers = map[string]ValueModifier{}
 
 type baseComparator struct{}
 
