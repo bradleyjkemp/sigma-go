@@ -9,19 +9,21 @@ import (
 )
 
 type Rule struct {
-	// Required fields
-	Title     string
+	RuleMetadata
 	Logsource Logsource
 	Detection Detection
+}
 
-	ID          string        `yaml:",omitempty"`
-	Related     []RelatedRule `yaml:",omitempty"`
-	Status      string        `yaml:",omitempty"`
-	Description string        `yaml:",omitempty"`
-	Author      string        `yaml:",omitempty"`
-	Level       string        `yaml:",omitempty"`
-	References  []string      `yaml:",omitempty"`
-	Tags        []string      `yaml:",omitempty"`
+type RuleMetadata struct {
+	ID          string   `yaml:",omitempty"` // a unique ID identifying this rule
+	Title       string   `yaml:",omitempty"` // a human-readable summary
+	Description string   `yaml:",omitempty"` // a longer description of the rule
+	Related     []string `yaml:",omitempty"` // a list of related rules (referenced by ID) TODO: update this to reflect the new Sigma format for this field
+	Status      string   `yaml:",omitempty"` // the stability of this rule
+	Level       string   `yaml:",omitempty"` // the severity of this rule
+	Author      string   `yaml:",omitempty"` // who wrote this rule
+	References  []string `yaml:",omitempty"` // hyperlinks to any supporting research
+	Tags        []string `yaml:",omitempty"` // a set of tags (e.g. MITRE ATT&CK techniques)
 
 	// Any non-standard fields will end up in here
 	AdditionalFields map[string]interface{} `yaml:",inline"`
