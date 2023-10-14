@@ -2,16 +2,17 @@ package sigma
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/bradleyjkemp/sigma-go/internal/grammar"
 )
 
 type Condition struct {
-	node        *yaml.Node
-	Search      SearchExpr
-	Aggregation AggregationExpr
+	node        *yaml.Node      `yaml:",omitempty" json:",omitempty"`
+	Search      SearchExpr      `yaml:",omitempty" json:",omitempty"`
+	Aggregation AggregationExpr `yaml:",omitempty" json:",omitempty"`
 }
 
 func (c Condition) MarshalYAML() (interface{}, error) {
