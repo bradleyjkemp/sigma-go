@@ -3,7 +3,10 @@
 
 A Go implementation and parser of [Sigma rules](https://github.com/Neo23x0/sigma). Useful for building your own detection pipelines.
 
-⚠️ This library is under development and an implementation of a draft specification. Test this well if you're using it for anything important.
+Who's using `sigma-go` in production?
+* [Monzo Bank](https://monzo.com/blog/2022/08/05/scaling-our-security-detection-pipeline-with-sigma)
+* [Phish Report](https://phish.report/IOK)
+* [SysFlow](https://github.com/sysflow-telemetry)
 
 ## Usage
 
@@ -39,28 +42,3 @@ sigma.Evaluator(rule, sigma.CountFunc(countImplementation), sigma.MaxFunc(maxImp
 ```
 
 This repo includes some toy implementations in the `aggregators` package but for production use cases you'll need to supply your own.
-
-
-### `sigmac`
-
-To make managing rules easy, this repo includes a tool to "compile" directories of rules into Go packages.
-
-```
-./malware/rule_one.yaml
-./malware/another_rule.yaml
-```
-
-Running the `sigmac` tool in this directory will generate a `sigma.go` file:
-```bash
-> go run github.com/bradleyjkemp/sigma-go/sigmac ./malware
-```
-
-The `sigma.go` file contains a map of parsed Sigma rules by their ID that you can iterate over when matching events.
-
-```go
-for id, rule := range malware.Rules {
-    if sigma.Evaluator(rule).Matches(event) {
-        fmt.Println("event %v matched rule %s!", event, id)
-    }
-}
-```
