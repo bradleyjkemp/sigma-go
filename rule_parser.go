@@ -14,17 +14,17 @@ type Rule struct {
 	Logsource Logsource
 	Detection Detection
 
-	ID          string        `yaml:",omitempty"`
-	Related     []RelatedRule `yaml:",omitempty"`
-	Status      string        `yaml:",omitempty"`
-	Description string        `yaml:",omitempty"`
-	Author      string        `yaml:",omitempty"`
-	Level       string        `yaml:",omitempty"`
-	References  []string      `yaml:",omitempty"`
-	Tags        []string      `yaml:",omitempty"`
+	ID          string        `yaml:",omitempty" json:",omitempty"`
+	Related     []RelatedRule `yaml:",omitempty" json:",omitempty"`
+	Status      string        `yaml:",omitempty" json:",omitempty"`
+	Description string        `yaml:",omitempty" json:",omitempty"`
+	Author      string        `yaml:",omitempty" json:",omitempty"`
+	Level       string        `yaml:",omitempty" json:",omitempty"`
+	References  []string      `yaml:",omitempty" json:",omitempty"`
+	Tags        []string      `yaml:",omitempty" json:",omitempty"`
 
 	// Any non-standard fields will end up in here
-	AdditionalFields map[string]interface{} `yaml:",inline"`
+	AdditionalFields map[string]interface{} `yaml:",inline,omitempty" json:",inline,omitempty"`
 }
 
 type RelatedRule struct {
@@ -33,19 +33,19 @@ type RelatedRule struct {
 }
 
 type Logsource struct {
-	Category   string `yaml:",omitempty"`
-	Product    string `yaml:",omitempty"`
-	Service    string `yaml:",omitempty"`
-	Definition string `yaml:",omitempty"`
+	Category   string `yaml:",omitempty" json:",omitempty"`
+	Product    string `yaml:",omitempty" json:",omitempty"`
+	Service    string `yaml:",omitempty" json:",omitempty"`
+	Definition string `yaml:",omitempty" json:",omitempty"`
 
 	// Any non-standard fields will end up in here
-	AdditionalFields map[string]interface{} `yaml:",inline"`
+	AdditionalFields map[string]interface{} `yaml:",inline,omitempty" json:",inline,omitempty"`
 }
 
 type Detection struct {
-	Searches   map[string]Search `yaml:",inline"`
-	Conditions Conditions        `yaml:"condition"`
-	Timeframe  time.Duration     `yaml:",omitempty"`
+	Searches   map[string]Search `yaml:",inline" json:",inline"`
+	Conditions Conditions        `yaml:"condition" json:"condition"`
+	Timeframe  time.Duration     `yaml:",omitempty" json:",omitempty"`
 }
 
 func (d *Detection) UnmarshalYAML(node *yaml.Node) error {
@@ -130,9 +130,9 @@ func (c Conditions) MarshalYAML() (interface{}, error) {
 }
 
 type Search struct {
-	node          *yaml.Node
-	Keywords      []string
-	EventMatchers []EventMatcher
+	node          *yaml.Node     `yaml:",omitempty" json:",omitempty"`
+	Keywords      []string       `yaml:",omitempty" json:",omitempty"`
+	EventMatchers []EventMatcher `yaml:",omitempty" json:",omitempty"`
 }
 
 func (s *Search) UnmarshalYAML(node *yaml.Node) error {
@@ -227,10 +227,10 @@ func (f EventMatcher) MarshalYAML() (interface{}, error) {
 }
 
 type FieldMatcher struct {
-	node      *yaml.Node
-	Field     string
-	Modifiers []string
-	Values    []interface{}
+	node      *yaml.Node    `yaml:",omitempty" json:",omitempty"`
+	Field     string        `yaml:",omitempty" json:",omitempty"`
+	Modifiers []string      `yaml:",omitempty" json:",omitempty"`
+	Values    []interface{} `yaml:",omitempty" json:",omitempty"`
 }
 
 // Position returns the line and column of this FieldMatcher in the original input
