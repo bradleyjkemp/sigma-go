@@ -129,8 +129,16 @@ func (c Conditions) MarshalYAML() (interface{}, error) {
 	}
 }
 
+type SearchType string
+
+const (
+	SearchTypeConjunction SearchType = "conjunction"
+	SearchTypeDisjunction SearchType = "disjunction"
+)
+
 type Search struct {
 	node          *yaml.Node     `yaml:",omitempty" json:",omitempty"`
+	Type          SearchType     `yaml:",omitempty" json:",omitempty"`
 	Keywords      []string       `yaml:",omitempty" json:",omitempty"`
 	EventMatchers []EventMatcher `yaml:",omitempty" json:",omitempty"`
 }
@@ -140,12 +148,14 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	switch node.Kind {
 	// In the common case, SearchIdentifiers are a single EventMatcher (map of field names to values)
 	case yaml.MappingNode:
+		s.Type = SearchTypeConjunction
 		s.EventMatchers = []EventMatcher{{}}
 		return node.Decode(&s.EventMatchers[0])
 
 	// Or, SearchIdentifiers can be a list.
 	// Either of keywords (not supported by this library) or a list of EventMatchers (maps of fields to values)
 	case yaml.SequenceNode:
+		s.Type = SearchTypeDisjunction
 		if len(node.Content) == 0 {
 			return fmt.Errorf("invalid search condition node (empty)")
 		}
