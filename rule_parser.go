@@ -114,7 +114,7 @@ func (c *Conditions) UnmarshalYAML(node *yaml.Node) error {
 		}
 
 	default:
-		return fmt.Errorf("invalid condition node type %d", node.Kind)
+		return fmt.Errorf("invalid condition (line %d). Expected a single value or a list", node.Line)
 	}
 
 	return nil
@@ -147,7 +147,7 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 	// Either of keywords (not supported by this library) or a list of EventMatchers (maps of fields to values)
 	case yaml.SequenceNode:
 		if len(node.Content) == 0 {
-			return fmt.Errorf("invalid search condition node (empty)")
+			return fmt.Errorf("invalid search condition node (empty) (line %d)", node.Line)
 		}
 
 		switch node.Content[0].Kind {
@@ -156,11 +156,11 @@ func (s *Search) UnmarshalYAML(node *yaml.Node) error {
 		case yaml.MappingNode:
 			return node.Decode(&s.EventMatchers)
 		default:
-			return fmt.Errorf("invalid condition list node type %d", node.Kind)
+			return fmt.Errorf("invalid list (line %d). Expected a list of strings or a list of maps", node.Line)
 		}
 
 	default:
-		return fmt.Errorf("invalid condition node type %d", node.Kind)
+		return fmt.Errorf("invalid search (line %d). Expected a map or list, got a scalar", node.Line)
 	}
 }
 
