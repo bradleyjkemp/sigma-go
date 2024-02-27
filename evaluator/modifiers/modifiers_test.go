@@ -49,7 +49,7 @@ func Test_compareNumeric(t *testing.T) {
 func BenchmarkContains(b *testing.B) {
 	needle := "abcdefg"
 
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	haystack := make([]rune, 1_000_000)
 	for i := range haystack {
 		haystack[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -67,7 +67,7 @@ func BenchmarkContains(b *testing.B) {
 func BenchmarkContainsCS(b *testing.B) {
 	needle := "abcdefg"
 
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	haystack := make([]rune, 1_000_000)
 	for i := range haystack {
 		haystack[i] = letterRunes[rand.Intn(len(letterRunes))]
