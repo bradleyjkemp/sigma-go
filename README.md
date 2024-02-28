@@ -27,8 +27,7 @@ var rule, _ = sigma.ParseRule(contents)
 
 // Rules need to be wrapped in an evaluator.
 // This is also where (if needed) you provide functions implementing the count, max, etc. aggregation functions
-e := sigma.Evaluator(rule, options...)
-
+e := evaluator.ForRule(rule)
 // Get a stream of events from somewhere e.g. audit logs
 for event := range events {
     if e.Matches(ctx, event) {
