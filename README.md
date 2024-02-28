@@ -14,7 +14,6 @@ Who's using `sigma-go` in production?
 
 ````bash
 go get github.com/bradleyjkemp/sigma-go
-go get github.com/bradleyjkemp/sigma-go/evaluator
 
 ## Usage
 This library is designed for you to build your own alert systems.
