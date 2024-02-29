@@ -12,8 +12,9 @@ Who's using `sigma-go` in production?
 
 ## Installation
 
-````bash
+```bash
 go get github.com/bradleyjkemp/sigma-go
+```
 
 ## Usage
 This library is designed for you to build your own alert systems.
@@ -35,7 +36,7 @@ for event := range events {
         newAlert(rule.ID, rule.Description, ...)
     }
 }
-````
+```
 
 ### Aggregation functions
 
