@@ -1,0 +1,78 @@
+title: Office Application Initiated Network Connection To Non-Local IP
+id: 75e33ce3-ae32-4dcc-9aa8-a2a3029d6f84
+status: test
+description: |
+    Detects an office application (Word, Excel, PowerPoint)  that initiate a network connection to a non-private IP addresses.
+    This rule aims to detect traffic similar to one seen exploited in CVE-2021-42292.
+    This rule will require an initial baseline and tuning that is specific to your organization.
+references:
+    - https://corelight.com/blog/detecting-cve-2021-42292
+author: Christopher Peacock '@securepeacock', SCYTHE '@scythe_io', Florian Roth (Nextron Systems), Tim Shelton
+date: 2021/11/10
+modified: 2024/01/31
+tags:
+    - attack.execution
+    - attack.t1203
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\excel.exe'
+            - '\powerpnt.exe'
+            - '\winword.exe'
+            - '\wordview.exe'
+        Initiated: 'true'
+    filter_main_ipv4:
+        DestinationIp|startswith:
+            - '10.'
+            - '192.168.'
+            - '172.16.'
+            - '172.17.'
+            - '172.18.'
+            - '172.19.'
+            - '172.20.'
+            - '172.21.'
+            - '172.22.'
+            - '172.23.'
+            - '172.24.'
+            - '172.25.'
+            - '172.26.'
+            - '172.27.'
+            - '172.28.'
+            - '172.29.'
+            - '172.30.'
+            - '172.31.'
+            - '127.0.0.1'
+    filter_main_ipv6:
+        DestinationIp|startswith:
+            - '::1'  # IPv6 loopback variant
+            - '0:0:0:0:0:0:0:1'  # IPv6 loopback variant
+            - 'fe80:'  # link-local address
+            - 'fc'  # private address range fc00::/7
+            - 'fd'  # private address range fc00::/7
+    filter_main_msrange:
+        DestinationIp|startswith:
+            - '20.184.'
+            - '20.185.'
+            - '20.186.'
+            - '20.187.'
+            - '20.188.'
+            - '20.189.'
+            - '20.190.'
+            - '20.191.'
+            - '20.223.'
+            - '23.79.'
+            - '51.10.'
+            - '51.103.'
+            - '51.104.'
+            - '51.105.'
+            - '52.239.'
+            - '204.79.197'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - You may have to tune certain domains out that Excel may call out to, such as microsoft or other business use case domains.
+    - Office documents commonly have templates that refer to external addresses, like "sharepoint.ourcompany.com" may have to be tuned.
+    - It is highly recommended to baseline your activity and tune out common business use cases.
+level: medium
