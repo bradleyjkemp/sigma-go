@@ -3,11 +3,12 @@ package modifiers
 import (
 	"encoding/base64"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"net"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 func GetComparator(modifiers ...string) (ComparatorFunc, error) {
@@ -239,6 +240,10 @@ func coerceString(v interface{}) string {
 
 // coerceNumeric makes both operands into the widest possible number of the same type
 func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
+	// Check for nil interface, otherwise the function panics
+	if left == nil || right == nil {
+		return nil, nil, fmt.Errorf("cannot coerce %T and %T to numeric", left, right)
+	}
 	leftV := reflect.ValueOf(left)
 	leftType := reflect.ValueOf(left).Type()
 	rightV := reflect.ValueOf(right)
@@ -265,11 +270,19 @@ func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
 		if err := yaml.Unmarshal([]byte(left.(string)), &leftParsed); err != nil {
 			return nil, nil, err
 		}
+		//Check the parsed type is the correct one, otherwise we get a stack overflow
+		if reflect.TypeOf(leftParsed).Kind() != reflect.Float64 && reflect.TypeOf(leftParsed).Kind() != reflect.Int {
+			return nil, nil, fmt.Errorf("cannot coerce %T and %T to numeric", left, right)
+		}
 		return coerceNumeric(leftParsed, right)
 	case rightType.Kind() == reflect.String:
 		var rightParsed interface{}
 		if err := yaml.Unmarshal([]byte(right.(string)), &rightParsed); err != nil {
 			return nil, nil, err
+		}
+		//Check the parsed type is the correct one, otherwise we get a stack overflow
+		if reflect.TypeOf(rightParsed).Kind() != reflect.Float64 && reflect.TypeOf(rightParsed).Kind() != reflect.Int {
+			return nil, nil, fmt.Errorf("cannot coerce %T and %T to numeric", left, right)
 		}
 		return coerceNumeric(left, rightParsed)
 
