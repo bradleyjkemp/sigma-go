@@ -24,7 +24,7 @@ func Test_compareNumeric(t *testing.T) {
 		{"1.1", 1.1, false, true, false, true},
 	}
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%s_%s", tt.left, tt.right), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%v_%v", tt.left, tt.right), func(t *testing.T) {
 			gotGt, gotGte, gotLt, gotLte, err := compareNumeric(tt.left, tt.right)
 			if err != nil {
 				t.Errorf("compareNumeric() error = %v", err)
@@ -41,6 +41,38 @@ func Test_compareNumeric(t *testing.T) {
 			}
 			if gotLte != tt.wantLte {
 				t.Errorf("compareNumeric() gotLte = %v, want %v", gotLte, tt.wantLte)
+			}
+		})
+	}
+}
+
+var foo = map[string]interface{}{
+	"foobar": 1,
+}
+
+func Test_coerceNumeric(t *testing.T) {
+	tests := []struct {
+		left      interface{}
+		right     interface{}
+		wantLeft  interface{}
+		wantRight interface{}
+		wantError bool
+	}{
+		{"foo", 1, nil, nil, true},
+		{1.1, 2, 1.1, 2.0, false},
+	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%v_%v", tt.left, tt.right), func(t *testing.T) {
+			left, right, err := coerceNumeric(tt.left, tt.right)
+			if (err != nil) != tt.wantError {
+				t.Errorf("coerceNumeric() error = %v, wanted %t", err, tt.wantError)
+				return
+			}
+			if left != tt.wantLeft {
+				t.Errorf("coerceNumeric() gotGt = %v, want %v", left, tt.wantLeft)
+			}
+			if right != tt.wantRight {
+				t.Errorf("coerceNumeric() gotGte = %v, want %v", right, tt.wantRight)
 			}
 		})
 	}

@@ -265,11 +265,17 @@ func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
 		if err := yaml.Unmarshal([]byte(left.(string)), &leftParsed); err != nil {
 			return nil, nil, err
 		}
+		if reflect.ValueOf(leftParsed).Type().Kind() == reflect.String {
+			return nil, nil, fmt.Errorf("could not parse %s as a number", left)
+		}
 		return coerceNumeric(leftParsed, right)
 	case rightType.Kind() == reflect.String:
 		var rightParsed interface{}
 		if err := yaml.Unmarshal([]byte(right.(string)), &rightParsed); err != nil {
 			return nil, nil, err
+		}
+		if reflect.ValueOf(rightParsed).Type().Kind() == reflect.String {
+			return nil, nil, fmt.Errorf("could not parse %s as a number", right)
 		}
 		return coerceNumeric(left, rightParsed)
 
@@ -279,6 +285,9 @@ func coerceNumeric(left, right interface{}) (interface{}, interface{}, error) {
 }
 
 func compareNumeric(left, right interface{}) (gt, gte, lt, lte bool, err error) {
+	if left == nil || right == nil {
+		return false, false, false, false, nil
+	}
 	left, right, err = coerceNumeric(left, right)
 	if err != nil {
 		return
