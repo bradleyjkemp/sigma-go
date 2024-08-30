@@ -11,15 +11,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func GetComparator(modifiers ...string) (ComparatorFunc, error) {
-	return getComparator(Comparators, modifiers...)
-}
-
-func GetComparatorCaseSensitive(modifiers ...string) (ComparatorFunc, error) {
-	return getComparator(ComparatorsCaseSensitive, modifiers...)
-}
-
-func getComparator(comparators map[string]Comparator, modifiers ...string) (ComparatorFunc, error) {
+func GetComparator(field string, comparators map[string]Comparator, modifiers ...string) (ComparatorFunc, error) {
+	if comparators == nil {
+		comparators = Comparators
+	}
 	if len(modifiers) == 0 {
 		return baseComparator{}.Matches, nil
 	}
@@ -69,7 +64,11 @@ func getComparator(comparators map[string]Comparator, modifiers ...string) (Comp
 			}
 		}
 
-		return comparator.Matches(actual, expected)
+		if fieldComparator, ok := comparator.(FieldComparator); ok {
+			return fieldComparator.MatchesField(field, actual, expected)
+		} else {
+			return comparator.Matches(actual, expected)
+		}
 	}, nil
 }
 
@@ -77,6 +76,11 @@ func getComparator(comparators map[string]Comparator, modifiers ...string) (Comp
 // For example, the `cidr` modifier uses a check based on the *net.IPNet Contains function
 type Comparator interface {
 	Matches(actual any, expected any) (bool, error)
+}
+
+// FieldComparator is an optional extension to Comparator which also passes the field name
+type FieldComparator interface {
+	MatchesField(field string, actual any, expected any) (bool, error)
 }
 
 type ComparatorFunc func(actual, expected any) (bool, error)
@@ -127,7 +131,7 @@ func (baseComparator) Matches(actual, expected any) (bool, error) {
 		return true, nil
 	default:
 		// The Sigma spec defines that by default comparisons are case-insensitive
-		return strings.EqualFold(coerceString(actual), coerceString(expected)), nil
+		return strings.EqualFold(CoerceString(actual), CoerceString(expected)), nil
 	}
 }
 
@@ -135,67 +139,67 @@ type contains struct{}
 
 func (contains) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.Contains(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
+	return strings.Contains(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
 }
 
 type endswith struct{}
 
 func (endswith) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.HasSuffix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
+	return strings.HasSuffix(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
 }
 
 type startswith struct{}
 
 func (startswith) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.HasPrefix(strings.ToLower(coerceString(actual)), strings.ToLower(coerceString(expected))), nil
+	return strings.HasPrefix(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
 }
 
 type containsCS struct{}
 
 func (containsCS) Matches(actual, expected any) (bool, error) {
-	return strings.Contains(coerceString(actual), coerceString(expected)), nil
+	return strings.Contains(CoerceString(actual), CoerceString(expected)), nil
 }
 
 type endswithCS struct{}
 
 func (endswithCS) Matches(actual, expected any) (bool, error) {
-	return strings.HasSuffix(coerceString(actual), coerceString(expected)), nil
+	return strings.HasSuffix(CoerceString(actual), CoerceString(expected)), nil
 }
 
 type startswithCS struct{}
 
 func (startswithCS) Matches(actual, expected any) (bool, error) {
-	return strings.HasPrefix(coerceString(actual), coerceString(expected)), nil
+	return strings.HasPrefix(CoerceString(actual), CoerceString(expected)), nil
 }
 
 type b64 struct{}
 
 func (b64) Modify(value any) (any, error) {
-	return base64.StdEncoding.EncodeToString([]byte(coerceString(value))), nil
+	return base64.StdEncoding.EncodeToString([]byte(CoerceString(value))), nil
 }
 
 type re struct{}
 
 func (re) Matches(actual any, expected any) (bool, error) {
-	re, err := regexp.Compile(coerceString(expected))
+	re, err := regexp.Compile(CoerceString(expected))
 	if err != nil {
 		return false, err
 	}
 
-	return re.MatchString(coerceString(actual)), nil
+	return re.MatchString(CoerceString(actual)), nil
 }
 
 type cidr struct{}
 
 func (cidr) Matches(actual any, expected any) (bool, error) {
-	_, cidr, err := net.ParseCIDR(coerceString(expected))
+	_, cidr, err := net.ParseCIDR(CoerceString(expected))
 	if err != nil {
 		return false, err
 	}
 
-	ip := net.ParseIP(coerceString(actual))
+	ip := net.ParseIP(CoerceString(actual))
 	return cidr.Contains(ip), nil
 }
 
@@ -227,7 +231,7 @@ func (lte) Matches(actual any, expected any) (bool, error) {
 	return lte, err
 }
 
-func coerceString(v interface{}) string {
+func CoerceString(v interface{}) string {
 	switch vv := v.(type) {
 	case string:
 		return vv

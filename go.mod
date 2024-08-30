@@ -1,6 +1,6 @@
 module github.com/bradleyjkemp/sigma-go
 
-go 1.18
+go 1.21
 
 require (
 	github.com/PaesslerAG/jsonpath v0.1.1
@@ -13,5 +13,6 @@ require (
 require (
 	github.com/PaesslerAG/gval v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pgavlin/aho-corasick v0.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )

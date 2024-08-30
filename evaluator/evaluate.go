@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/bradleyjkemp/sigma-go"
+	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
+	aho_corasick "github.com/pgavlin/aho-corasick"
+	"unsafe"
 )
 
 type RuleEvaluator struct {
@@ -17,6 +19,7 @@ type RuleEvaluator struct {
 
 	expandPlaceholder func(ctx context.Context, placeholderName string) ([]string, error)
 	caseSensitive     bool
+	comparators       map[string]modifiers.Comparator
 
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
 	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
@@ -30,6 +33,7 @@ type RuleEvaluator struct {
 // For example, if a Sigma rule has a condition like this (attempting to detect login brute forcing)
 //
 // detection:
+//
 //	  login_attempt:
 //	    # something here
 //	  condition:
@@ -40,6 +44,7 @@ type RuleEvaluator struct {
 // Each different GroupedByValues points to a different box.
 //
 // GroupedByValues
+//
 //	    ||
 //	 ___↓↓___          ________
 //	| User A |        | User B |
@@ -72,6 +77,64 @@ func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
 	return e
 }
 
+// ForRules compiles a set of rule evaluators which are evaluated together allowing for use of
+// more efficient string matching algorithms
+func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
+	bundle := RuleEvaluatorBundle{
+		ahocorasick: map[string]ahocorasickSearcher{},
+	}
+
+	values := map[string][]string{}
+
+	for _, rule := range rules {
+		e := &RuleEvaluator{Rule: rule}
+		for _, option := range options {
+			option(e)
+		}
+
+		bundle.evaluators = append(bundle.evaluators, e)
+
+		for _, search := range rule.Detection.Searches {
+			for _, matcher := range search.EventMatchers {
+				for _, fieldMatcher := range matcher {
+					for _, value := range fieldMatcher.Values {
+						values[fieldMatcher.Field] = append(values[fieldMatcher.Field], value.(string)) // todo use coerceString
+					}
+				}
+			}
+		}
+	}
+
+	caseSensitive := false
+	if len(bundle.evaluators) > 0 {
+		caseSensitive = bundle.evaluators[0].caseSensitive
+	}
+
+	for field, fieldValues := range values {
+		builder := aho_corasick.NewAhoCorasickBuilder(aho_corasick.Opts{
+			AsciiCaseInsensitive: caseSensitive, // TODO: parse this out from the options
+			MatchOnlyWholeWords:  false,
+			MatchKind:            aho_corasick.StandardMatch,
+			DFA:                  false, // TODO: benchmark
+		})
+		bundle.ahocorasick[field] = ahocorasickSearcher{
+			AhoCorasick: builder.Build(fieldValues),
+			patterns:    fieldValues,
+		}
+	}
+	return bundle
+}
+
+type RuleEvaluatorBundle struct {
+	ahocorasick map[string]ahocorasickSearcher
+	evaluators  []*RuleEvaluator
+}
+
+type ahocorasickSearcher struct {
+	aho_corasick.AhoCorasick
+	patterns []string
+}
+
 type Result struct {
 	Match            bool            // whether this event matches the Sigma rule
 	SearchResults    map[string]bool // For each Search, whether it matched the event
@@ -92,6 +155,116 @@ func eventValue(e Event, key string) interface{} {
 	}
 }
 
+type ahocorasickSearch struct {
+	field    string
+	haystack *byte
+}
+
+type RuleResult struct {
+	Result
+	sigma.Rule
+}
+
+func (bundle RuleEvaluatorBundle) Matches(ctx context.Context, event Event) ([]RuleResult, error) {
+	if len(bundle.evaluators) == 0 {
+		fmt.Println("no evaluators in bundle!")
+		return nil, nil
+	}
+
+	// copy the current rule comparators
+	comparators := map[string]modifiers.Comparator{}
+	for name, comparator := range bundle.evaluators[0].comparators {
+		comparators[name] = comparator
+	}
+
+	c := &ahocorasickContains{
+		//Comparator: comparators["contains"], // fall back to the normal contains comparator for non MatchField calls
+		matchers: bundle.ahocorasick,
+		results:  map[ahocorasickSearch]map[string]bool{},
+	}
+	// override the contains comparator to use our custom one
+	comparators["contains"] = c
+
+	ruleresults := []RuleResult{}
+	for _, rule := range bundle.evaluators {
+		result := Result{
+			Match:            false,
+			SearchResults:    map[string]bool{},
+			ConditionResults: make([]bool, len(rule.Detection.Conditions)),
+		}
+		for identifier, search := range rule.Detection.Searches {
+			var err error
+			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, comparators)
+			if err != nil {
+				return nil, fmt.Errorf("error evaluating search %s: %w", identifier, err)
+			}
+		}
+
+		for conditionIndex, condition := range rule.Detection.Conditions {
+			searchMatches := rule.evaluateSearchExpression(condition.Search, result.SearchResults)
+
+			switch {
+			// Event didn't match filters
+			case !searchMatches:
+				result.ConditionResults[conditionIndex] = false
+				continue
+
+			// Simple query without any aggregation
+			case searchMatches && condition.Aggregation == nil:
+				result.ConditionResults[conditionIndex] = true
+				result.Match = true
+				continue // need to continue in case other conditions contain aggregations that need to be evaluated
+
+			// Search expression matched but still need to see if the aggregation returns true
+			case searchMatches && condition.Aggregation != nil:
+				aggregationMatches, err := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
+				if err != nil {
+					return nil, err
+				}
+				if aggregationMatches {
+					result.Match = true
+					result.ConditionResults[conditionIndex] = true
+				}
+				continue
+			}
+		}
+
+		ruleresults = append(ruleresults, RuleResult{
+			Rule:   rule.Rule,
+			Result: result,
+		})
+	}
+	return ruleresults, nil
+}
+
+type ahocorasickContains struct {
+	runCount int
+	modifiers.Comparator
+	matchers map[string]ahocorasickSearcher
+	results  map[ahocorasickSearch]map[string]bool
+}
+
+func (a *ahocorasickContains) MatchesField(field string, actual any, expected any) (bool, error) {
+	haystack := modifiers.CoerceString(actual)
+	search := ahocorasickSearch{
+		field:    field,
+		haystack: unsafe.StringData(haystack),
+	}
+	//search := haystack
+	existingResult, ok := a.results[search]
+	if !ok {
+		a.runCount++
+		a.results[search] = map[string]bool{}
+		matcher := a.matchers[field]
+		for _, match := range matcher.FindAll(haystack) {
+			a.results[search][matcher.patterns[match.Pattern()]] = true
+		}
+		existingResult = a.results[search]
+	}
+
+	return existingResult[modifiers.CoerceString(expected)], nil
+}
+
 func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, error) {
 	result := Result{
 		Match:            false,
@@ -100,7 +273,7 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, err
 	}
 	for identifier, search := range rule.Detection.Searches {
 		var err error
-		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event)
+		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
 		if err != nil {
 			return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
 		}

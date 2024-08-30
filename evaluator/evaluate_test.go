@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/bradleyjkemp/sigma-go"
@@ -90,6 +91,65 @@ func TestRuleEvaluator_Matches(t *testing.T) {
 	case !result.ConditionResults[0] || result.ConditionResults[1]:
 		t.Error("expected first condition to be true and second condition to be false")
 	}
+}
+
+func TestRuleEvaluatorBundle_Matches(t *testing.T) {
+	r1 := sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field:     "field",
+								Modifiers: []string{"contains"},
+								Values: []interface{}{
+									"foo",
+								},
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{{
+				Search: sigma.AllOfThem{},
+			},
+			},
+		},
+	}
+	r2 := sigma.Rule{
+		Detection: sigma.Detection{
+			Searches: map[string]sigma.Search{
+				"foo": {
+					EventMatchers: []sigma.EventMatcher{
+						{
+							{
+								Field:     "field",
+								Modifiers: []string{"contains"},
+								Values: []interface{}{
+									"bar",
+								},
+							},
+						},
+					},
+				},
+			},
+			Conditions: []sigma.Condition{{
+				Search: sigma.AllOfThem{},
+			},
+			},
+		},
+	}
+
+	bundle := ForRules([]sigma.Rule{r1, r2})
+
+	results, err := bundle.Matches(context.Background(), map[string]interface{}{
+		"field": "foobar",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(results)
 }
 
 func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {

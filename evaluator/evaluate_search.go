@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/PaesslerAG/jsonpath"
+	"github.com/bradleyjkemp/sigma-go"
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 	"path"
 	"reflect"
 	"regexp"
 	"strings"
-
-	"github.com/PaesslerAG/jsonpath"
-	"github.com/bradleyjkemp/sigma-go"
 )
 
 func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, searchResults map[string]bool) bool {
@@ -84,7 +83,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 	panic(fmt.Sprintf("unhandled node type %T", search))
 }
 
-func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Search, event Event) (bool, error) {
+func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Search, event Event, comparators map[string]modifiers.Comparator) (bool, error) {
 	if len(search.Keywords) > 0 {
 		return false, fmt.Errorf("keywords unsupported")
 	}
@@ -112,11 +111,7 @@ eventMatcher:
 			// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
 			var comparator modifiers.ComparatorFunc
 			var err error
-			if rule.caseSensitive {
-				comparator, err = modifiers.GetComparatorCaseSensitive(fieldModifiers...)
-			} else {
-				comparator, err = modifiers.GetComparator(fieldModifiers...)
-			}
+			comparator, err = modifiers.GetComparator(fieldMatcher.Field, comparators, fieldModifiers...)
 			if err != nil {
 				return false, err
 			}
@@ -196,9 +191,22 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([
 				return nil, err
 			}
 
+			//values := toGenericSlice(v)
+			//for _, value := range values {
+			//	if stringValue, ok := value.(string); ok && intern != nil {
+			//		interned, ok := intern[stringValue]
+			//		if !ok {
+			//			intern[stringValue] = stringValue
+			//			interned = stringValue
+			//		}
+			//		value = interned
+			//	}
+			//	actualValues = append(actualValues, value)
+			//}
 			actualValues = append(actualValues, toGenericSlice(v)...)
 		}
 	}
+
 	return actualValues, nil
 }
 
