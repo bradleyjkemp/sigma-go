@@ -1,0 +1,6 @@
+go test fuzz v1
+string("detection:\n  0:\n   0:\n  condition: A")
+string("detection:\n  0:\n   Foo|contains: >\n  condition: A")
+string("fieldmappings:\n Foo: foo")
+string("{\"foo\":\"0\"}")
+bool(true)

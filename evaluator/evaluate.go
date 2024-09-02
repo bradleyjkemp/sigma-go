@@ -4,11 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	aho_corasick "github.com/BobuSumisu/aho-corasick"
 	"github.com/bradleyjkemp/sigma-go"
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
-	"strings"
-	"unsafe"
 )
 
 type RuleEvaluator struct {
@@ -78,84 +75,6 @@ func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
 	return e
 }
 
-// ForRules compiles a set of rule evaluators which are evaluated together allowing for use of
-// more efficient string matching algorithms
-func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
-	if len(rules) == 0 {
-		return RuleEvaluatorBundle{}
-	}
-
-	bundle := RuleEvaluatorBundle{
-		ahocorasick: map[string]ahocorasickSearcher{},
-	}
-
-	values := map[string][]string{}
-
-	for _, rule := range rules {
-		e := &RuleEvaluator{Rule: rule, comparators: modifiers.Comparators}
-		for _, option := range options {
-			option(e)
-		}
-
-		bundle.evaluators = append(bundle.evaluators, e)
-
-		for _, search := range rule.Detection.Searches {
-			for _, matcher := range search.EventMatchers {
-				for _, fieldMatcher := range matcher {
-					contains := false
-					for _, modifier := range fieldMatcher.Modifiers {
-						if modifier == "contains" {
-							contains = true
-						}
-					}
-					if !contains {
-						continue
-					}
-					for _, value := range fieldMatcher.Values {
-						if value == nil {
-							continue
-						}
-						values[fieldMatcher.Field] = append(values[fieldMatcher.Field], modifiers.CoerceString(value))
-					}
-				}
-			}
-		}
-	}
-
-	caseSensitive := false
-	if len(bundle.evaluators) > 0 {
-		caseSensitive = bundle.evaluators[0].caseSensitive
-	}
-
-	for field, fieldValues := range values {
-		if !caseSensitive {
-			// when operating in case-insensitive mode, ahocorasick only returns matches for the *first* match
-			// so we have to canonicalise our needles to lowercase.
-			// otherwise if we have both "A" and "a", we're not sure which will be returned as the match
-			// see: go test -run="FuzzRuleBundleMatches/1b692dbec8c613de"
-			for i, value := range fieldValues {
-				fieldValues[i] = strings.ToLower(value)
-			}
-		}
-		bundle.ahocorasick[field] = ahocorasickSearcher{
-			Trie:     aho_corasick.NewTrieBuilder().AddStrings(fieldValues).Build(),
-			patterns: fieldValues,
-		}
-	}
-	return bundle
-}
-
-type RuleEvaluatorBundle struct {
-	ahocorasick   map[string]ahocorasickSearcher
-	evaluators    []*RuleEvaluator
-	caseSensitive bool
-}
-
-type ahocorasickSearcher struct {
-	*aho_corasick.Trie
-	patterns []string
-}
-
 type Result struct {
 	Match            bool            // whether this event matches the Sigma rule
 	SearchResults    map[string]bool // For each Search, whether it matched the event
@@ -174,130 +93,6 @@ func eventValue(e Event, key string) interface{} {
 	default:
 		return ""
 	}
-}
-
-type ahocorasickSearch struct {
-	field    string
-	haystack *byte
-}
-
-type RuleResult struct {
-	Result
-	sigma.Rule
-}
-
-func (bundle RuleEvaluatorBundle) Matches(ctx context.Context, event Event) ([]RuleResult, error) {
-	if len(bundle.evaluators) == 0 {
-		return nil, nil
-	}
-
-	// copy the current rule comparators
-	comparators := map[string]modifiers.Comparator{}
-	for name, comparator := range bundle.evaluators[0].comparators {
-		comparators[name] = comparator
-	}
-
-	c := &ahocorasickContains{
-		//Comparator: comparators["contains"], // fall back to the normal contains comparator for non MatchField calls
-		matchers: bundle.ahocorasick,
-		results:  map[ahocorasickSearch]map[string]bool{},
-	}
-	// override the contains comparator to use our custom one
-	comparators["contains"] = c
-
-	ruleresults := []RuleResult{}
-	for _, rule := range bundle.evaluators {
-		result := Result{
-			Match:            false,
-			SearchResults:    map[string]bool{},
-			ConditionResults: make([]bool, len(rule.Detection.Conditions)),
-		}
-		for identifier, search := range rule.Detection.Searches {
-			var err error
-			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, comparators)
-			if err != nil {
-				return nil, fmt.Errorf("error evaluating search %s: %w", identifier, err)
-			}
-		}
-
-		for conditionIndex, condition := range rule.Detection.Conditions {
-			searchMatches := rule.evaluateSearchExpression(condition.Search, result.SearchResults)
-
-			switch {
-			// Event didn't match filters
-			case !searchMatches:
-				result.ConditionResults[conditionIndex] = false
-				continue
-
-			// Simple query without any aggregation
-			case searchMatches && condition.Aggregation == nil:
-				result.ConditionResults[conditionIndex] = true
-				result.Match = true
-				continue // need to continue in case other conditions contain aggregations that need to be evaluated
-
-			// Search expression matched but still need to see if the aggregation returns true
-			case searchMatches && condition.Aggregation != nil:
-				aggregationMatches, err := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
-				if err != nil {
-					return nil, err
-				}
-				if aggregationMatches {
-					result.Match = true
-					result.ConditionResults[conditionIndex] = true
-				}
-				continue
-			}
-		}
-
-		ruleresults = append(ruleresults, RuleResult{
-			Rule:   rule.Rule,
-			Result: result,
-		})
-	}
-	return ruleresults, nil
-}
-
-type ahocorasickContains struct {
-	caseSensitive bool
-	modifiers.Comparator
-	matchers map[string]ahocorasickSearcher
-	results  map[ahocorasickSearch]map[string]bool
-}
-
-func (a *ahocorasickContains) MatchesField(field string, actual any, expected any) (bool, error) {
-	if actual == nil && expected == "" {
-		// compatability with old |contains behaviour
-		// possibly a bug?
-		return true, nil
-	}
-	haystack := modifiers.CoerceString(actual)
-	search := ahocorasickSearch{
-		field:    field,
-		haystack: unsafe.StringData(haystack),
-	}
-
-	existingResult, ok := a.results[search]
-	if !ok { // haven't already computed this
-		if !a.caseSensitive {
-			haystack = strings.ToLower(haystack)
-		}
-		a.results[search] = map[string]bool{}
-		matcher := a.matchers[field]
-		for _, match := range matcher.MatchString(haystack) {
-			// TODO: is match.MatchString equivalent to matcher.patterns[match.Pattern()]?
-			a.results[search][matcher.patterns[match.Pattern()]] = true
-		}
-		existingResult = a.results[search]
-	}
-
-	needle := modifiers.CoerceString(expected)
-	if !a.caseSensitive {
-		// when operating in case-insensitive mode, search strings must be canonicalised
-		// (this is ok because search strings are much smaller than the haystack)
-		// TODO: should we just modify the rules in this case? (saving the lower-casing every time)
-		needle = strings.ToLower(needle)
-	}
-	return existingResult[needle], nil
 }
 
 func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, error) {

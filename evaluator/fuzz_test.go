@@ -21,6 +21,16 @@ detection:
   condition: a and b
 `
 
+const testRuleRe = `
+id: TEST_RULE
+detection:
+  a:
+    Foo|re: bar
+  b:
+    Bar|endswith: baz
+  condition: a and b
+`
+
 const testConfig = `
 title: Test
 logsources:
@@ -55,6 +65,7 @@ func FuzzRuleMatches(f *testing.F) {
 
 func FuzzRuleBundleMatches(f *testing.F) {
 	f.Add(testRule, testRule, testConfig, `{"foo": "bar", "bar": "baz"}`, false)
+	f.Add(testRule, testRuleRe, testConfig, `{"foo": "bar", "bar": "baz"}`, false)
 	f.Fuzz(func(t *testing.T, rule1, rule2, config, payload string, caseSensitive bool) {
 		var r1, r2 sigma.Rule
 		var c sigma.Config

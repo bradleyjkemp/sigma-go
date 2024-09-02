@@ -301,7 +301,7 @@ func toGenericSlice(v interface{}) []interface{} {
 		return []interface{}{v}
 	}
 
-	var out []interface{}
+	out := make([]interface{}, 0, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		out = append(out, rv.Index(i).Interface())
 	}
