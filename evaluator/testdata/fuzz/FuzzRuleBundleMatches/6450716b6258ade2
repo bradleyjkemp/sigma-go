@@ -1,0 +1,6 @@
+go test fuzz v1
+string("\nid: TEST_RULE\ndetection:\n  a:\n    Foo|contains: bar\n  b:\n    Bar|endswith: baz\n  condition: a and b\n")
+string("\nid: TEST_RULE\ndetection:\n   :\n    Foo|contains: bar\n  b:\n    Bar|endswith: baz\n  condition: a and b\n")
+string("\ntitle: Test\nlogsMMources:\n    tes   Bar:    product: tes \n\nfieldmappings:\n   tFoo: $.foo\n    Bar: $.foobar.baz\n")
+string("{\"foo\": \"bar\", \"bar\": \"baz\"}")
+bool(false)

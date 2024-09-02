@@ -149,6 +149,8 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 		case int, float32, float64, bool:
 			value = fmt.Sprintf("%v", abstractValue)
 		default:
+			// TODO: temporary hack
+			return nil, nil
 			return nil, fmt.Errorf("expected scalar field matching value got: %v (%T)", abstractValue, abstractValue)
 		}
 

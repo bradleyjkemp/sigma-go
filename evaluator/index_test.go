@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bradleyjkemp/sigma-go"
@@ -43,8 +42,6 @@ func TestRuleEvaluator_RelevantToEvent_LogsourceRewriting(t *testing.T) {
 		},
 		DefaultIndex: "",
 	}))
-
-	fmt.Println(rule.Indexes())
 
 	relevant := []string{
 		"just-category",

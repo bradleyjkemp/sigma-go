@@ -3,6 +3,7 @@ module github.com/bradleyjkemp/sigma-go
 go 1.21
 
 require (
+	github.com/BobuSumisu/aho-corasick v1.0.3
 	github.com/PaesslerAG/jsonpath v0.1.1
 	github.com/alecthomas/participle v0.7.1
 	github.com/bradleyjkemp/cupaloy/v2 v2.6.0
@@ -13,6 +14,5 @@ require (
 require (
 	github.com/PaesslerAG/gval v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pgavlin/aho-corasick v0.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )

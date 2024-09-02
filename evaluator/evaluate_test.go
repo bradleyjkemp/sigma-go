@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bradleyjkemp/sigma-go"
@@ -143,13 +142,12 @@ func TestRuleEvaluatorBundle_Matches(t *testing.T) {
 
 	bundle := ForRules([]sigma.Rule{r1, r2})
 
-	results, err := bundle.Matches(context.Background(), map[string]interface{}{
+	_, err := bundle.Matches(context.Background(), map[string]interface{}{
 		"field": "foobar",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(results)
 }
 
 func TestRuleEvaluator_Matches_WithPlaceholder(t *testing.T) {
