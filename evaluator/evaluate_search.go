@@ -149,8 +149,6 @@ func (rule *RuleEvaluator) getMatcherValues(ctx context.Context, matcher sigma.F
 		case int, float32, float64, bool:
 			value = fmt.Sprintf("%v", abstractValue)
 		default:
-			// TODO: temporary hack
-			return nil, nil
 			return nil, fmt.Errorf("expected scalar field matching value got: %v (%T)", abstractValue, abstractValue)
 		}
 
@@ -193,18 +191,6 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([
 				return nil, err
 			}
 
-			//values := toGenericSlice(v)
-			//for _, value := range values {
-			//	if stringValue, ok := value.(string); ok && intern != nil {
-			//		interned, ok := intern[stringValue]
-			//		if !ok {
-			//			intern[stringValue] = stringValue
-			//			interned = stringValue
-			//		}
-			//		value = interned
-			//	}
-			//	actualValues = append(actualValues, value)
-			//}
 			actualValues = append(actualValues, toGenericSlice(v)...)
 		}
 	}
