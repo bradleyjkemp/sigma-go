@@ -1,8 +1,9 @@
 module github.com/bradleyjkemp/sigma-go
 
-go 1.18
+go 1.21
 
 require (
+	github.com/BobuSumisu/aho-corasick v1.0.3
 	github.com/PaesslerAG/jsonpath v0.1.1
 	github.com/alecthomas/participle v0.7.1
 	github.com/bradleyjkemp/cupaloy/v2 v2.6.0

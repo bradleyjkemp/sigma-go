@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"context"
+	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 
 	"github.com/bradleyjkemp/sigma-go"
 )
@@ -45,4 +46,5 @@ func WithConfig(config ...sigma.Config) Option {
 // This can increase performance (especially for larger events) by skipping expensive calls to strings.ToLower
 func CaseSensitive(e *RuleEvaluator) {
 	e.caseSensitive = true
+	e.comparators = modifiers.ComparatorsCaseSensitive
 }

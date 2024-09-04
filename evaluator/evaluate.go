@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/bradleyjkemp/sigma-go"
+	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 )
 
 type RuleEvaluator struct {
@@ -17,6 +17,7 @@ type RuleEvaluator struct {
 
 	expandPlaceholder func(ctx context.Context, placeholderName string) ([]string, error)
 	caseSensitive     bool
+	comparators       map[string]modifiers.Comparator
 
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
 	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
@@ -30,6 +31,7 @@ type RuleEvaluator struct {
 // For example, if a Sigma rule has a condition like this (attempting to detect login brute forcing)
 //
 // detection:
+//
 //	  login_attempt:
 //	    # something here
 //	  condition:
@@ -40,6 +42,7 @@ type RuleEvaluator struct {
 // Each different GroupedByValues points to a different box.
 //
 // GroupedByValues
+//
 //	    ||
 //	 ___↓↓___          ________
 //	| User A |        | User B |
@@ -65,7 +68,7 @@ func (a GroupedByValues) Key() string {
 }
 
 func ForRule(rule sigma.Rule, options ...Option) *RuleEvaluator {
-	e := &RuleEvaluator{Rule: rule}
+	e := &RuleEvaluator{Rule: rule, comparators: modifiers.Comparators}
 	for _, option := range options {
 		option(e)
 	}
@@ -93,6 +96,10 @@ func eventValue(e Event, key string) interface{} {
 }
 
 func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, error) {
+	return rule.matches(ctx, event, rule.comparators)
+}
+
+func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators map[string]modifiers.Comparator) (Result, error) {
 	result := Result{
 		Match:            false,
 		SearchResults:    map[string]bool{},
@@ -100,7 +107,7 @@ func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, err
 	}
 	for identifier, search := range rule.Detection.Searches {
 		var err error
-		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event)
+		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
 		if err != nil {
 			return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
 		}
