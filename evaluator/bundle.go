@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"context"
-	"fmt"
 	aho_corasick "github.com/BobuSumisu/aho-corasick"
 	"github.com/bradleyjkemp/sigma-go"
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
@@ -25,11 +24,7 @@ func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
 	values := map[string][]string{}
 
 	for _, rule := range rules {
-		e := &RuleEvaluator{Rule: rule, comparators: modifiers.Comparators}
-		for _, option := range options {
-			option(e)
-		}
-
+		e := ForRule(rule, options...)
 		bundle.evaluators = append(bundle.evaluators, e)
 		bundle.caseSensitive = e.caseSensitive
 
@@ -143,52 +138,16 @@ func (bundle RuleEvaluatorBundle) Matches(ctx context.Context, event Event) ([]R
 	}
 
 	ruleresults := []RuleResult{}
+	errs := []error{}
 	for _, rule := range bundle.evaluators {
-		result := Result{
-			Match:            false,
-			SearchResults:    map[string]bool{},
-			ConditionResults: make([]bool, len(rule.Detection.Conditions)),
+		result, err := rule.matches(ctx, event, comparators)
+		if err != nil {
+			errs = append(errs, err)
+			continue
 		}
-		for identifier, search := range rule.Detection.Searches {
-			var err error
-			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, comparators)
-			if err != nil {
-				return nil, fmt.Errorf("error evaluating search %s: %w", identifier, err)
-			}
-		}
-
-		for conditionIndex, condition := range rule.Detection.Conditions {
-			searchMatches := rule.evaluateSearchExpression(condition.Search, result.SearchResults)
-
-			switch {
-			// Event didn't match filters
-			case !searchMatches:
-				result.ConditionResults[conditionIndex] = false
-				continue
-
-			// Simple query without any aggregation
-			case searchMatches && condition.Aggregation == nil:
-				result.ConditionResults[conditionIndex] = true
-				result.Match = true
-				continue // need to continue in case other conditions contain aggregations that need to be evaluated
-
-			// Search expression matched but still need to see if the aggregation returns true
-			case searchMatches && condition.Aggregation != nil:
-				aggregationMatches, err := rule.evaluateAggregationExpression(ctx, conditionIndex, condition.Aggregation, event)
-				if err != nil {
-					return nil, err
-				}
-				if aggregationMatches {
-					result.Match = true
-					result.ConditionResults[conditionIndex] = true
-				}
-				continue
-			}
-		}
-
 		ruleresults = append(ruleresults, RuleResult{
-			Rule:   rule.Rule,
 			Result: result,
+			Rule:   rule.Rule,
 		})
 	}
 	return ruleresults, nil

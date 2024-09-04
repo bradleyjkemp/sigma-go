@@ -96,6 +96,10 @@ func eventValue(e Event, key string) interface{} {
 }
 
 func (rule RuleEvaluator) Matches(ctx context.Context, event Event) (Result, error) {
+	return rule.matches(ctx, event, rule.comparators)
+}
+
+func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators map[string]modifiers.Comparator) (Result, error) {
 	result := Result{
 		Match:            false,
 		SearchResults:    map[string]bool{},
