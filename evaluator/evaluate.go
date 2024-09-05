@@ -17,6 +17,7 @@ type RuleEvaluator struct {
 
 	expandPlaceholder func(ctx context.Context, placeholderName string) ([]string, error)
 	caseSensitive     bool
+	lazy              bool
 	comparators       map[string]modifiers.Comparator
 
 	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
@@ -105,16 +106,39 @@ func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators 
 		SearchResults:    map[string]bool{},
 		ConditionResults: make([]bool, len(rule.Detection.Conditions)),
 	}
-	for identifier, search := range rule.Detection.Searches {
-		var err error
-		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
-		if err != nil {
-			return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
+
+	if !rule.lazy {
+		// must evaluate all searches up front
+		for identifier, search := range rule.Detection.Searches {
+			var err error
+			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
+			if err != nil {
+				return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
+			}
 		}
 	}
 
+	var searchErr error
+	searchResults := func(identifier string) bool {
+		searchResult, ok := result.SearchResults[identifier]
+		if ok {
+			return searchResult
+		}
+
+		search, ok := rule.Detection.Searches[identifier]
+		if !ok {
+			return false // compatibility with old behaviour
+		}
+		var err error
+		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
+		if err != nil {
+			searchErr = fmt.Errorf("error evaluating search %s: %w", identifier, err)
+			return false
+		}
+		return result.SearchResults[identifier]
+	}
 	for conditionIndex, condition := range rule.Detection.Conditions {
-		searchMatches := rule.evaluateSearchExpression(condition.Search, result.SearchResults)
+		searchMatches := rule.evaluateSearchExpression(condition.Search, searchResults)
 
 		switch {
 		// Event didn't match filters
@@ -142,5 +166,5 @@ func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators 
 		}
 	}
 
-	return result, nil
+	return result, searchErr
 }

@@ -48,3 +48,8 @@ func CaseSensitive(e *RuleEvaluator) {
 	e.caseSensitive = true
 	e.comparators = modifiers.ComparatorsCaseSensitive
 }
+
+// LazyEvaluation allows the evaluator to skip evaluating searches if they won't affect the overall match result
+func LazyEvaluation(e *RuleEvaluator) {
+	e.lazy = true
+}

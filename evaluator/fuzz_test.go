@@ -60,7 +60,6 @@ func FuzzRuleMatches(f *testing.F) {
 		eval := ForRule(r, WithConfig(c))
 		_, err = eval.Matches(context.Background(), e)
 	})
-
 }
 
 func FuzzRuleBundleMatches(f *testing.F) {
@@ -136,6 +135,36 @@ func FuzzRuleBundleMatches(f *testing.F) {
 		}
 		if !reflect.DeepEqual(matches[1].Result, match2) {
 			panic(fmt.Sprint("difference in match2\nbundle:     ", matches[1].Result, "\nstandalone: ", match2))
+		}
+	})
+}
+
+func FuzzRuleLazyMatches(f *testing.F) {
+	f.Add(testRule, testConfig, `{"foo": "bar", "bar": "baz"}`)
+	f.Fuzz(func(t *testing.T, rule, config, payload string) {
+		r, err := sigma.ParseRule([]byte(rule))
+		if err != nil {
+			return
+		}
+		c, err := sigma.ParseConfig([]byte(config))
+		if err != nil {
+			return
+		}
+
+		var e Event
+		json.Unmarshal([]byte(payload), &e)
+
+		eval := ForRule(r, WithConfig(c))
+		lazyEval := ForRule(r, WithConfig(c), LazyEvaluation)
+		evalResult, evalErr := eval.Matches(context.Background(), e)
+		lazyEvalResult, lazyEvalErr := lazyEval.Matches(context.Background(), e)
+
+		if (evalErr == nil) != (lazyEvalErr == nil) {
+			f.Fatal("err mismatch", evalErr, lazyEvalErr)
+		}
+
+		if evalResult.Match != lazyEvalResult.Match {
+			f.Fatal("result mismatch", evalErr, lazyEvalErr)
 		}
 	})
 }

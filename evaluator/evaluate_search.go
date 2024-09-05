@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, searchResults map[string]bool) bool {
+func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, searchResults func(string) bool) bool {
 	switch s := search.(type) {
 	case sigma.And:
 		for _, node := range s {
@@ -36,7 +36,7 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 
 	case sigma.SearchIdentifier:
 		// If `s.Name` is not defined, this is always false
-		return searchResults[s.Name]
+		return searchResults(s.Name)
 
 	case sigma.OneOfThem:
 		for name := range rule.Detection.Searches {
