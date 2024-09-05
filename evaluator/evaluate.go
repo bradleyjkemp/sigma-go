@@ -111,7 +111,7 @@ func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators 
 		// must evaluate all searches up front
 		for identifier, search := range rule.Detection.Searches {
 			var err error
-			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
+			result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, comparators)
 			if err != nil {
 				return Result{}, fmt.Errorf("error evaluating search %s: %w", identifier, err)
 			}
@@ -130,7 +130,7 @@ func (rule RuleEvaluator) matches(ctx context.Context, event Event, comparators 
 			return false // compatibility with old behaviour
 		}
 		var err error
-		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, rule.comparators)
+		result.SearchResults[identifier], err = rule.evaluateSearch(ctx, search, event, comparators)
 		if err != nil {
 			searchErr = fmt.Errorf("error evaluating search %s: %w", identifier, err)
 			return false
