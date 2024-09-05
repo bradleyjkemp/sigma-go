@@ -74,7 +74,6 @@ func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
 		bundle.ahocorasick[field] = ahocorasickSearcher{
 			Trie:     aho_corasick.NewTrieBuilder().AddStrings(fieldValues).Build(),
 			patterns: fieldValues,
-			results:  map[*byte]map[string]bool{}, // used for caching results
 		}
 	}
 	return bundle
@@ -89,12 +88,12 @@ type RuleEvaluatorBundle struct {
 type ahocorasickSearcher struct {
 	*aho_corasick.Trie
 	patterns []string
-	results  map[*byte]map[string]bool
 }
 
-func (as ahocorasickSearcher) getResults(s string, caseSensitive bool) map[string]bool {
+func (a *ahocorasickContains) getResults(field, s string, caseSensitive bool) map[string]bool {
+	as := a.matchers[field]
 	key := unsafe.StringData(s) // using the underlying []byte pointer means we only compute results once per interned string
-	result, ok := as.results[key]
+	result, ok := a.results[field][key]
 	if ok {
 		return result
 	}
@@ -104,10 +103,13 @@ func (as ahocorasickSearcher) getResults(s string, caseSensitive bool) map[strin
 		s = strings.ToLower(s)
 	}
 	results := map[string]bool{}
-	as.results[key] = results
+	if _, ok := a.results[field]; !ok {
+		a.results[field] = map[*byte]map[string]bool{}
+	}
+	a.results[field][key] = results
 	for _, match := range as.MatchString(s) {
 		// TODO: is match.MatchString equivalent to matcher.patterns[match.Pattern()]?
-		as.results[key][match.MatchString()] = true
+		a.results[field][key][match.MatchString()] = true
 	}
 	return results
 }
@@ -129,12 +131,14 @@ func (bundle RuleEvaluatorBundle) Matches(ctx context.Context, event Event) ([]R
 	}
 
 	// override the contains comparator to use our custom one
-	comparators["contains"] = &ahocorasickContains{
+	contains := &ahocorasickContains{
 		matchers:      bundle.ahocorasick,
 		caseSensitive: bundle.caseSensitive,
+		results:       map[string]map[*byte]map[string]bool{},
 	}
+	comparators["contains"] = contains
 	comparators["re"] = &ahocorasickRe{
-		matchers: bundle.ahocorasick,
+		contains,
 	}
 
 	ruleresults := []RuleResult{}
@@ -157,6 +161,7 @@ type ahocorasickContains struct {
 	caseSensitive bool
 	modifiers.Comparator
 	matchers map[string]ahocorasickSearcher
+	results  map[string]map[*byte]map[string]bool
 }
 
 func (a *ahocorasickContains) MatchesField(field string, actual any, expected any) (bool, error) {
@@ -166,7 +171,7 @@ func (a *ahocorasickContains) MatchesField(field string, actual any, expected an
 		return true, nil
 	}
 
-	results := a.matchers[field].getResults(modifiers.CoerceString(actual), a.caseSensitive)
+	results := a.getResults(field, modifiers.CoerceString(actual), a.caseSensitive)
 
 	needle := modifiers.CoerceString(expected)
 	if !a.caseSensitive {
@@ -179,8 +184,7 @@ func (a *ahocorasickContains) MatchesField(field string, actual any, expected an
 }
 
 type ahocorasickRe struct {
-	modifiers.Comparator
-	matchers map[string]ahocorasickSearcher
+	*ahocorasickContains
 }
 
 func (a *ahocorasickRe) MatchesField(field string, actual any, expected any) (bool, error) {
@@ -199,7 +203,7 @@ func (a *ahocorasickRe) MatchesField(field string, actual any, expected any) (bo
 	}
 
 	haystack := modifiers.CoerceString(actual)
-	results := a.matchers[field].getResults(haystack, !caseInsensitive)
+	results := a.getResults(field, haystack, !caseInsensitive)
 	found := false
 	for _, s := range ss {
 		if results[s] {
