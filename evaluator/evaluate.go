@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/bradleyjkemp/sigma-go"
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 )
@@ -85,12 +87,25 @@ type Result struct {
 // Event should be some form a map[string]interface{} or map[string]string
 type Event interface{}
 
+func getNestedValue(data map[string]interface{}, path string) interface{} {
+	parts := strings.Split(path, ".")
+	current := data
+
+	for i, part := range parts {
+		if i == len(parts)-1 {
+			return current[part]
+		}
+		current = current[part].(map[string]interface{})
+	}
+	return nil
+}
+
 func eventValue(e Event, key string) interface{} {
 	switch evt := e.(type) {
 	case map[string]string:
 		return evt[key]
 	case map[string]interface{}:
-		return evt[key]
+		return getNestedValue(evt, key)
 	default:
 		return ""
 	}
