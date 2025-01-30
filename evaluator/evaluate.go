@@ -105,7 +105,12 @@ func eventValue(e Event, key string) interface{} {
 	case map[string]string:
 		return evt[key]
 	case map[string]interface{}:
-		return getNestedValue(evt, key)
+		result := getNestedValue(evt, key)
+		if result != nil {
+			return getNestedValue(evt, key)
+		} else {
+			return ""
+		}
 	default:
 		return ""
 	}
