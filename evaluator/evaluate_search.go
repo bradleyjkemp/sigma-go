@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/PaesslerAG/jsonpath"
-	"github.com/bradleyjkemp/sigma-go"
-	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 	"path"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/PaesslerAG/jsonpath"
+	"github.com/bradleyjkemp/sigma-go"
+	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 )
 
 func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, searchResults func(string) bool) bool {
@@ -123,6 +124,9 @@ eventMatcher:
 			values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
 			if err != nil {
 				return false, err
+			}
+			if values == nil {
+				return false, nil
 			}
 			if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 				// this field didn't match so the overall matcher doesn't match, try the next EventMatcher
