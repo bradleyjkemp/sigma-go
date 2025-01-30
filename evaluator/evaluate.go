@@ -95,7 +95,11 @@ func getNestedValue(data map[string]interface{}, path string) interface{} {
 		if i == len(parts)-1 {
 			return current[part]
 		}
-		current = current[part].(map[string]interface{})
+		next, ok := current[part].(map[string]interface{})
+		if !ok {
+			return nil
+		}
+		current = next
 	}
 	return nil
 }
@@ -105,12 +109,7 @@ func eventValue(e Event, key string) interface{} {
 	case map[string]string:
 		return evt[key]
 	case map[string]interface{}:
-		result := getNestedValue(evt, key)
-		if result != nil {
-			return getNestedValue(evt, key)
-		} else {
-			return ""
-		}
+		return getNestedValue(evt, key)
 	default:
 		return ""
 	}

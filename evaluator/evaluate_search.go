@@ -125,9 +125,6 @@ eventMatcher:
 			if err != nil {
 				return false, err
 			}
-			if values == nil {
-				return false, nil
-			}
 			if !rule.matcherMatchesValues(matcherValues, comparator, allValuesMustMatch, values) {
 				// this field didn't match so the overall matcher doesn't match, try the next EventMatcher
 				continue eventMatcher
