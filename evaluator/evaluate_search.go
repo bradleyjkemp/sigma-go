@@ -175,7 +175,8 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([
 	var actualValues []interface{}
 	if len(rule.fieldmappings[field]) == 0 {
 		// No FieldMapping exists so use the name directly from the rule
-		actualValues = []interface{}{eventValue(event, field)}
+		// actualValues = []interface{}{eventValue(event, field)}
+		actualValues = toGenericSlice(eventValue(event, field))
 	} else {
 		// FieldMapping does exist so check each of the possible mapped names instead of the name from the rule
 		for _, mapping := range rule.fieldmappings[field] {
