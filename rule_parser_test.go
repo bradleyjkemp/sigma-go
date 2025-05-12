@@ -1,12 +1,13 @@
 package sigma
 
 import (
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/google/go-cmp/cmp"
@@ -20,6 +21,32 @@ func TestParseRule(t *testing.T) {
 		}
 
 		t.Run(strings.TrimSuffix(filepath.Base(path), ".rule.yml"), func(t *testing.T) {
+			contents, err := ioutil.ReadFile(path)
+			if err != nil {
+				t.Fatalf("failed reading test input: %v", err)
+			}
+
+			rule, err := ParseRule(contents)
+			if err != nil {
+				t.Fatalf("error parsing rule: %v", err)
+			}
+
+			cupaloy.New(cupaloy.SnapshotSubdirectory("testdata")).SnapshotT(t, rule)
+		})
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestParseRule2(t *testing.T) {
+	err := filepath.Walk("./testdata/", func(path string, info os.FileInfo, err error) error {
+		if !strings.HasSuffix(path, "aws_enum_backup.rule.yml") {
+			return nil
+		}
+
+		t.Run(strings.TrimSuffix(filepath.Base(path), "aws_enum_backup.rule.yml"), func(t *testing.T) {
 			contents, err := ioutil.ReadFile(path)
 			if err != nil {
 				t.Fatalf("failed reading test input: %v", err)
