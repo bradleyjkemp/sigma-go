@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/bradleyjkemp/sigma-go"
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 )
@@ -85,12 +86,66 @@ type Result struct {
 // Event should be some form a map[string]interface{} or map[string]string
 type Event interface{}
 
+func flattenJSON(data interface{}, prefix string, result map[string]interface{}) {
+	switch v := data.(type) {
+	case map[string]interface{}:
+		for k, val := range v {
+			newKey := k
+			if prefix != "" {
+				newKey = prefix + "." + k
+			}
+			flattenJSON(val, newKey, result)
+		}
+
+	case []interface{}:
+		if len(v) == 0 {
+			result[prefix] = v
+			return
+		}
+
+		if _, isMap := v[0].(map[string]interface{}); isMap {
+			fieldsMap := make(map[string][]interface{})
+			for _, item := range v {
+				if mapItem, ok := item.(map[string]interface{}); ok {
+					for k, val := range mapItem {
+						key := prefix + "." + k
+						fieldsMap[key] = append(fieldsMap[key], val)
+					}
+				}
+			}
+			for k, val := range fieldsMap {
+				result[k] = val
+			}
+		} else {
+			result[prefix] = v
+		}
+
+	case string:
+		switch v {
+		case "False", "false":
+			result[prefix] = false
+		case "True", "true":
+			result[prefix] = true
+		default:
+			result[prefix] = v
+		}
+	default:
+		result[prefix] = v
+	}
+}
+
+func getNestedValue(data map[string]interface{}, path string) interface{} {
+	result := make(map[string]interface{})
+	flattenJSON(data, "", result)
+	return result[path]
+}
+
 func eventValue(e Event, key string) interface{} {
 	switch evt := e.(type) {
 	case map[string]string:
 		return evt[key]
 	case map[string]interface{}:
-		return evt[key]
+		return getNestedValue(evt, key)
 	default:
 		return ""
 	}

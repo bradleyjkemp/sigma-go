@@ -63,9 +63,14 @@ func (d *Detection) UnmarshalYAML(node *yaml.Node) error {
 				return err
 			}
 		case "timeframe":
-			if err := node.Decode(&d.Timeframe); err != nil {
+			if t, err := time.ParseDuration(value.Value); err != nil {
 				return err
+			} else {
+				d.Timeframe = t
 			}
+			// if err := node.Decode(&d.Timeframe); err != nil {
+			// 	return err
+			// }
 		default:
 			search := Search{}
 			if err := search.UnmarshalYAML(value); err != nil {
