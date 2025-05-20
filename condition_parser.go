@@ -8,8 +8,8 @@ import (
 
 var (
 	searchExprLexer = lexer.Must(lexer.Regexp(`(?P<Keyword>(?i)(1 of them)|(all of them)|(1 of)|(all of))` +
-		`|(?P<SearchIdentifierPattern>\*?[a-zA-Z_]+\*[a-zA-Z0-9_*]*)` +
-		`|(?P<SearchIdentifier>[a-zA-Z_][a-zA-Z0-9_]*)` +
+		`|(?P<SearchIdentifierPattern>\*?[a-zA-Z_]+(?:[a-zA-Z0-9_]*_)*[a-zA-Z0-9]*\*)` + // Adjusted pattern to catch multiple underscores which is present upstream
+		`|(?P<SearchIdentifier>[a-zA-Z_][a-zA-Z0-9_]*)` + 
 		`|(?P<Operator>(?i)and|or|not|[()])` + // TODO: this never actually matches anything because they get matched as a SearchIdentifier instead. However this isn't currently a problem because we don't parse anything in the Grammar as an Operator (we just use string constants which don't care about Operator vs SearchIdentifier)
 		`|(?P<ComparisonOperation>=|!=|<=|>=|<|>)` +
 		`|(?P<ComparisonValue>0|[1-9][0-9]*)` +
