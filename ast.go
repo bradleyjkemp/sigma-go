@@ -304,6 +304,9 @@ func searchToAST(node interface{}) (SearchExpr, error) {
 		case n.Identifer != nil:
 			return SearchIdentifier{Name: *n.Identifer}, nil
 
+		case n.Pattern != nil:
+			return OneOfPattern{Pattern: *n.Pattern}, nil
+
 		case n.Subexpression != nil:
 			return searchToAST(*n.Subexpression)
 
