@@ -17,6 +17,7 @@ type Term struct {
 	Negated       *Term        `"not" @@`
 	OneAllOf      *OneAllOf    `| @@`
 	Identifer     *string      `| @SearchIdentifier`
+	Pattern       *string      `| @SearchIdentifierPattern`
 	Subexpression *Disjunction `| "(" @@ ")"`
 }
 
