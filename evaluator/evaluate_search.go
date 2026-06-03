@@ -116,6 +116,19 @@ eventMatcher:
 				return false, err
 			}
 
+			// A null matcher (Field: null in Sigma) matches when the event field is absent or nil.
+			// Handle this before getMatcherValues, which cannot represent nil in its []string return.
+			if isNullMatcher(fieldMatcher) {
+				values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
+				if err != nil {
+					return false, err
+				}
+				if !fieldIsAbsent(values) {
+					continue eventMatcher
+				}
+				continue
+			}
+
 			matcherValues, err := rule.getMatcherValues(ctx, fieldMatcher)
 			if err != nil {
 				return false, err
@@ -293,4 +306,32 @@ func toGenericSlice(v interface{}) []interface{} {
 	}
 
 	return out
+}
+
+// isNullMatcher reports whether all of the matcher's values are nil, which corresponds
+// to the Sigma "Field: null" syntax meaning "this field should be absent from the event".
+func isNullMatcher(matcher sigma.FieldMatcher) bool {
+	if len(matcher.Values) == 0 {
+		return false
+	}
+	for _, v := range matcher.Values {
+		if v != nil {
+			return false
+		}
+	}
+	return true
+}
+
+// fieldIsAbsent reports whether all actual event values for a field are nil (i.e. the field
+// is absent or explicitly null), which is the condition that a null matcher must satisfy.
+func fieldIsAbsent(values []interface{}) bool {
+	if len(values) == 0 {
+		return true
+	}
+	for _, v := range values {
+		if v != nil {
+			return false
+		}
+	}
+	return true
 }
