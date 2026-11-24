@@ -15,6 +15,15 @@ func CountImplementation(count func(ctx context.Context, key GroupedByValues) (f
 	}
 }
 
+// CountDistinctImplementation provides the implementation of count(field), which counts the number of distinct values of field.
+// The function is called with the value of the field in the current event (nil if the field isn't present)
+// and should return the number of distinct values seen for this GroupedByValues, including the current one.
+func CountDistinctImplementation(countDistinct func(ctx context.Context, key GroupedByValues, value interface{}) (float64, error)) Option {
+	return func(e *RuleEvaluator) {
+		e.countDistinct = countDistinct
+	}
+}
+
 func SumImplementation(sum func(ctx context.Context, key GroupedByValues, value float64) (float64, error)) Option {
 	return func(e *RuleEvaluator) {
 		e.sum = sum
