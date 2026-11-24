@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 )
@@ -183,12 +184,30 @@ func (b64) Modify(value any) (any, error) {
 type re struct{}
 
 func (re) Matches(actual any, expected any) (bool, error) {
-	re, err := regexp.Compile(CoerceString(expected))
+	re, err := compileRegex(CoerceString(expected))
 	if err != nil {
 		return false, err
 	}
 
 	return re.MatchString(CoerceString(actual)), nil
+}
+
+// regexCache holds compiled regular expressions (map[string]*regexp.Regexp).
+// Expressions come from rules so the number of distinct entries is bounded by the loaded rules.
+var regexCache sync.Map
+
+// compileRegex is regexp.Compile but caches the result so that each expression is only compiled once.
+// A *regexp.Regexp is safe for concurrent use.
+func compileRegex(expr string) (*regexp.Regexp, error) {
+	if cached, ok := regexCache.Load(expr); ok {
+		return cached.(*regexp.Regexp), nil
+	}
+	re, err := regexp.Compile(expr)
+	if err != nil {
+		return nil, err
+	}
+	regexCache.Store(expr, re)
+	return re, nil
 }
 
 type cidr struct{}

