@@ -10,7 +10,7 @@ import (
 )
 
 type Condition struct {
-	node        *yaml.Node      `yaml:",omitempty" json:",omitempty"`
+	node        *yaml.Node
 	Search      SearchExpr      `yaml:",omitempty" json:",omitempty"`
 	Aggregation AggregationExpr `yaml:",omitempty" json:",omitempty"`
 }

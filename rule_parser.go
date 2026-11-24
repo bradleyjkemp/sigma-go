@@ -130,7 +130,7 @@ func (c Conditions) MarshalYAML() (interface{}, error) {
 }
 
 type Search struct {
-	node          *yaml.Node     `yaml:",omitempty" json:",omitempty"`
+	node          *yaml.Node
 	Keywords      []string       `yaml:",omitempty" json:",omitempty"`
 	EventMatchers []EventMatcher `yaml:",omitempty" json:",omitempty"`
 }
@@ -227,7 +227,7 @@ func (f EventMatcher) MarshalYAML() (interface{}, error) {
 }
 
 type FieldMatcher struct {
-	node      *yaml.Node    `yaml:",omitempty" json:",omitempty"`
+	node      *yaml.Node
 	Field     string        `yaml:",omitempty" json:",omitempty"`
 	Modifiers []string      `yaml:",omitempty" json:",omitempty"`
 	Values    []interface{} `yaml:",omitempty" json:",omitempty"`
