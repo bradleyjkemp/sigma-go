@@ -160,11 +160,11 @@ func FuzzRuleLazyMatches(f *testing.F) {
 		lazyEvalResult, lazyEvalErr := lazyEval.Matches(context.Background(), e)
 
 		if (evalErr == nil) != (lazyEvalErr == nil) {
-			f.Fatal("err mismatch", evalErr, lazyEvalErr)
+			t.Fatal("err mismatch", evalErr, lazyEvalErr)
 		}
 
 		if evalResult.Match != lazyEvalResult.Match {
-			f.Fatal("result mismatch", evalErr, lazyEvalErr)
+			t.Fatal("result mismatch", evalErr, lazyEvalErr)
 		}
 	})
 }
