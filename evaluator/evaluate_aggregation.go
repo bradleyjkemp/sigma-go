@@ -45,17 +45,13 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 	case sigma.Count:
 		if agg.Field == "" {
 			// This is a simple count number of events
-			return rule.count(ctx, GroupedByValues{
-				ConditionID: conditionIndex,
-				EventValues: map[string]interface{}{
-					// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-					agg.GroupedBy: eventValue(event, agg.GroupedBy),
-				},
-			})
+			return rule.count(ctx, rule.groupedByValues(conditionIndex, agg.GroupedBy, event))
 		} else {
 			// This is a more complex, count distinct values for a field
-			// TODO: implement this
-			return 0, fmt.Errorf("count_distinct not yet implemented")
+			if rule.countDistinct == nil {
+				return 0, fmt.Errorf("count(%s) requires a CountDistinctImplementation", agg.Field)
+			}
+			return rule.countDistinct(ctx, rule.groupedByValues(conditionIndex, agg.GroupedBy, event), eventValue(event, agg.Field))
 		}
 
 	case sigma.Average:
@@ -63,28 +59,27 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 		if err != nil {
 			return 0, fmt.Errorf("invalid float value: %w", err)
 		}
-		return rule.average(ctx, GroupedByValues{
-			ConditionID: conditionIndex,
-			EventValues: map[string]interface{}{
-				// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-				agg.GroupedBy: eventValue(event, agg.GroupedBy),
-			},
-		}, val)
+		return rule.average(ctx, rule.groupedByValues(conditionIndex, agg.GroupedBy, event), val)
 
 	case sigma.Sum:
 		val, err := strconv.ParseFloat(fmt.Sprint(eventValue(event, agg.Field)), 64)
 		if err != nil {
 			return 0, fmt.Errorf("invalid float value: %w", err)
 		}
-		return rule.sum(ctx, GroupedByValues{
-			ConditionID: conditionIndex,
-			EventValues: map[string]interface{}{
-				// TODO: it's out of spec but would be very useful to support multiple group-by fields.
-				agg.GroupedBy: eventValue(event, agg.GroupedBy),
-			},
-		}, val)
+		return rule.sum(ctx, rule.groupedByValues(conditionIndex, agg.GroupedBy, event), val)
 
 	default:
 		return 0, fmt.Errorf("unsupported aggregation function")
+	}
+}
+
+func (rule RuleEvaluator) groupedByValues(conditionIndex int, groupedBy string, event Event) GroupedByValues {
+	return GroupedByValues{
+		ConditionID: conditionIndex,
+		EventValues: map[string]interface{}{
+			// TODO: it's out of spec but would be very useful to support multiple group-by fields.
+			groupedBy: eventValue(event, groupedBy),
+		},
+		RuleID: rule.ID,
 	}
 }

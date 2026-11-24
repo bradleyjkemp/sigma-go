@@ -20,9 +20,10 @@ type RuleEvaluator struct {
 	lazy              bool
 	comparators       map[string]modifiers.Comparator
 
-	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
-	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
-	sum     func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
+	count         func(ctx context.Context, gb GroupedByValues) (float64, error)
+	countDistinct func(ctx context.Context, gb GroupedByValues, value interface{}) (float64, error)
+	average       func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
+	sum           func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
 	// TODO: support the other aggregation functions
 }
 
@@ -54,14 +55,21 @@ type RuleEvaluator struct {
 type GroupedByValues struct {
 	ConditionID int // TODO: there's some forward/backward compatibility pitfalls here: what happens if you switch the order of conditions in your Sigma file?
 	EventValues map[string]interface{}
+	// RuleID is the ID of the rule being evaluated, so that the same aggregator can be shared between several rules.
+	RuleID string
 }
 
 func (a GroupedByValues) Key() string {
-	// This is lazy and a terrible idea as the JSON output shouldn't be relied on to be stable across Go releases
-	out, err := json.Marshal(map[string]interface{}{
+	key := map[string]interface{}{
 		"condition_id": a.ConditionID,
 		"event_values": a.EventValues,
-	})
+	}
+	if a.RuleID != "" {
+		// only included when set so that keys for rules without an ID are unchanged
+		key["rule_id"] = a.RuleID
+	}
+	// This is lazy and a terrible idea as the JSON output shouldn't be relied on to be stable across Go releases
+	out, err := json.Marshal(key)
 	if err != nil {
 		panic(err)
 	}
