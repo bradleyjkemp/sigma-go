@@ -48,6 +48,10 @@ func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
 								continue
 							}
 							stringValue := modifiers.CoerceString(value)
+							if hasWildcardsOrEscapes(stringValue) {
+								// can't be matched by a plain substring search, see ahocorasickContains.MatchesField
+								continue
+							}
 							if !bundle.caseSensitive {
 								stringValue = strings.ToLower(stringValue)
 							}
@@ -71,9 +75,14 @@ func ForRules(rules []sigma.Rule, options ...Option) RuleEvaluatorBundle {
 	}
 
 	for field, fieldValues := range values {
+		needles := make(map[string]bool, len(fieldValues))
+		for _, value := range fieldValues {
+			needles[value] = true
+		}
 		bundle.ahocorasick[field] = ahocorasickSearcher{
 			Trie:     aho_corasick.NewTrieBuilder().AddStrings(fieldValues).Build(),
 			patterns: fieldValues,
+			needles:  needles,
 		}
 	}
 	return bundle
@@ -88,6 +97,7 @@ type RuleEvaluatorBundle struct {
 type ahocorasickSearcher struct {
 	*aho_corasick.Trie
 	patterns []string
+	needles  map[string]bool // the set of patterns
 }
 
 func (a *ahocorasickContains) getResults(field, s string, caseSensitive bool) map[string]bool {
@@ -132,6 +142,7 @@ func (bundle RuleEvaluatorBundle) Matches(ctx context.Context, event Event) ([]R
 
 	// override the contains comparator to use our custom one
 	contains := &ahocorasickContains{
+		Comparator:    comparators["contains"],
 		matchers:      bundle.ahocorasick,
 		caseSensitive: bundle.caseSensitive,
 		results:       map[string]map[*byte]map[string]bool{},
@@ -171,8 +182,6 @@ func (a *ahocorasickContains) MatchesField(field string, actual any, expected an
 		return true, nil
 	}
 
-	results := a.getResults(field, modifiers.CoerceString(actual), a.caseSensitive)
-
 	needle := modifiers.CoerceString(expected)
 	if !a.caseSensitive {
 		// when operating in case-insensitive mode, search strings must be canonicalised
@@ -180,7 +189,20 @@ func (a *ahocorasickContains) MatchesField(field string, actual any, expected an
 		// TODO: should we just modify the rules in this case? (saving the lower-casing every time)
 		needle = strings.ToLower(needle)
 	}
+
+	if !a.matchers[field].needles[needle] && a.Comparator != nil {
+		// This value isn't in the needle set, e.g. because it contains Sigma wildcards or escape sequences
+		// or because a value modifier (such as base64) changed it, so use the original comparator.
+		return a.Comparator.Matches(actual, expected)
+	}
+
+	results := a.getResults(field, modifiers.CoerceString(actual), a.caseSensitive)
 	return results[needle], nil
+}
+
+// hasWildcardsOrEscapes reports whether a value may contain Sigma wildcards (* or ?) or escape sequences
+func hasWildcardsOrEscapes(value string) bool {
+	return strings.ContainsAny(value, `*?\`)
 }
 
 type ahocorasickRe struct {

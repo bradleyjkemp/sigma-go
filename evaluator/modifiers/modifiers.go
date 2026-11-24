@@ -131,7 +131,12 @@ func (baseComparator) Matches(actual, expected any) (bool, error) {
 		return true, nil
 	default:
 		// The Sigma spec defines that by default comparisons are case-insensitive
-		return strings.EqualFold(CoerceString(actual), CoerceString(expected)), nil
+		literal, pattern := parseValue(CoerceString(expected))
+		if pattern != nil {
+			_, pattern = parseValue(strings.ToLower(CoerceString(expected)))
+			return pattern.matchesValue(actual, true, false, false), nil
+		}
+		return strings.EqualFold(CoerceString(actual), literal), nil
 	}
 }
 
@@ -139,39 +144,63 @@ type contains struct{}
 
 func (contains) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.Contains(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
+	literal, pattern := parseValue(strings.ToLower(CoerceString(expected)))
+	if pattern != nil {
+		return pattern.matchesValue(actual, true, true, true), nil
+	}
+	return strings.Contains(strings.ToLower(CoerceString(actual)), literal), nil
 }
 
 type endswith struct{}
 
 func (endswith) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.HasSuffix(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
+	literal, pattern := parseValue(strings.ToLower(CoerceString(expected)))
+	if pattern != nil {
+		return pattern.matchesValue(actual, true, true, false), nil
+	}
+	return strings.HasSuffix(strings.ToLower(CoerceString(actual)), literal), nil
 }
 
 type startswith struct{}
 
 func (startswith) Matches(actual, expected any) (bool, error) {
 	// The Sigma spec defines that by default comparisons are case-insensitive
-	return strings.HasPrefix(strings.ToLower(CoerceString(actual)), strings.ToLower(CoerceString(expected))), nil
+	literal, pattern := parseValue(strings.ToLower(CoerceString(expected)))
+	if pattern != nil {
+		return pattern.matchesValue(actual, true, false, true), nil
+	}
+	return strings.HasPrefix(strings.ToLower(CoerceString(actual)), literal), nil
 }
 
 type containsCS struct{}
 
 func (containsCS) Matches(actual, expected any) (bool, error) {
-	return strings.Contains(CoerceString(actual), CoerceString(expected)), nil
+	literal, pattern := parseValue(CoerceString(expected))
+	if pattern != nil {
+		return pattern.matchesValue(actual, false, true, true), nil
+	}
+	return strings.Contains(CoerceString(actual), literal), nil
 }
 
 type endswithCS struct{}
 
 func (endswithCS) Matches(actual, expected any) (bool, error) {
-	return strings.HasSuffix(CoerceString(actual), CoerceString(expected)), nil
+	literal, pattern := parseValue(CoerceString(expected))
+	if pattern != nil {
+		return pattern.matchesValue(actual, false, true, false), nil
+	}
+	return strings.HasSuffix(CoerceString(actual), literal), nil
 }
 
 type startswithCS struct{}
 
 func (startswithCS) Matches(actual, expected any) (bool, error) {
-	return strings.HasPrefix(CoerceString(actual), CoerceString(expected)), nil
+	literal, pattern := parseValue(CoerceString(expected))
+	if pattern != nil {
+		return pattern.matchesValue(actual, false, false, true), nil
+	}
+	return strings.HasPrefix(CoerceString(actual), literal), nil
 }
 
 type b64 struct{}
