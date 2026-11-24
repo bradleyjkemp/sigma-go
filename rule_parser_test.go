@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/google/go-cmp/cmp"
@@ -88,5 +89,74 @@ func TestMarshalRule(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+// Timeframes use a number followed by a unit: s, m, h or d.
+// See the timeframe section of the Sigma specification:
+// https://github.com/SigmaHQ/sigma-specification/blob/v1.0.5/Sigma_specification.md#timeframe
+func TestParseRule_Timeframe(t *testing.T) {
+	tests := []struct {
+		timeframe string
+		want      time.Duration
+		wantErr   bool
+	}{
+		{"30s", 30 * time.Second, false},
+		{"5m", 5 * time.Minute, false},
+		{"1h", time.Hour, false},
+		{"1h30m", 90 * time.Minute, false},
+		{"1d", 24 * time.Hour, false},
+		{"7d", 7 * 24 * time.Hour, false},
+		{"d", 0, true},
+		{"-1d", 0, true},
+		{"1.5d", 0, true},
+		{"5x", 0, true},
+		{"[5m]", 0, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.timeframe, func(t *testing.T) {
+			rule, err := ParseRule([]byte(`
+title: timeframe
+logsource:
+  product: linux
+detection:
+  selection:
+    foo: bar
+  timeframe: ` + tt.timeframe + `
+  condition: selection | count() > 5
+`))
+			switch {
+			case tt.wantErr && err == nil:
+				t.Fatalf("expected an error parsing timeframe %q, got %v", tt.timeframe, rule.Detection.Timeframe)
+			case tt.wantErr:
+				return
+			case err != nil:
+				t.Fatalf("error parsing rule: %v", err)
+			}
+
+			if rule.Detection.Timeframe != tt.want {
+				t.Errorf("Timeframe = %v, want %v", rule.Detection.Timeframe, tt.want)
+			}
+			// the rest of the detection must still be parsed
+			if _, ok := rule.Detection.Searches["selection"]; !ok || len(rule.Detection.Searches) != 1 {
+				t.Errorf("expected exactly one search called selection, got %v", rule.Detection.Searches)
+			}
+			if len(rule.Detection.Conditions) != 1 || rule.Detection.Conditions[0].Aggregation == nil {
+				t.Errorf("expected one condition with an aggregation, got %v", rule.Detection.Conditions)
+			}
+
+			// and must survive a marshal/unmarshal round trip
+			out, err := yaml.Marshal(rule)
+			if err != nil {
+				t.Fatalf("error marshalling rule: %v", err)
+			}
+			roundTripped, err := ParseRule(out)
+			if err != nil {
+				t.Fatalf("error parsing marshalled rule: %v\n%s", err, out)
+			}
+			if roundTripped.Detection.Timeframe != tt.want {
+				t.Errorf("Timeframe after round trip = %v, want %v", roundTripped.Detection.Timeframe, tt.want)
+			}
+		})
 	}
 }

@@ -2,6 +2,7 @@ package sigma
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,9 +64,11 @@ func (d *Detection) UnmarshalYAML(node *yaml.Node) error {
 				return err
 			}
 		case "timeframe":
-			if err := value.Decode(&d.Timeframe); err != nil {
+			timeframe, err := parseTimeframe(value)
+			if err != nil {
 				return err
 			}
+			d.Timeframe = timeframe
 		default:
 			search := Search{}
 			if err := search.UnmarshalYAML(value); err != nil {
@@ -80,6 +83,25 @@ func (d *Detection) UnmarshalYAML(node *yaml.Node) error {
 
 	}
 	return nil
+}
+
+// parseTimeframe parses the value of a detection's timeframe.
+// Sigma timeframes are written as a number followed by a unit: s (seconds), m (minutes), h (hours) or d (days).
+// time.ParseDuration handles everything except the "d" unit, which is handled separately.
+func parseTimeframe(node *yaml.Node) (time.Duration, error) {
+	var timeframe time.Duration
+	err := node.Decode(&timeframe)
+	if err == nil {
+		return timeframe, nil
+	}
+
+	if days, ok := strings.CutSuffix(node.Value, "d"); ok && node.Kind == yaml.ScalarNode {
+		n, convErr := strconv.ParseUint(days, 10, 32)
+		if convErr == nil {
+			return time.Duration(n) * 24 * time.Hour, nil
+		}
+	}
+	return 0, fmt.Errorf("invalid timeframe %q (line %d): expected a number followed by one of s, m, h, d", node.Value, node.Line)
 }
 
 type Conditions []Condition
