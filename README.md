@@ -32,6 +32,14 @@ for event := range events {
 }
 ```
 
+### Keywords
+
+Keyword searches (search identifiers that are a list of plain strings) are searched for in every top-level value of the event.
+If your events keep the original log line in a specific field, you can restrict keyword searches to that field:
+```go
+evaluator.ForRule(rule, evaluator.WithKeywordFields("message"))
+```
+
 ### Aggregation functions
 
 If your Sigma rules make use of the count, max, min, or any other aggregation function in your conditions then you'll need some extra setup.

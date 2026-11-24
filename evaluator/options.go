@@ -33,6 +33,15 @@ func WithPlaceholderExpander(f func(ctx context.Context, placeholderName string)
 	}
 }
 
+// WithKeywordFields sets the event fields that keywords (search identifiers that are a list of plain strings) are searched for in.
+// By default, keywords are searched for in every top-level value of the event.
+// Field mappings from any config are applied to these field names.
+func WithKeywordFields(fields ...string) Option {
+	return func(e *RuleEvaluator) {
+		e.keywordFields = append(e.keywordFields, fields...)
+	}
+}
+
 func WithConfig(config ...sigma.Config) Option {
 	return func(e *RuleEvaluator) {
 		// TODO: assert that the configs are in the correct order
