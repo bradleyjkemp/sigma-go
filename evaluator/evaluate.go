@@ -20,9 +20,10 @@ type RuleEvaluator struct {
 	lazy              bool
 	comparators       map[string]modifiers.Comparator
 
-	count   func(ctx context.Context, gb GroupedByValues) (float64, error)
-	average func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
-	sum     func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
+	count         func(ctx context.Context, gb GroupedByValues) (float64, error)
+	countDistinct func(ctx context.Context, gb GroupedByValues, value interface{}) (float64, error)
+	average       func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
+	sum           func(ctx context.Context, gb GroupedByValues, value float64) (float64, error)
 	// TODO: support the other aggregation functions
 }
 

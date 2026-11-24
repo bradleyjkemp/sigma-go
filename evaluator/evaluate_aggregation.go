@@ -54,8 +54,16 @@ func (rule RuleEvaluator) evaluateAggregationFunc(ctx context.Context, condition
 			})
 		} else {
 			// This is a more complex, count distinct values for a field
-			// TODO: implement this
-			return 0, fmt.Errorf("count_distinct not yet implemented")
+			if rule.countDistinct == nil {
+				return 0, fmt.Errorf("count(%s) requires a CountDistinctImplementation", agg.Field)
+			}
+			return rule.countDistinct(ctx, GroupedByValues{
+				ConditionID: conditionIndex,
+				EventValues: map[string]interface{}{
+					// TODO: it's out of spec but would be very useful to support multiple group-by fields.
+					agg.GroupedBy: eventValue(event, agg.GroupedBy),
+				},
+			}, eventValue(event, agg.Field))
 		}
 
 	case sigma.Average:
