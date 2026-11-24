@@ -73,8 +73,8 @@ func FuzzRuleBundleMatches(f *testing.F) {
 		wg.Add(1)
 
 		go func() {
+			defer wg.Done()
 			defer func() {
-				wg.Done()
 				if r := recover(); r != nil {
 					err = fmt.Errorf("panic in parsing")
 				}
