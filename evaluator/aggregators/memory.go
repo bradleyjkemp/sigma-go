@@ -107,6 +107,8 @@ func InMemory(timeframe time.Duration) []evaluator.Option {
 		timeframe: timeframe,
 		counts:    map[string]*slidingstatistics.Counter{},
 		distinct:  map[string]*distinctCounter{},
+		averages:  map[string]*slidingstatistics.Averager{},
+		sums:      map[string]*slidingstatistics.Counter{},
 	}
 
 	return []evaluator.Option{
