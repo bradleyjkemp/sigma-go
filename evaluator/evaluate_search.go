@@ -85,7 +85,12 @@ func (rule RuleEvaluator) evaluateSearchExpression(search sigma.SearchExpr, sear
 
 func (rule RuleEvaluator) evaluateSearch(ctx context.Context, search sigma.Search, event Event, comparators map[string]modifiers.Comparator) (bool, error) {
 	if len(search.Keywords) > 0 {
-		return false, fmt.Errorf("keywords unsupported")
+		// A list of keywords is equivalent to a single field-less matcher: any of the keywords must appear in the event
+		keywords := make([]interface{}, len(search.Keywords))
+		for i, keyword := range search.Keywords {
+			keywords[i] = keyword
+		}
+		search.EventMatchers = []sigma.EventMatcher{{{Values: keywords}}}
 	}
 
 	if len(search.EventMatchers) == 0 {
@@ -108,10 +113,23 @@ eventMatcher:
 				fieldModifiers = fieldModifiers[:len(fieldModifiers)-1]
 			}
 
+			fieldComparators := comparators
+			getValues := rule.GetFieldValuesFromEvent
+			if fieldMatcher.Field == "" {
+				// This is a keyword search (either a list of keywords or a field-less matcher such as '|all': [...])
+				// Keywords are searched for anywhere in the event rather than in a single field.
+				// The rule's own comparators are used because keywords are not indexed by RuleEvaluatorBundle.
+				fieldComparators = rule.comparators
+				getValues = rule.getKeywordValuesFromEvent
+				if len(fieldModifiers) == 0 {
+					fieldModifiers = []string{"contains"}
+				}
+			}
+
 			// field matchers can specify modifiers (FieldName|modifier1|modifier2) which change the matching behaviour
 			var comparator modifiers.ComparatorFunc
 			var err error
-			comparator, err = modifiers.GetComparator(fieldMatcher.Field, comparators, fieldModifiers...)
+			comparator, err = modifiers.GetComparator(fieldMatcher.Field, fieldComparators, fieldModifiers...)
 			if err != nil {
 				return false, err
 			}
@@ -120,7 +138,7 @@ eventMatcher:
 			if err != nil {
 				return false, err
 			}
-			values, err := rule.GetFieldValuesFromEvent(fieldMatcher.Field, event)
+			values, err := getValues(fieldMatcher.Field, event)
 			if err != nil {
 				return false, err
 			}
@@ -196,6 +214,42 @@ func (rule *RuleEvaluator) GetFieldValuesFromEvent(field string, event Event) ([
 	}
 
 	return actualValues, nil
+}
+
+// getKeywordValuesFromEvent returns the event values that keywords are searched for in.
+// By default this is every top-level value in the event, this can be restricted using WithKeywordFields.
+func (rule *RuleEvaluator) getKeywordValuesFromEvent(_ string, event Event) ([]interface{}, error) {
+	if len(rule.keywordFields) > 0 {
+		var values []interface{}
+		for _, field := range rule.keywordFields {
+			fieldValues, err := rule.GetFieldValuesFromEvent(field, event)
+			if err != nil {
+				return nil, err
+			}
+			values = append(values, fieldValues...)
+		}
+		return values, nil
+	}
+
+	var values []interface{}
+	switch evt := event.(type) {
+	case map[string]string:
+		for _, value := range evt {
+			values = append(values, value)
+		}
+	case map[string]interface{}:
+		for _, value := range evt {
+			for _, v := range toGenericSlice(value) {
+				switch v.(type) {
+				case nil, map[string]interface{}:
+					// missing values and nested objects aren't searched (use WithKeywordFields with a JSONPath field mapping instead)
+					continue
+				}
+				values = append(values, v)
+			}
+		}
+	}
+	return values, nil
 }
 
 func (rule *RuleEvaluator) matcherMatchesValues(matcherValues []string, comparator modifiers.ComparatorFunc, allValuesMustMatch bool, actualValues []interface{}) bool {
