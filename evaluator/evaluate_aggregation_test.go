@@ -87,3 +87,29 @@ detection:
 		t.Fatal("expected an error when no CountDistinctImplementation is provided")
 	}
 }
+
+func TestGroupedByValues_Key(t *testing.T) {
+	tests := []struct {
+		name string
+		gb   GroupedByValues
+		want string
+	}{
+		{
+			name: "without a rule ID the key is unchanged",
+			gb:   GroupedByValues{ConditionID: 1, EventValues: map[string]interface{}{"src_ip": "10.0.0.1"}},
+			want: `{"condition_id":1,"event_values":{"src_ip":"10.0.0.1"}}`,
+		},
+		{
+			name: "with a rule ID",
+			gb:   GroupedByValues{ConditionID: 1, EventValues: map[string]interface{}{"src_ip": "10.0.0.1"}, RuleID: "rule-a"},
+			want: `{"condition_id":1,"event_values":{"src_ip":"10.0.0.1"},"rule_id":"rule-a"}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.gb.Key(); got != tt.want {
+				t.Errorf("Key() = %s, want %s", got, tt.want)
+			}
+		})
+	}
+}
